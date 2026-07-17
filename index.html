@@ -179,7 +179,7 @@ button{-webkit-tap-highlight-color:transparent}
 <div><label>Paper Type</label><select id="paperTypeSelect"></select></div>
 <div><label>Paper GSM</label><select id="paperGsmSelect"></select></div>
 <div><label>Lamination</label><select id="laminationSelect"></select></div>
-<div><label>Lamination Side</label><select id="laminationSide"><option value="1">Single Side</option><option value="2">Both Sides</option></select></div>
+<div id="laminationSideWrap"><label>Lamination Side</label><select id="laminationSide"><option value="1">Single Side</option><option value="2">Both Sides</option></select></div>
 </div>
 <div class="row2" style="margin-top:10px">
 <div><label>Finished Size with Bleed</label><input id="bleedSize" readonly></div>
@@ -207,7 +207,7 @@ button{-webkit-tap-highlight-color:transparent}
 <div><label>Calculation Mode</label><select id="productUpMode"><option value="auto">Auto</option><option value="manual">Manual</option></select></div>
 <div id="manualProductUpWrap"><label>Manual Products / Cut Sheet</label><input id="manualProductUp" type="number" min="1" value="1"></div>
 <div id="autoProductUpWrap"><label>Auto Result</label><input id="autoProductUpDisplay" class="auto-display" readonly></div>
-<div><label id="gapLabel">Shape Gap (mm)</label><input id="shapeGap" type="number" min="0" max="12.7" step="0.01" value="0" data-custom-stepper></div>
+<div id="shapeGapWrap"><label id="gapLabel">Shape Gap (mm)</label><input id="shapeGap" type="number" min="0" max="12.7" step="0.01" value="0" data-custom-stepper></div>
 </div>
 </div>
 
@@ -219,7 +219,7 @@ button{-webkit-tap-highlight-color:transparent}
 <div id="flatLaminationWrap"><label>Custom Flat Fee</label><input id="flatLaminationFee" type="number" value="0"></div>
 <div><label>Total Lamination Cost</label><input id="laminationTotalDisplay" class="auto-display" readonly></div>
 </div>
-<div class="note">Auto = Cut Sheet W × Cut Sheet H × Total Cut Sheets × Rate × Side Count.</div>
+<div class="note" id="laminationAutoNote">Auto = Cut Sheet W × Cut Sheet H × Total Cut Sheets × Rate × Side Count.</div>
 </div>
 
 <div class="subsection">
@@ -231,19 +231,18 @@ button{-webkit-tap-highlight-color:transparent}
 </div>
 
 <div id="straightCutSection" style="margin-top:10px">
-<div class="row">
-<div><label>Knife Cuts Mode</label><select id="knifeMode"><option value="auto">Auto from Layout</option><option value="manual">Manual</option></select></div>
-<div><label>Manual Knife Cuts / Stack</label><input id="manualKnifeCuts" type="number" value="0"></div>
-<div><label>Cutting Setup Fee</label><input id="quoteCutSetup" type="number" value="0"></div>
-<div><label>Rate / Knife Action</label><input id="quoteKnifeRate" type="number" value="0"></div>
+<div class="row3">
+<div><label>Cutting Cost Mode</label><select id="knifeMode"><option value="auto">Auto from Layout</option><option value="manual">Flat Fee</option></select></div>
+<div id="knifeSetupWrap"><label id="knifeSetupLabel">Cutting Setup Fee</label><input id="quoteCutSetup" type="number" value="0"></div>
+<div id="knifeRateWrap"><label>Rate / Knife Action</label><input id="quoteKnifeRate" type="number" value="0"></div>
 </div>
 </div>
 
 <div id="dieCutSection" class="hidden" style="margin-top:10px">
 <div class="row">
 <div><label>Die Board Fee Type</label><select id="dieBoardMode"><option value="perPiece">Per Shape</option><option value="flat">Flat Board Fee</option></select></div>
-<div><label>Rate / Shape</label><input id="dieShapeRate" type="number" value="5000"></div>
-<div><label>Manual Flat Board Fee</label><input id="manualDieBoardFee" type="number" value="0"></div>
+<div id="dieShapeRateWrap"><label>Rate / Shape</label><input id="dieShapeRate" type="number" value="5000"></div>
+<div id="manualDieBoardFeeWrap"><label>Manual Flat Board Fee</label><input id="manualDieBoardFee" type="number" value="0"></div>
 <div><label>Products / Cut Sheet</label><input id="diePiecesOnBoard" readonly></div>
 </div>
 <div class="row2" style="margin-top:10px">
@@ -408,11 +407,9 @@ button{-webkit-tap-highlight-color:transparent}
 <div class="kv"><span>Required Cut Sheets</span><b id="requiredCutSheets">-</b></div>
 <div class="kv"><span>Total Cut + Waste</span><b id="totalCutSheets">-</b></div>
 <div class="kv"><span>Original Big Sheets Needed</span><b id="originalSheetsNeeded">-</b></div>
-<div class="kv"><span>Printing Round</span><b id="printingRound">-</b></div><div class="kv"><span>Round Rule</span><b id="printingPolicyInfo">-</b></div>
+<div class="kv"><span>Printing Round</span><b id="printingRound">-</b></div>
 
 <div id="straightMetrics">
-<div class="kv"><span>Stack Capacity</span><b id="stackCapacityResult">-</b></div>
-<div class="kv"><span>Stacks Required</span><b id="stacksResult">-</b></div>
 <div class="kv"><span>Knife Cuts / Stack</span><b id="knifeCutsResult">-</b></div>
 <div class="kv"><span>Total Knife Actions</span><b id="knifeActionsResult">-</b></div>
 </div>
@@ -694,23 +691,28 @@ function syncUI(){
  const manualUp=val('productUpMode')==='manual';
  $('manualProductUpWrap').classList.toggle('hidden',!manualUp);
  $('autoProductUpWrap').classList.toggle('hidden',manualUp);
+ $('shapeGapWrap').classList.toggle('hidden',manualUp);
  $('shapeGap').disabled=manualUp;
 
  const lamAuto=val('laminationMode')==='auto';
  $('flatLaminationWrap').classList.toggle('hidden',lamAuto);
  $('laminationRateWrap').classList.toggle('hidden',!lamAuto);
+ $('laminationAutoNote').classList.toggle('hidden',!lamAuto);
+ $('laminationSideWrap').classList.toggle('hidden',!lamAuto||!selectedLamination());
 
  const straight=val('cuttingType')==='straight';
  $('straightCutSection').classList.toggle('hidden',!straight);
  $('dieCutSection').classList.toggle('hidden',straight);
 
- $('manualKnifeCuts').disabled=!(straight&&val('knifeMode')==='manual');
- if($('manualKnifeCuts').disabled)$('manualKnifeCuts').value='';
+ const knifeFlat=straight&&val('knifeMode')==='manual';
+ $('knifeSetupLabel').textContent=knifeFlat?'Flat Fee':'Cutting Setup Fee';
+ $('knifeRateWrap').classList.toggle('hidden',knifeFlat);
 
  const dieFlat=!straight&&val('dieBoardMode')==='flat';
  $('manualDieBoardFee').disabled=!dieFlat;
  $('dieShapeRate').disabled=straight||dieFlat;
- if(!dieFlat)$('manualDieBoardFee').value='';
+ $('manualDieBoardFeeWrap').classList.toggle('hidden',!dieFlat);
+ $('dieShapeRateWrap').classList.toggle('hidden',straight||dieFlat);
 }
 
 function calculate(){
@@ -745,10 +747,6 @@ function calculate(){
  $('totalCutSheets').textContent=item.total.toLocaleString();
  $('originalSheetsNeeded').textContent=item.origNeeded.toLocaleString();
  $('printingRound').textContent=item.round;
- const pp=db.printingPolicy||{r1:1100,r2:2200,r3:3300,increment:1000};
- $('printingPolicyInfo').textContent=`1→${pp.r1}, 2→${pp.r2}, 3→${pp.r3}, then +${pp.increment}`;
- $('stackCapacityResult').textContent=`${cap.sheets} sheets`;
- $('stacksResult').textContent=stacks;
  $('knifeCutsResult').textContent=`${knives} (${plan.vertical}V + ${plan.horizontal}H)`;
  $('knifeActionsResult').textContent=actions;
 
@@ -772,8 +770,8 @@ function calculate(){
  $('laminationTotalDisplay').value=money(lam);
  $('autoCutDisplay').value=`${item.c.w}×${item.c.h} • Auto Best Cost`;
 
- const straight=val('cuttingType')==='straight';
- $('straightMetrics').classList.toggle('hidden',!straight);
+ const straight=val('cuttingType')==='straight',knifeFlat=straight&&val('knifeMode')==='manual';
+ $('straightMetrics').classList.toggle('hidden',!straight||knifeFlat);
  $('straightCostRow').classList.toggle('hidden',!straight);
  $('dieBoardRow').classList.toggle('hidden',straight);
  $('dieRunRow').classList.toggle('hidden',straight);
@@ -843,7 +841,7 @@ document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>
  $(btn.dataset.tab).classList.remove('hidden');
 }));
 
-const watched=['productName','qty','frontColors','backColors','finishedW','finishedH','bleed','paperSelect','machineSelect','cutMode','cutSelect','productUpMode','manualProductUp','shapeGap','laminationSelect','laminationSide','laminationMode','flatLaminationFee','cuttingType','knifeMode','manualKnifeCuts','quoteCutSetup','quoteKnifeRate','dieBoardMode','dieShapeRate','manualDieBoardFee','dieCutRunRate','otherFinishing','otherCost','waste','profitMargin'];
+const watched=['productName','qty','frontColors','backColors','finishedW','finishedH','bleed','paperSelect','machineSelect','cutMode','cutSelect','productUpMode','manualProductUp','shapeGap','laminationSelect','laminationSide','laminationMode','flatLaminationFee','cuttingType','knifeMode','quoteCutSetup','quoteKnifeRate','dieBoardMode','dieShapeRate','manualDieBoardFee','dieCutRunRate','otherFinishing','otherCost','waste','profitMargin'];
 watched.forEach(id=>$(id).addEventListener('input',()=>{if(['paperSelect','machineSelect','cutMode'].includes(id))renderCuts();calculate()}));
 
 $('paperTypeSelect').addEventListener('change',()=>{renderProductFilters();renderPaperSizes();renderCuts();calculate()});
