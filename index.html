@@ -1,0 +1,821 @@
+<!doctype html>
+<html lang="my">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Offset Printing Production App v30 Responsive</title>
+<style>
+:root{
+ --bg:#f5f7fb;--card:#fff;--ink:#172033;--muted:#697386;--line:#e5e7eb;
+ --brand:#4f46e5;--brand-soft:#eef2ff;--good:#047857;--danger:#b91c1c;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);font-family:Inter,Arial,"Noto Sans Myanmar",sans-serif;color:var(--ink)}
+header{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.wrap{max-width:1380px;margin:auto;padding:16px}
+h1{font-size:22px;margin:0}.sub{font-size:13px;color:var(--muted);margin-top:4px}
+.flow{display:inline-flex;gap:8px;flex-wrap:wrap;margin-top:9px;padding:7px 10px;border-radius:999px;background:var(--brand-soft);color:#3730a3;font-size:12px;font-weight:800}
+.app{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(390px,.88fr);gap:16px;align-items:start}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:15px;margin-bottom:14px;box-shadow:0 7px 24px rgba(15,23,42,.04)}
+.card h2{font-size:17px;margin:0 0 13px;display:flex;align-items:center;gap:9px}
+.step{width:27px;height:27px;border-radius:9px;background:var(--brand);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:12px}
+.row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.row3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.row2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}
+input,select{width:100%;border:1px solid var(--line);border-radius:12px;padding:10px;background:#fff;color:var(--ink);font:inherit}
+input:disabled,select:disabled{background:#f1f3f7;color:#a0a7b5;cursor:not-allowed}
+button{border:0;border-radius:12px;padding:10px 13px;background:var(--brand);color:#fff;font-weight:800;cursor:pointer}
+button.secondary{background:#f3f4f6;color:#111827;border:1px solid var(--line)}
+button.danger{background:#fee2e2;color:var(--danger);border:1px solid #fecaca}
+button.small{padding:7px 9px;font-size:12px}
+.note{font-size:12px;color:var(--muted);line-height:1.55}
+.subsection{margin-top:12px;padding:13px;border:1px solid var(--line);border-radius:14px;background:#fafbff}
+.subsection h3{font-size:14px;margin:0 0 10px}
+.hidden{display:none!important}
+.result{position:sticky;top:84px}
+.big{font-size:31px;font-weight:900;letter-spacing:-.04em}
+.pill{display:inline-flex;background:var(--brand-soft);color:#3730a3;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:800}
+.metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:12px 0}
+.metric{padding:12px;border:1px solid var(--line);border-radius:14px;background:#fafafa}
+.metric strong{display:block;font-size:22px}.metric span{font-size:12px;color:var(--muted)}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px dashed var(--line);font-size:14px}.kv b{text-align:right}
+.group-title{margin-top:14px;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.05em;color:#4b5563}
+canvas{width:100%;height:240px;border:1px solid var(--line);border-radius:14px;background:#fff}
+.preview-title{font-size:13px;font-weight:800;margin:14px 0 6px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.db-group-label{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:#6b7280;margin:10px 0 6px}
+.tab{background:#f3f4f6;color:#111827;border:1px solid var(--line)}
+.tab.active{background:var(--brand);color:#fff}
+.db-panel{max-width:760px}
+.db-panel.paper{max-width:660px}
+.table-wrap{overflow-x:auto}
+table{width:auto;max-width:100%;border-collapse:separate;border-spacing:0 7px;font-size:13px}
+th{text-align:left;color:var(--muted);font-size:12px;padding:0 8px}
+td{padding:9px 8px;background:#fafafa;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+td:first-child{border-left:1px solid var(--line);border-radius:11px 0 0 11px}
+td:last-child{border-right:1px solid var(--line);border-radius:0 11px 11px 0}
+td input,td select{padding:8px;border-radius:10px;min-width:88px}
+td input[readonly]{border-color:transparent;background:transparent;font-weight:700;padding-left:0}
+.actions{display:flex;gap:8px;justify-content:flex-end;white-space:nowrap}.actions button{min-width:68px}
+.admin-note{padding:9px 11px;background:#f8fafc;border:1px solid var(--line);border-radius:11px;font-size:12px;color:var(--muted);margin-bottom:10px}
+.compact-add{display:grid;grid-template-columns:minmax(150px,1.2fr) minmax(110px,.8fr) minmax(110px,.8fr) auto;gap:8px;align-items:end;margin-bottom:10px}
+.compact-add button{height:42px}
+.auto-display{background:#ecfdf5;border-color:#bbf7d0;color:#065f46;font-weight:800}
+@media(max-width:1000px){.app{grid-template-columns:1fr}.result{position:static}.row,.row3,.row2{grid-template-columns:1fr 1fr}}
+@media(max-width:700px){.compact-add{grid-template-columns:1fr}.compact-add button{width:100%}}
+@media(max-width:620px){.row,.row3,.row2,.metrics{grid-template-columns:1fr}.wrap{padding:12px}.big{font-size:24px}}
+
+
+/* v30 responsive production layer */
+html{scroll-behavior:smooth}
+body{overflow-x:hidden}
+.card,.subsection,.metric,.db-panel{min-width:0}
+input,select,button{min-height:44px}
+button{-webkit-tap-highlight-color:transparent}
+.table-wrap{width:100%;overscroll-behavior-inline:contain;-webkit-overflow-scrolling:touch}
+.mobile-nav{display:none}
+
+@media (max-width:1100px){
+ .wrap{max-width:100%;padding:14px}
+ .app{grid-template-columns:minmax(0,1fr)}
+ .result{position:static}
+ .row{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .row3{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .db-panel,.db-panel.paper{max-width:100%}
+}
+
+@media (max-width:767px){
+ body{padding-bottom:76px}
+ header{position:static}
+ .wrap{padding:10px}
+ h1{font-size:20px;line-height:1.25}
+ .sub{font-size:12px;line-height:1.5}
+ .flow{display:flex;width:100%;justify-content:center;border-radius:14px;padding:8px;font-size:11px}
+ .app{display:block}
+ .card{border-radius:16px;padding:13px;margin-bottom:10px;box-shadow:0 4px 16px rgba(15,23,42,.05)}
+ .card h2{font-size:16px;margin-bottom:12px}
+ .subsection{padding:11px;border-radius:13px}
+ .row,.row3,.row2{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .row>div,.row2>div,.row3>div{min-width:0}
+ label{font-size:11px;line-height:1.35;margin-bottom:4px}
+ input,select{font-size:16px;padding:11px 10px;border-radius:11px}
+ button{font-size:14px;padding:11px 12px;border-radius:11px}
+ .big{font-size:28px;line-height:1.15;word-break:break-word}
+ .pill{margin:4px 0 8px}
+ .metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .metric{padding:10px}
+ .metric strong{font-size:20px}
+ .kv{font-size:13px;align-items:flex-start}
+ .kv span{max-width:52%}
+ .kv b{max-width:48%;word-break:break-word}
+ canvas{height:220px}
+ .tabs{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+ .tabs::-webkit-scrollbar{display:none}
+ .tab{flex:0 0 auto;white-space:nowrap}
+ .db-group-label{margin-top:12px}
+ table{min-width:680px}
+ th{position:sticky;top:0;background:#fff;z-index:2;padding-top:8px;padding-bottom:8px}
+ .compact-add{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .compact-add button{width:100%;grid-column:1/-1}
+ .actions{justify-content:flex-start}
+ .mobile-nav{display:grid;grid-template-columns:repeat(4,1fr);position:fixed;left:0;right:0;bottom:0;z-index:50;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-top:1px solid var(--line);padding:8px max(8px,env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left));box-shadow:0 -6px 20px rgba(15,23,42,.08)}
+ .mobile-nav a{text-decoration:none;color:#4b5563;font-size:11px;font-weight:800;text-align:center;padding:9px 4px;border-radius:10px}
+ .mobile-nav a:active{background:var(--brand-soft);color:#3730a3}
+}
+
+@media (max-width:520px){
+ .row,.row3,.row2{grid-template-columns:1fr 1fr}
+ .row>div:first-child:nth-last-child(1),.row2>div:first-child:nth-last-child(1),.row3>div:first-child:nth-last-child(1){grid-column:1/-1}
+ .compact-add{grid-template-columns:1fr}
+ .compact-add button{grid-column:auto}
+ canvas{height:200px}
+}
+
+@media (max-width:380px){
+ .row,.row3,.row2,.metrics{grid-template-columns:1fr}
+ .kv{display:grid;grid-template-columns:1fr;gap:3px}
+ .kv span,.kv b{max-width:none;text-align:left}
+}
+
+</style>
+</head>
+<body>
+<header>
+<div class="wrap">
+<h1>Offset Printing Production App v30</h1>
+<div class="sub">Responsive Production UI • Desktop + Tablet + Mobile • Stable Offline Estimator</div>
+<div class="flow">1 Product <span>→</span> 2 Production <span>→</span> 3 Live Result</div>
+</div>
+</header>
+
+<main class="wrap app">
+<section>
+
+<div class="card" id="productSection">
+<h2><span class="step">1</span> Product</h2>
+<div class="row">
+<div><label>Product Name</label><input id="productName" value="A5 Flyer"></div>
+<div><label>Order Qty</label><input id="qty" type="number" value="5000"></div>
+<div><label>Front Colors</label><input id="frontColors" type="number" min="0" max="4" value="4"></div>
+<div><label>Back Colors</label><input id="backColors" type="number" min="0" max="4" value="0"></div>
+</div>
+<div class="row" style="margin-top:10px">
+<div><label>Measurement Unit</label><select id="unit"><option value="mm">mm</option><option value="in">inch</option></select></div>
+<div><label>Finished W</label><input id="finishedW" type="number" step="0.01" value="148"></div>
+<div><label>Finished H</label><input id="finishedH" type="number" step="0.01" value="210"></div>
+<div><label id="bleedLabel">Bleed / Side (mm)</label><input id="bleed" type="number" step="0.01" value="2.54"></div>
+</div>
+<div class="row" style="margin-top:10px">
+<div><label>Paper Type</label><select id="paperTypeSelect"></select></div>
+<div><label>Paper GSM</label><select id="paperGsmSelect"></select></div>
+<div><label>Lamination</label><select id="laminationSelect"></select></div>
+<div><label>Lamination Side</label><select id="laminationSide"><option value="1">Single Side</option><option value="2">Both Sides</option></select></div>
+</div>
+<div class="row2" style="margin-top:10px">
+<div><label>Finished Size with Bleed</label><input id="bleedSize" readonly></div>
+<div></div>
+</div>
+</div>
+
+<div class="card" id="productionSection">
+<h2><span class="step">2</span> Production</h2>
+<div class="row">
+<div><label>Original Big Sheet</label><select id="paperSelect"></select></div>
+<div><label>Printing Machine</label><select id="machineSelect"></select></div>
+<div><label>Cutting Mode</label><select id="cutMode"><option value="manual">Manual Cut</option><option value="auto">Auto Best Cost</option></select></div>
+<div><label>Waste Cut Sheets</label><input id="waste" type="number" value="50"></div>
+</div>
+<div class="row2" style="margin-top:10px">
+<div id="manualCutWrap"><label>Manual Cut Sheet</label><select id="cutSelect"></select></div>
+<div id="autoCutWrap" class="hidden"><label>Auto Selected Cut Sheet</label><input id="autoCutDisplay" class="auto-display" readonly></div>
+</div>
+<div class="note" style="margin-top:7px">Auto Best Cost compares Paper + Printing + Plate + active Cutting + Lamination + Other costs.</div>
+
+<div class="subsection">
+<h3>Finished Products / Cut Sheet</h3>
+<div class="row3">
+<div><label>Calculation Mode</label><select id="productUpMode"><option value="auto">Auto</option><option value="manual">Manual</option></select></div>
+<div id="manualProductUpWrap"><label>Manual Products / Cut Sheet</label><input id="manualProductUp" type="number" min="1" value="1"></div>
+<div id="autoProductUpWrap"><label>Auto Result</label><input id="autoProductUpDisplay" class="auto-display" readonly></div>
+<div><label id="gapLabel">Shape Gap (mm)</label><input id="shapeGap" type="number" step="0.01" value="0"></div>
+</div>
+</div>
+
+<div class="subsection">
+<h3>Lamination Cost</h3>
+<div class="row3">
+<div><label>Cost Mode</label><select id="laminationMode"><option value="auto">Auto • Cut Sheet Area × Sheet Qty</option><option value="flat">Flat Fee • Manual</option></select></div>
+<div id="laminationRateWrap"><label>Auto Lamination Fee</label><input id="laminationRateDisplay" readonly></div>
+<div id="flatLaminationWrap"><label>Custom Flat Fee</label><input id="flatLaminationFee" type="number" value="0"></div>
+<div><label>Total Lamination Cost</label><input id="laminationTotalDisplay" class="auto-display" readonly></div>
+</div>
+<div class="note">Auto = Cut Sheet W × Cut Sheet H × Total Cut Sheets × Rate × Side Count.</div>
+</div>
+
+<div class="subsection">
+<h3>Cutting</h3>
+<div class="row3">
+<div><label>Cutting Method</label><select id="cuttingType"><option value="straight">Straight Cutting</option><option value="die">Die Cutting</option></select></div>
+<div><label>Active Cutting Cost</label><input id="activeCuttingCostPreview" readonly></div>
+<div class="note">Only the active cutting method is shown.</div>
+</div>
+
+<div id="straightCutSection" style="margin-top:10px">
+<div class="row">
+<div><label>Knife Cuts Mode</label><select id="knifeMode"><option value="auto">Auto from Layout</option><option value="manual">Manual</option></select></div>
+<div><label>Manual Knife Cuts / Stack</label><input id="manualKnifeCuts" type="number" value="0"></div>
+<div><label>Cutting Setup Fee</label><input id="quoteCutSetup" type="number" value="0"></div>
+<div><label>Rate / Knife Action</label><input id="quoteKnifeRate" type="number" value="0"></div>
+</div>
+</div>
+
+<div id="dieCutSection" class="hidden" style="margin-top:10px">
+<div class="row">
+<div><label>Die Board Fee Type</label><select id="dieBoardMode"><option value="perPiece">Per Shape</option><option value="flat">Flat Board Fee</option></select></div>
+<div><label>Rate / Shape</label><input id="dieShapeRate" type="number" value="5000"></div>
+<div><label>Manual Flat Board Fee</label><input id="manualDieBoardFee" type="number" value="0"></div>
+<div><label>Products / Cut Sheet</label><input id="diePiecesOnBoard" readonly></div>
+</div>
+<div class="row2" style="margin-top:10px">
+<div><label>Die Cutting Rate / 1000 Sheets</label><input id="dieCutRunRate" type="number" value="0"></div>
+<div><label>Die Cutting Cost Preview</label><input id="dieCutPreview" readonly></div>
+</div>
+</div>
+</div>
+
+<div class="row2" style="margin-top:10px">
+<div><label>Other Finishing Cost</label><input id="otherFinishing" type="number" value="0"></div>
+<div><label>Other Cost</label><input id="otherCost" type="number" value="0"></div>
+</div>
+</div>
+
+<div class="card" id="databaseSection">
+<h2>Database & Admin Settings</h2>
+<div class="db-group-label">Materials</div>
+<div class="tabs">
+<button class="tab active" data-tab="paperTab">Paper DB</button>
+<button class="tab" data-tab="laminationTab">Lamination DB</button>
+</div>
+<div class="db-group-label">Production</div>
+<div class="tabs">
+<button class="tab" data-tab="machineTab">Machine DB</button>
+<button class="tab" data-tab="rateTab">Printing Rate DB</button>
+<button class="tab" data-tab="policyTab">Printing Policy</button>
+<button class="tab" data-tab="cutTab">Cutting DB</button>
+<button class="tab" data-tab="capacityTab">Cutting Capacity DB</button>
+</div>
+
+<div id="paperTab" class="db-panel paper">
+<h3>Paper Database</h3>
+<div class="admin-note">Existing rows: Pack Price only editable.</div>
+<div class="compact-add">
+<div><label>Paper Type</label><input id="pType" value="Art Paper"></div>
+<div><label>GSM</label><input id="pGsm" type="number" value="150"></div>
+<div><label>Original Size</label><div class="row2"><input id="pW" type="number" value="31"><input id="pH" type="number" value="43"></div></div>
+<button onclick="addPaper()">+ Add</button>
+</div>
+<div class="row2" style="margin-bottom:10px">
+<div><label>Sheets / Pack</label><input id="pSheets" type="number" value="125"></div>
+<div><label>Pack Price</label><input id="pPrice" type="number" value="135000"></div>
+</div>
+<div class="table-wrap"><table id="paperTable"></table></div>
+</div>
+
+<div id="machineTab" class="db-panel hidden">
+<h3>Machine Database</h3>
+<div class="admin-note">Only Plate Price / Color is editable in existing rows.</div>
+<div class="compact-add">
+<div><label>Machine Name</label><input id="mName"></div>
+<div><label>Max W</label><input id="mW" type="number"></div>
+<div><label>Max H</label><input id="mH" type="number"></div>
+<button onclick="addMachine()">+ Add</button>
+</div>
+<div class="row" style="margin-bottom:10px">
+<div><label>Gripper</label><input id="mGripper" type="number" value="0.4"></div>
+<div><label>Top</label><input id="mTop" type="number" value="0.05"></div>
+<div><label>Left</label><input id="mLeft" type="number" value="0.05"></div>
+<div><label>Right</label><input id="mRight" type="number" value="0.05"></div>
+</div>
+<div class="row2" style="margin-bottom:10px">
+<div><label>Plate Price / Color</label><input id="mPlate" type="number" value="18000"></div>
+<div></div>
+</div>
+<div class="table-wrap"><table id="machineTable"></table></div>
+</div>
+
+<div id="cutTab" class="db-panel hidden">
+<h3>Cutting Database</h3>
+<div class="admin-note">Add / Delete only.</div>
+<div class="compact-add">
+<div><label>Original W</label><input id="cOW" type="number" value="31"></div>
+<div><label>Original H</label><input id="cOH" type="number" value="43"></div>
+<div><label>Cut W</label><input id="cW" type="number" value="14"></div>
+<div><label>Cut H</label><input id="cH" type="number" value="17"></div>
+<button onclick="addCut()">+ Add</button>
+</div>
+<div class="row2" style="margin-bottom:10px">
+<div><label>Auto Pieces</label><input id="cPieces" readonly></div>
+<div><label>Layout</label><input id="cNote" readonly></div>
+</div>
+<div class="table-wrap"><table id="cutTable"></table></div>
+</div>
+
+<div id="rateTab" class="db-panel hidden">
+<h3>Printing Rate Database</h3>
+<div class="admin-note">Machine + Cut Size + Rate. Fallback = 14,000 Ks / 1000 sheets / color.</div>
+<div class="compact-add">
+<div><label>Machine</label><select id="rMachine"></select></div>
+<div><label>Cut Size</label><select id="rCut"></select></div>
+<div><label>Rate</label><input id="rPrice" type="number" value="14000"></div>
+<button onclick="addOrUpdateRate()">Save</button>
+</div>
+<div class="table-wrap"><table id="rateTable"></table></div>
+</div>
+
+
+<div id="policyTab" class="db-panel hidden">
+<h3>Printing Policy</h3>
+<div class="admin-note">Company-wide printing round rules. Machine အားလုံးအတွက် တူညီစွာအသုံးပြုပါမယ်။</div>
+<div class="row2">
+<div><label>Round 1 Max Sheets</label><input id="policyR1" type="number" value="1100"></div>
+<div><label>Round 2 Max Sheets</label><input id="policyR2" type="number" value="2200"></div>
+</div>
+<div class="row2" style="margin-top:10px">
+<div><label>Round 3 Max Sheets</label><input id="policyR3" type="number" value="3300"></div>
+<div><label>After Round 3 Increment</label><input id="policyIncrement" type="number" value="1000"></div>
+</div>
+<div style="margin-top:10px"><button onclick="savePrintingPolicy()">Save Policy</button></div>
+<div class="admin-note" style="margin-top:10px">Example: 1→1100, 2→2200, 3→3300, 4→4300, 5→5300, 6→6300...</div>
+</div>
+
+<div id="capacityTab" class="db-panel hidden">
+<h3>Cutting Capacity Database</h3>
+<div class="compact-add">
+<div><label>Max GSM</label><input id="capGsm" type="number" value="150"></div>
+<div><label>Sheets / Stack</label><input id="capSheets" type="number" value="500"></div>
+<button onclick="addCapacity()">+ Add</button>
+</div>
+<div class="table-wrap"><table id="capacityTable"></table></div>
+</div>
+
+<div id="laminationTab" class="db-panel hidden">
+<h3>Lamination Database</h3>
+<div class="admin-note">Name + Rate / sq.in only.</div>
+<div class="compact-add">
+<div><label>Name</label><input id="lamName" value="Matt"></div>
+<div><label>Rate / sq.in</label><input id="lamRate" type="number" value="0"></div>
+<button onclick="addLamination()">+ Add</button>
+</div>
+<div class="table-wrap"><table id="laminationTable"></table></div>
+</div>
+
+</div>
+</section>
+
+<aside class="result">
+<div class="card" id="resultSection">
+<h2><span class="step">3</span> Live Result</h2>
+<div class="row2">
+<div><label>Profit Margin %</label><input id="profitMargin" type="number" value="30"></div>
+<div><label>Final Price / Piece</label><input id="pricePerPiece" readonly></div>
+</div>
+<div class="pill" id="statusBadge">Ready</div>
+<div class="big" id="finalTotal">0 Ks</div>
+
+<div class="metrics">
+<div class="metric"><strong id="cutPerOriginal">0</strong><span>Cut Sheets / Original</span></div>
+<div class="metric"><strong id="productsPerCut">0</strong><span>Products / Cut Sheet</span></div>
+<div class="metric"><strong id="productsPerOriginal">0</strong><span>Products / Original</span></div>
+<div class="metric"><strong id="layoutEfficiency">0%</strong><span>Layout Efficiency</span></div>
+</div>
+
+<div class="group-title">Production</div>
+<div class="kv"><span>Finished + Bleed</span><b id="finishedBleedResult">-</b></div>
+<div class="kv"><span>Original Sheet</span><b id="originalInfo">-</b></div>
+<div class="kv"><span>Machine</span><b id="machineInfo">-</b></div>
+<div class="kv"><span>Cut Sheet</span><b id="cutInfo">-</b></div>
+<div class="kv"><span>Printable Area</span><b id="printableInfo">-</b></div>
+<div class="kv"><span>Required Cut Sheets</span><b id="requiredCutSheets">-</b></div>
+<div class="kv"><span>Total Cut + Waste</span><b id="totalCutSheets">-</b></div>
+<div class="kv"><span>Original Big Sheets Needed</span><b id="originalSheetsNeeded">-</b></div>
+<div class="kv"><span>Printing Round</span><b id="printingRound">-</b></div><div class="kv"><span>Round Rule</span><b id="printingPolicyInfo">-</b></div>
+
+<div id="straightMetrics">
+<div class="kv"><span>Stack Capacity</span><b id="stackCapacityResult">-</b></div>
+<div class="kv"><span>Stacks Required</span><b id="stacksResult">-</b></div>
+<div class="kv"><span>Knife Cuts / Stack</span><b id="knifeCutsResult">-</b></div>
+<div class="kv"><span>Total Knife Actions</span><b id="knifeActionsResult">-</b></div>
+</div>
+
+<div class="group-title">Costs</div>
+<div class="kv"><span>Paper Cost</span><b id="paperCost">-</b></div>
+<div class="kv"><span>Printing Cost</span><b id="printingCost">-</b></div>
+<div class="kv"><span>Plate Cost</span><b id="plateCost">-</b></div>
+<div class="kv" id="straightCostRow"><span>Straight Cutting Cost</span><b id="cuttingCost">-</b></div>
+<div class="kv hidden" id="dieBoardRow"><span>Die Board Fee</span><b id="dieBoardCost">-</b></div>
+<div class="kv hidden" id="dieRunRow"><span>Die Cutting Cost</span><b id="dieCuttingCost">-</b></div>
+<div class="kv hidden" id="laminationRow"><span>Lamination Cost</span><b id="laminationCost">-</b></div>
+<div class="kv"><span>Other Finishing + Other</span><b id="otherCosts">-</b></div>
+<div class="kv"><span>Subtotal</span><b id="subtotal">-</b></div>
+<div class="kv"><span>Profit</span><b id="profitValue">-</b></div>
+
+<div class="preview-title">1. Original Sheet → Cut Sheets</div>
+<canvas id="originalPreview"></canvas>
+<div class="preview-title">2. Cut Sheet → Finished Products</div>
+<canvas id="productPreview"></canvas>
+<div class="note" id="previewNote"></div>
+</div>
+</aside>
+</main>
+
+<script>
+const KEY='offset_printing_prod_v28';
+let db=JSON.parse(localStorage.getItem(KEY)||'null');
+let lastUnit='mm';
+
+const $=id=>document.getElementById(id);
+const num=id=>Number($(id)?.value)||0;
+const val=id=>$(id)?.value??'';
+const money=n=>Math.round(Number(n)||0).toLocaleString()+' Ks';
+const norm=(a,b)=>[Number(a),Number(b)].sort((x,y)=>x-y).map(x=>x.toFixed(4)).join('x');
+const sameSize=(a,b,c,d)=>norm(a,b)===norm(c,d);
+
+function seed(){
+ if(db)return;
+ db={
+  papers:[
+   {type:'Art Paper',gsm:150,w:31,h:43,sheets:125,price:135000},
+   {type:'Art Paper',gsm:150,w:25,h:36,sheets:250,price:180000},
+   {type:'Art Card',gsm:250,w:31,h:43,sheets:100,price:185000}
+  ],
+  machines:[
+   {name:'Komori 26',w:26,h:18,gripper:.4,top:.05,left:.05,right:.05,platePrice:18000},
+   {name:'Komori L440',w:40,h:28,gripper:.4,top:.05,left:.05,right:.05,platePrice:18000}
+  ],
+  cuts:[
+   {ow:31,oh:43,w:14,h:17,pieces:5,note:'mixed rotate'},
+   {ow:31,oh:43,w:15.5,h:21.5,pieces:4,note:'straight'},
+   {ow:31,oh:43,w:31,h:21.5,pieces:2,note:'straight'},
+   {ow:25,oh:36,w:12.5,h:18,pieces:4,note:'straight'},
+   {ow:25,oh:36,w:25,h:18,pieces:2,note:'straight'}
+  ],
+  rates:[],
+  capacities:[{maxGsm:150,sheets:500},{maxGsm:350,sheets:250}],
+  laminations:[],printingPolicy:{r1:1100,r2:2200,r3:3300,increment:1000}
+ };
+ localStorage.setItem(KEY,JSON.stringify(db));
+}
+seed();db.printingPolicy=db.printingPolicy||{r1:1100,r2:2200,r3:3300,increment:1000};localStorage.setItem(KEY,JSON.stringify(db));
+
+function saveDB(){localStorage.setItem(KEY,JSON.stringify(db));renderAll();calculate()}
+
+function packGrid(SW,SH,IW,IH,rot=false,gap=0){
+ const w=rot?IH:IW,h=rot?IW:IH;
+ const cols=Math.floor((SW+gap)/(w+gap)),rows=Math.floor((SH+gap)/(h+gap));
+ const layout=[];
+ for(let r=0;r<rows;r++)for(let c=0;c<cols;c++)layout.push({x:c*(w+gap),y:r*(h+gap),w,h,rot});
+ return{count:cols*rows,cols,rows,layout,note:(rot?'rotated':'normal')+' grid'};
+}
+function packArea(a,IW,IH,gap=0){
+ const best=[packGrid(a.w,a.h,IW,IH,false,gap),packGrid(a.w,a.h,IW,IH,true,gap)].sort((x,y)=>y.count-x.count)[0];
+ return{...best,area:{...a},layout:best.layout.map(r=>({...r,x:r.x+a.x,y:r.y+a.y}))};
+}
+function packGuillotine(SW,SH,IW,IH,gap=0){
+ let best={count:0,layout:[],note:'none',cols:0,rows:0};
+ const xs=new Set(),ys=new Set();
+ for(let k=1;k<20;k++){xs.add(k*(IW+gap));xs.add(k*(IH+gap));ys.add(k*(IW+gap));ys.add(k*(IH+gap))}
+ for(const x of xs){
+  if(x<=0||x>=SW)continue;
+  const a=packArea({x:0,y:0,w:x,h:SH},IW,IH,gap),b=packArea({x,y:0,w:SW-x,h:SH},IW,IH,gap);
+  if(a.count+b.count>best.count)best={count:a.count+b.count,layout:[...a.layout,...b.layout],note:'vertical mixed',split:'vertical',blocks:[a,b],cols:0,rows:0};
+ }
+ for(const y of ys){
+  if(y<=0||y>=SH)continue;
+  const a=packArea({x:0,y:0,w:SW,h:y},IW,IH,gap),b=packArea({x:0,y,w:SW,h:SH-y},IW,IH,gap);
+  if(a.count+b.count>best.count)best={count:a.count+b.count,layout:[...a.layout,...b.layout],note:'horizontal mixed',split:'horizontal',blocks:[a,b],cols:0,rows:0};
+ }
+ return best;
+}
+function bestPack(SW,SH,IW,IH,gap=0){
+ return[packGrid(SW,SH,IW,IH,false,gap),packGrid(SW,SH,IW,IH,true,gap),packGuillotine(SW,SH,IW,IH,gap)].sort((a,b)=>b.count-a.count)[0];
+}
+
+function machineFits(m,c){
+ if(!m||!c)return false;
+ const cw=Math.max(c.w,c.h),ch=Math.min(c.w,c.h);
+ return cw<=m.w&&ch<=m.h;
+}
+function printableArea(m,c){
+ const cw=Math.max(c.w,c.h),ch=Math.min(c.w,c.h);
+ return{w:Math.max(0,cw-m.left-m.right),h:Math.max(0,ch-m.gripper-m.top)};
+}
+function productInches(){
+ const factor=val('unit')==='mm'?1/25.4:1;
+ const w=num('finishedW')*factor,h=num('finishedH')*factor,b=num('bleed')*factor;
+ return{w:w+b*2,h:h+b*2};
+}
+function displayMeasure(inches){
+ const unit=val('unit'),v=unit==='mm'?inches*25.4:inches;
+ return unit==='mm'?v.toFixed(2):v.toFixed(3);
+}
+function convertInputs(from,to){
+ if(from===to)return;
+ const factor=from==='mm'?1/25.4:25.4;
+ ['finishedW','finishedH','bleed','shapeGap'].forEach(id=>{$(id).value=(num(id)*factor).toFixed(to==='mm'?2:3)});
+ lastUnit=to;
+}
+
+function selectedPaper(){return db.papers[Number(val('paperSelect'))]||null}
+function selectedMachine(){return db.machines[Number(val('machineSelect'))]||null}
+function selectedLamination(){const i=Number(val('laminationSelect'));return i>=0?db.laminations[i]||null:null}
+function capacityFor(gsm){return [...db.capacities].sort((a,b)=>a.maxGsm-b.maxGsm).find(x=>gsm<=x.maxGsm)||db.capacities.at(-1)||{sheets:0,maxGsm:0}}
+function rateFor(m,c){return db.rates.find(r=>r.machine===m.name&&sameSize(r.w,r.h,c.w,c.h))?.price||14000}
+
+function renderProductFilters(){
+ const types=[...new Set(db.papers.map(p=>p.type))],oldType=val('paperTypeSelect');
+ $('paperTypeSelect').innerHTML=types.map(t=>`<option value="${t}">${t}</option>`).join('');
+ if(types.includes(oldType))$('paperTypeSelect').value=oldType;
+ const type=val('paperTypeSelect'),gsms=[...new Set(db.papers.filter(p=>p.type===type).map(p=>p.gsm))].sort((a,b)=>a-b),oldGsm=Number(val('paperGsmSelect'));
+ $('paperGsmSelect').innerHTML=gsms.map(g=>`<option value="${g}">${g} gsm</option>`).join('');
+ if(gsms.includes(oldGsm))$('paperGsmSelect').value=String(oldGsm);
+}
+function renderPaperSizes(){
+ const type=val('paperTypeSelect'),gsm=Number(val('paperGsmSelect')),old=val('paperSelect');
+ const rows=db.papers.map((p,i)=>({p,i})).filter(x=>x.p.type===type&&x.p.gsm===gsm);
+ $('paperSelect').innerHTML=rows.map(x=>`<option value="${x.i}">${x.p.w}×${x.p.h} • ${x.p.sheets} sheets/pack • ${money(x.p.price)}</option>`).join('');
+ if(rows.some(x=>String(x.i)===old))$('paperSelect').value=old;
+}
+function renderCuts(){
+ const p=selectedPaper(),m=selectedMachine(),old=val('cutSelect');
+ if(!p||!m){$('cutSelect').innerHTML='';return}
+ const rows=db.cuts.filter(c=>sameSize(c.ow,c.oh,p.w,p.h)&&machineFits(m,c));
+ $('cutSelect').innerHTML=rows.map(c=>`<option value="${db.cuts.indexOf(c)}">${c.w}×${c.h} • ${c.pieces} from original</option>`).join('');
+ if([...$('cutSelect').options].some(o=>o.value===old))$('cutSelect').value=old;
+}
+
+function laminationCost(item){
+ if(val('laminationMode')==='flat')return num('flatLaminationFee');
+ const l=selectedLamination();
+ return l?item.c.w*item.c.h*item.total*l.rate*Number(val('laminationSide')||1):0;
+}
+function layoutSummary(pack){
+ if(pack?.cols&&pack?.rows)return `${pack.cols} × ${pack.rows}`;
+ if(pack?.blocks?.length)return pack.blocks.map(b=>`${b.cols} × ${b.rows}`).join(' + ');
+ return `${pack?.count||0} products`;
+}
+function knifePlan(item){
+ if(val('knifeMode')==='manual')return{vertical:0,horizontal:0,total:num('manualKnifeCuts'),summary:'Manual'};
+ const p=item.pack||{};
+ if(p.cols&&p.rows){
+  const vertical=p.cols+1,horizontal=p.rows+1;
+  return{vertical,horizontal,total:vertical+horizontal,summary:`${p.cols} × ${p.rows}`};
+ }
+ if(p.blocks?.length){
+  const blocks=p.blocks.filter(b=>b.count>0);
+  if(p.split==='vertical'){
+   const vertical=blocks.reduce((n,b)=>n+b.cols,0)+1;
+   const horizontal=blocks.reduce((n,b)=>n+b.rows+1,0);
+   return{vertical,horizontal,total:vertical+horizontal,summary:blocks.map(b=>`${b.cols} × ${b.rows}`).join(' + ')};
+  }
+  const horizontal=blocks.reduce((n,b)=>n+b.rows,0)+1;
+  const vertical=blocks.reduce((n,b)=>n+b.cols+1,0);
+  return{vertical,horizontal,total:vertical+horizontal,summary:blocks.map(b=>`${b.cols} × ${b.rows}`).join(' + ')};
+ }
+ return{vertical:2,horizontal:2,total:4,summary:'Fallback'};
+}
+function knifeCuts(item){return knifePlan(item).total;}
+function dieBoardFee(item){
+ if(val('cuttingType')!=='die')return 0;
+ return val('dieBoardMode')==='flat'?num('manualDieBoardFee'):item.productCount*num('dieShapeRate');
+}
+function dieRunCost(item){return val('cuttingType')==='die'?Math.ceil(item.total/1000)*num('dieCutRunRate'):0}
+
+
+function printingRounds(sheetQty){
+ const p=db.printingPolicy||{r1:1100,r2:2200,r3:3300,increment:1000};
+ if(sheetQty<=p.r1)return 1;
+ if(sheetQty<=p.r2)return 2;
+ if(sheetQty<=p.r3)return 3;
+ return 3+Math.ceil((sheetQty-p.r3)/Math.max(1,p.increment));
+}
+function savePrintingPolicy(){
+ db.printingPolicy={
+  r1:num('policyR1'),
+  r2:num('policyR2'),
+  r3:num('policyR3'),
+  increment:num('policyIncrement')
+ };
+ localStorage.setItem(KEY,JSON.stringify(db));
+ renderAll();
+ calculate();
+}
+
+function candidate(p,c,m){
+ if(!c||!machineFits(m,c))return null;
+ const ps=productInches(),gap=(val('unit')==='mm'?num('shapeGap')/25.4:num('shapeGap'));
+ const pack=bestPack(c.w,c.h,ps.w,ps.h,gap);
+ const productCount=val('productUpMode')==='manual'?Math.max(1,num('manualProductUp')):pack.count;
+ if(productCount<=0)return null;
+ const required=Math.ceil(num('qty')/productCount),total=required+num('waste');
+ const origPieces=c.pieces||bestPack(p.w,p.h,c.w,c.h).count;
+ const origNeeded=Math.ceil(total/origPieces);
+ const paperCost=origNeeded/p.sheets*p.price;
+ const colors=Math.min(4,num('frontColors'))+Math.min(4,num('backColors'));
+ const round=printingRounds(total),printing=round*rateFor(m,c)*colors;
+ const eff=Math.min(100,(productCount*ps.w*ps.h)/(c.w*c.h)*100);
+ return{c,ps,pack,productCount,required,total,origPieces,origNeeded,paperCost,colors,round,printing,eff};
+}
+function fullCost(item,p,m){
+ const plate=item.colors*(m.platePrice||0);
+ const cap=capacityFor(p.gsm),stacks=cap.sheets?Math.ceil(item.total/cap.sheets):0;
+ const straight=val('cuttingType')==='straight'?num('quoteCutSetup')+knifeCuts(item)*stacks*num('quoteKnifeRate'):0;
+ return item.paperCost+item.printing+plate+straight+dieBoardFee(item)+dieRunCost(item)+laminationCost(item)+num('otherFinishing')+num('otherCost');
+}
+function chooseBest(p,m){
+ let best=null;
+ for(const c of db.cuts.filter(c=>sameSize(c.ow,c.oh,p.w,p.h)&&machineFits(m,c))){
+  const item=candidate(p,c,m);
+  if(!item)continue;
+  item.fullCost=fullCost(item,p,m);
+  if(!best||item.fullCost<best.fullCost)best=item;
+ }
+ return best;
+}
+
+function syncUI(){
+ const autoCut=val('cutMode')==='auto';
+ $('manualCutWrap').classList.toggle('hidden',autoCut);
+ $('autoCutWrap').classList.toggle('hidden',!autoCut);
+
+ const manualUp=val('productUpMode')==='manual';
+ $('manualProductUpWrap').classList.toggle('hidden',!manualUp);
+ $('autoProductUpWrap').classList.toggle('hidden',manualUp);
+ $('shapeGap').disabled=manualUp;
+
+ const lamAuto=val('laminationMode')==='auto';
+ $('flatLaminationWrap').classList.toggle('hidden',lamAuto);
+ $('laminationRateWrap').classList.toggle('hidden',!lamAuto);
+
+ const straight=val('cuttingType')==='straight';
+ $('straightCutSection').classList.toggle('hidden',!straight);
+ $('dieCutSection').classList.toggle('hidden',straight);
+
+ $('manualKnifeCuts').disabled=!(straight&&val('knifeMode')==='manual');
+ if($('manualKnifeCuts').disabled)$('manualKnifeCuts').value='';
+
+ const dieFlat=!straight&&val('dieBoardMode')==='flat';
+ $('manualDieBoardFee').disabled=!dieFlat;
+ $('dieShapeRate').disabled=straight||dieFlat;
+ if(!dieFlat)$('manualDieBoardFee').value='';
+}
+
+function calculate(){
+ syncUI();
+ const p=selectedPaper(),m=selectedMachine();
+ if(!p||!m){$('statusBadge').textContent='Add paper and machine';return}
+ renderCuts();
+ const item=val('cutMode')==='auto'?chooseBest(p,m):candidate(p,db.cuts[Number(val('cutSelect'))],m);
+ if(!item){$('statusBadge').textContent='No valid layout';return}
+
+ const plate=item.colors*(m.platePrice||0);
+ const cap=capacityFor(p.gsm),stacks=cap.sheets?Math.ceil(item.total/cap.sheets):0;
+ const plan=knifePlan(item),knives=plan.total,actions=knives*stacks;
+ const straightCost=val('cuttingType')==='straight'?num('quoteCutSetup')+actions*num('quoteKnifeRate'):0;
+ const dieBoard=dieBoardFee(item),dieRun=dieRunCost(item),lam=laminationCost(item),other=num('otherFinishing')+num('otherCost');
+ const subtotal=item.paperCost+item.printing+plate+straightCost+dieBoard+dieRun+lam+other;
+ const profit=subtotal*num('profitMargin')/100,final=subtotal+profit;
+ const pa=printableArea(m,item.c);
+
+ $('bleedSize').value=`${displayMeasure(item.ps.w)} × ${displayMeasure(item.ps.h)} ${val('unit')}`;
+ $('finishedBleedResult').textContent=$('bleedSize').value;
+ $('cutPerOriginal').textContent=item.origPieces;
+ $('productsPerCut').textContent=item.productCount;
+ $('autoProductUpDisplay').value=`${item.productCount} products • ${layoutSummary(item.pack)}`;
+ $('productsPerOriginal').textContent=item.origPieces*item.productCount;
+ $('layoutEfficiency').textContent=item.eff.toFixed(1)+'%';
+ $('originalInfo').textContent=`${p.w}×${p.h} • ${p.type} ${p.gsm}gsm`;
+ $('machineInfo').textContent=`${m.name} • max ${m.w}×${m.h}`;
+ $('cutInfo').textContent=`${item.c.w}×${item.c.h}`;
+ $('printableInfo').textContent=`${pa.w.toFixed(2)}×${pa.h.toFixed(2)} in`;
+ $('requiredCutSheets').textContent=item.required.toLocaleString();
+ $('totalCutSheets').textContent=item.total.toLocaleString();
+ $('originalSheetsNeeded').textContent=item.origNeeded.toLocaleString();
+ $('printingRound').textContent=item.round;
+ const pp=db.printingPolicy||{r1:1100,r2:2200,r3:3300,increment:1000};
+ $('printingPolicyInfo').textContent=`1→${pp.r1}, 2→${pp.r2}, 3→${pp.r3}, then +${pp.increment}`;
+ $('stackCapacityResult').textContent=`${cap.sheets} sheets`;
+ $('stacksResult').textContent=stacks;
+ $('knifeCutsResult').textContent=`${knives} (${plan.vertical}V + ${plan.horizontal}H)`;
+ $('knifeActionsResult').textContent=actions;
+
+ $('paperCost').textContent=money(item.paperCost);
+ $('printingCost').textContent=money(item.printing);
+ $('plateCost').textContent=money(plate);
+ $('cuttingCost').textContent=money(straightCost);
+ $('dieBoardCost').textContent=money(dieBoard);
+ $('dieCuttingCost').textContent=money(dieRun);
+ $('laminationCost').textContent=money(lam);
+ $('otherCosts').textContent=money(other);
+ $('subtotal').textContent=money(subtotal);
+ $('profitValue').textContent=money(profit);
+ $('finalTotal').textContent=money(final);
+ $('pricePerPiece').value=money(final/Math.max(1,num('qty')));
+ $('statusBadge').textContent=`${val('cutMode')==='auto'?'Auto Best':'Manual'} • ${item.c.w}×${item.c.h}`;
+ $('activeCuttingCostPreview').value=money(val('cuttingType')==='straight'?straightCost:dieBoard+dieRun);
+ $('diePiecesOnBoard').value=item.productCount;
+ $('dieCutPreview').value=money(dieBoard+dieRun);
+ $('laminationRateDisplay').value=selectedLamination()?`${selectedLamination().rate} Ks / sq.in • Auto`:'0 Ks / sq.in • Auto';
+ $('laminationTotalDisplay').value=money(lam);
+ $('autoCutDisplay').value=`${item.c.w}×${item.c.h} • Auto Best Cost`;
+
+ const straight=val('cuttingType')==='straight';
+ $('straightMetrics').classList.toggle('hidden',!straight);
+ $('straightCostRow').classList.toggle('hidden',!straight);
+ $('dieBoardRow').classList.toggle('hidden',straight);
+ $('dieRunRow').classList.toggle('hidden',straight);
+ $('laminationRow').classList.toggle('hidden',!selectedLamination()&&val('laminationMode')!=='flat');
+
+ draw('originalPreview',p.w,p.h,bestPack(p.w,p.h,item.c.w,item.c.h).layout,`${p.w}×${p.h}`);
+ draw('productPreview',item.c.w,item.c.h,val('productUpMode')==='manual'?manualLayout(item.c,item.productCount):item.pack.layout,`${item.c.w}×${item.c.h}`);
+ $('previewNote').textContent=`${item.origPieces} cut sheets × ${item.productCount} products = ${item.origPieces*item.productCount} products / original sheet.`;
+}
+function manualLayout(c,count){
+ const cols=Math.ceil(Math.sqrt(count)),rows=Math.ceil(count/cols),w=c.w/cols,h=c.h/rows,out=[];
+ for(let i=0;i<count;i++)out.push({x:(i%cols)*w,y:Math.floor(i/cols)*h,w,h,rot:false});
+ return out;
+}
+function draw(id,SW,SH,layout,title){
+ const canvas=$(id),rect=canvas.getBoundingClientRect(),dpr=devicePixelRatio||1;
+ canvas.width=rect.width*dpr;canvas.height=rect.height*dpr;
+ const ctx=canvas.getContext('2d');ctx.scale(dpr,dpr);ctx.clearRect(0,0,rect.width,rect.height);
+ const pad=18,s=Math.min((rect.width-pad*2)/SW,(rect.height-pad*2)/SH),ox=(rect.width-SW*s)/2,oy=(rect.height-SH*s)/2;
+ ctx.strokeStyle='#111827';ctx.lineWidth=2;ctx.strokeRect(ox,oy,SW*s,SH*s);ctx.font='12px Arial';ctx.fillStyle='#6b7280';ctx.fillText(title,ox+5,oy+14);
+ layout.forEach((r,i)=>{ctx.fillStyle=r.rot?'#eef2ff':'#ecfdf5';ctx.strokeStyle=r.rot?'#4f46e5':'#047857';ctx.fillRect(ox+r.x*s,oy+r.y*s,r.w*s,r.h*s);ctx.strokeRect(ox+r.x*s,oy+r.y*s,r.w*s,r.h*s);ctx.fillStyle='#111827';if(r.w*s>20&&r.h*s>18)ctx.fillText(i+1,ox+r.x*s+5,oy+r.y*s+15)});
+}
+
+function addPaper(){db.papers.push({type:val('pType'),gsm:num('pGsm'),w:num('pW'),h:num('pH'),sheets:num('pSheets'),price:num('pPrice')});saveDB()}
+function savePaperPrice(i){db.papers[i].price=Number($(`paperPrice_${i}`).value)||0;saveDB()}
+function addMachine(){
+ if(!val('mName')||!num('mW')||!num('mH'))return alert('Machine name and max size required');
+ db.machines.push({name:val('mName'),w:Math.max(num('mW'),num('mH')),h:Math.min(num('mW'),num('mH')),gripper:num('mGripper'),top:num('mTop'),left:num('mLeft'),right:num('mRight'),platePrice:num('mPlate')});
+ saveDB()
+}
+function saveMachinePlate(i){db.machines[i].platePrice=Number($(`machinePlate_${i}`).value)||0;saveDB()}
+function addCut(){const f=bestPack(num('cOW'),num('cOH'),num('cW'),num('cH'));db.cuts.push({ow:num('cOW'),oh:num('cOH'),w:num('cW'),h:num('cH'),pieces:f.count,note:f.note});saveDB()}
+function addOrUpdateRate(){const m=val('rMachine'),c=JSON.parse(val('rCut')||'{}'),price=num('rPrice');if(!m||!c.w)return;const x=db.rates.find(r=>r.machine===m&&sameSize(r.w,r.h,c.w,c.h));if(x)x.price=price;else db.rates.push({machine:m,w:c.w,h:c.h,price});saveDB()}
+function addCapacity(){db.capacities.push({maxGsm:num('capGsm'),sheets:num('capSheets')});db.capacities.sort((a,b)=>a.maxGsm-b.maxGsm);saveDB()}
+function saveCapacity(i){db.capacities[i].maxGsm=Number($(`capGsm_${i}`).value)||0;db.capacities[i].sheets=Number($(`capSheets_${i}`).value)||0;saveDB()}
+function addLamination(){db.laminations.push({name:val('lamName'),rate:num('lamRate')});saveDB()}
+function saveLamination(i){db.laminations[i].name=$(`lamName_${i}`).value;db.laminations[i].rate=Number($(`lamRate_${i}`).value)||0;saveDB()}
+function del(kind,i){db[kind].splice(i,1);saveDB()}
+
+function renderRateSelectors(){
+ $('rMachine').innerHTML=db.machines.map(m=>`<option value="${m.name}">${m.name}</option>`).join('');
+ const m=db.machines.find(x=>x.name===val('rMachine'))||db.machines[0];
+ $('rCut').innerHTML=db.cuts.filter(c=>machineFits(m,c)).map(c=>`<option value='${JSON.stringify({w:c.w,h:c.h})}'>${c.w}×${c.h}</option>`).join('');
+}
+function renderAll(){
+ renderProductFilters();renderPaperSizes();
+ $('machineSelect').innerHTML=db.machines.map((m,i)=>`<option value="${i}">${m.name} • max ${m.w}×${m.h}</option>`).join('');
+ $('laminationSelect').innerHTML='<option value="-1">None</option>'+db.laminations.map((l,i)=>`<option value="${i}">${l.name} • ${l.rate}/sq.in</option>`).join('');
+ renderCuts();renderRateSelectors();
+
+ $('paperTable').innerHTML='<tr><th>Paper</th><th>GSM</th><th>Size</th><th>Pack</th><th>Price</th><th>Action</th></tr>'+db.papers.map((p,i)=>`<tr><td><input readonly value="${p.type}"></td><td><input readonly value="${p.gsm}"></td><td><input readonly value="${p.w}×${p.h}"></td><td><input readonly value="${p.sheets}"></td><td><input id="paperPrice_${i}" type="number" value="${p.price}"></td><td><div class="actions"><button class="small" onclick="savePaperPrice(${i})">Save</button><button class="small danger" onclick="del('papers',${i})">Delete</button></div></td></tr>`).join('');
+ $('machineTable').innerHTML='<tr><th>Machine</th><th>Max Size</th><th>Margins</th><th>Plate / Color</th><th>Action</th></tr>'+db.machines.map((m,i)=>`<tr><td>${m.name}</td><td>${m.w}×${m.h}</td><td>G ${m.gripper} • T ${m.top} • L ${m.left} • R ${m.right}</td><td><input id="machinePlate_${i}" type="number" value="${m.platePrice}"></td><td><div class="actions"><button class="small" onclick="saveMachinePlate(${i})">Save</button><button class="small danger" onclick="del('machines',${i})">Delete</button></div></td></tr>`).join('');
+ $('cutTable').innerHTML='<tr><th>Original</th><th>Cut</th><th>Pieces</th><th>Layout</th><th>Action</th></tr>'+db.cuts.map((c,i)=>`<tr><td>${c.ow}×${c.oh}</td><td>${c.w}×${c.h}</td><td>${c.pieces}</td><td>${c.note}</td><td><div class="actions"><button class="small danger" onclick="del('cuts',${i})">Delete</button></div></td></tr>`).join('');
+ $('rateTable').innerHTML='<tr><th>Machine</th><th>Cut</th><th>Rate</th><th>Action</th></tr>'+db.rates.map((r,i)=>`<tr><td>${r.machine}</td><td>${r.w}×${r.h}</td><td>${money(r.price)}</td><td><div class="actions"><button class="small danger" onclick="del('rates',${i})">Delete</button></div></td></tr>`).join('')+(db.rates.length?'':'<tr><td colspan="4" style="text-align:center;color:#697386">No custom rates. Default 14,000 active.</td></tr>');
+ $('capacityTable').innerHTML='<tr><th>Max GSM</th><th>Sheets / Stack</th><th>Action</th></tr>'+db.capacities.map((r,i)=>`<tr><td><input id="capGsm_${i}" type="number" value="${r.maxGsm}"></td><td><input id="capSheets_${i}" type="number" value="${r.sheets}"></td><td><div class="actions"><button class="small" onclick="saveCapacity(${i})">Save</button><button class="small danger" onclick="del('capacities',${i})">Delete</button></div></td></tr>`).join('');
+ if($('policyR1')){
+ const pp=db.printingPolicy||{r1:1100,r2:2200,r3:3300,increment:1000};
+ $('policyR1').value=pp.r1;$('policyR2').value=pp.r2;$('policyR3').value=pp.r3;$('policyIncrement').value=pp.increment;
+}
+ $('laminationTable').innerHTML='<tr><th>Name</th><th>Rate / sq.in</th><th>Action</th></tr>'+db.laminations.map((l,i)=>`<tr><td><input id="lamName_${i}" value="${l.name}"></td><td><input id="lamRate_${i}" type="number" value="${l.rate}"></td><td><div class="actions"><button class="small" onclick="saveLamination(${i})">Save</button><button class="small danger" onclick="del('laminations',${i})">Delete</button></div></td></tr>`).join('');
+}
+
+document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{
+ document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+ btn.classList.add('active');
+ ['paperTab','machineTab','cutTab','rateTab','policyTab','capacityTab','laminationTab'].forEach(id=>$(id).classList.add('hidden'));
+ $(btn.dataset.tab).classList.remove('hidden');
+}));
+
+const watched=['productName','qty','frontColors','backColors','finishedW','finishedH','bleed','paperSelect','machineSelect','cutMode','cutSelect','productUpMode','manualProductUp','shapeGap','laminationSelect','laminationSide','laminationMode','flatLaminationFee','cuttingType','knifeMode','manualKnifeCuts','quoteCutSetup','quoteKnifeRate','dieBoardMode','dieShapeRate','manualDieBoardFee','dieCutRunRate','otherFinishing','otherCost','waste','profitMargin'];
+watched.forEach(id=>$(id).addEventListener('input',()=>{if(['paperSelect','machineSelect','cutMode'].includes(id))renderCuts();calculate()}));
+
+$('paperTypeSelect').addEventListener('change',()=>{renderProductFilters();renderPaperSizes();renderCuts();calculate()});
+$('paperGsmSelect').addEventListener('change',()=>{renderPaperSizes();renderCuts();calculate()});
+$('unit').addEventListener('change',()=>{const next=val('unit');convertInputs(lastUnit,next);lastUnit=next;$('bleedLabel').textContent=`Bleed / Side (${next})`;$('gapLabel').textContent=`Shape Gap (${next})`;calculate()});
+$('rMachine').addEventListener('change',renderRateSelectors);
+['cOW','cOH','cW','cH'].forEach(id=>$(id).addEventListener('input',()=>{const f=bestPack(num('cOW'),num('cOH'),num('cW'),num('cH'));$('cPieces').value=f.count;$('cNote').value=f.note}));
+
+renderAll();lastUnit=val('unit');$('cOW').dispatchEvent(new Event('input'));calculate();
+</script>
+
+<nav class="mobile-nav" aria-label="Quick navigation">
+<a href="#productSection">Product</a>
+<a href="#productionSection">Production</a>
+<a href="#resultSection">Result</a>
+<a href="#databaseSection">Database</a>
+</nav>
+</body>
+</html>
