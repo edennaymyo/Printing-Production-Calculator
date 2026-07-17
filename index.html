@@ -24,6 +24,16 @@ h1{font-size:22px;margin:0}.sub{font-size:13px;color:var(--muted);margin-top:4px
 .row2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}
 input,select{width:100%;border:1px solid var(--line);border-radius:12px;padding:10px;background:#fff;color:var(--ink);font:inherit}
+input[type="number"][data-custom-stepper]{-moz-appearance:textfield;appearance:textfield}
+input[type="number"][data-custom-stepper]::-webkit-inner-spin-button,input[type="number"][data-custom-stepper]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.number-control{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;min-width:0}
+.number-control input{min-width:0;border-radius:0;border-left:0;border-right:0;text-align:center;font-variant-numeric:tabular-nums}
+.number-stepper{display:inline-flex;align-items:center;justify-content:center;width:44px;min-width:44px;height:44px;min-height:44px;padding:0;border:1px solid var(--line);border-radius:12px 0 0 12px;background:#f8fafc;color:var(--ink);font-size:22px;font-weight:700;line-height:1;touch-action:manipulation}
+.number-stepper:last-child{border-radius:0 12px 12px 0}
+.number-stepper:hover{background:var(--brand-soft);color:#3730a3}
+.number-stepper:focus-visible{position:relative;z-index:1;outline:3px solid rgba(79,70,229,.25);outline-offset:1px}
+.number-stepper:active{background:#e0e7ff}
+.number-stepper:disabled{background:#f1f3f7;color:#a0a7b5;cursor:not-allowed}
 input:disabled,select:disabled{background:#f1f3f7;color:#a0a7b5;cursor:not-allowed}
 button{border:0;border-radius:12px;padding:10px 13px;background:var(--brand);color:#fff;font-weight:800;cursor:pointer}
 button.secondary{background:#f3f4f6;color:#111827;border:1px solid var(--line)}
@@ -156,14 +166,14 @@ button{-webkit-tap-highlight-color:transparent}
 <div class="row">
 <div><label>Product Name</label><input id="productName" value="A5 Flyer"></div>
 <div><label>Order Qty</label><input id="qty" type="number" value="5000"></div>
-<div><label>Front Colors</label><input id="frontColors" type="number" min="0" max="4" value="4"></div>
-<div><label>Back Colors</label><input id="backColors" type="number" min="0" max="4" value="0"></div>
+<div><label>Front Colors</label><input id="frontColors" type="number" min="0" max="6" value="4" data-custom-stepper></div>
+<div><label>Back Colors</label><input id="backColors" type="number" min="0" max="6" value="0" data-custom-stepper></div>
 </div>
 <div class="row" style="margin-top:10px">
 <div><label>Measurement Unit</label><select id="unit"><option value="mm">mm</option><option value="in">inch</option></select></div>
 <div><label>Finished W</label><input id="finishedW" type="number" step="0.01" value="148"></div>
 <div><label>Finished H</label><input id="finishedH" type="number" step="0.01" value="210"></div>
-<div><label id="bleedLabel">Bleed / Side (mm)</label><input id="bleed" type="number" step="0.01" value="2.54"></div>
+<div><label id="bleedLabel">Bleed / Side (mm)</label><input id="bleed" type="number" step="0.01" value="2.54" data-custom-stepper></div>
 </div>
 <div class="row" style="margin-top:10px">
 <div><label>Paper Type</label><select id="paperTypeSelect"></select></div>
@@ -197,7 +207,7 @@ button{-webkit-tap-highlight-color:transparent}
 <div><label>Calculation Mode</label><select id="productUpMode"><option value="auto">Auto</option><option value="manual">Manual</option></select></div>
 <div id="manualProductUpWrap"><label>Manual Products / Cut Sheet</label><input id="manualProductUp" type="number" min="1" value="1"></div>
 <div id="autoProductUpWrap"><label>Auto Result</label><input id="autoProductUpDisplay" class="auto-display" readonly></div>
-<div><label id="gapLabel">Shape Gap (mm)</label><input id="shapeGap" type="number" step="0.01" value="0"></div>
+<div><label id="gapLabel">Shape Gap (mm)</label><input id="shapeGap" type="number" min="0" max="12.7" step="0.01" value="0" data-custom-stepper></div>
 </div>
 </div>
 
@@ -439,6 +449,40 @@ const val=id=>$(id)?.value??'';
 const money=n=>Math.round(Number(n)||0).toLocaleString()+' Ks';
 const norm=(a,b)=>[Number(a),Number(b)].sort((x,y)=>x-y).map(x=>x.toFixed(4)).join('x');
 const sameSize=(a,b,c,d)=>norm(a,b)===norm(c,d);
+
+function enhanceNumberInputs(root=document){
+ root.querySelectorAll('input[type="number"][data-custom-stepper]:not([data-number-control])').forEach(input=>{
+  input.dataset.numberControl='true';
+  const wrapper=document.createElement('div');
+  wrapper.className='number-control';
+  const label=input.closest('div')?.querySelector('label')?.textContent?.trim()||input.id||'number';
+  const makeButton=(direction,symbol)=>{
+   const button=document.createElement('button');
+   button.type='button';button.className='number-stepper';button.textContent=symbol;button.dataset.direction=direction;
+   button.disabled=input.disabled||input.readOnly;
+   button.setAttribute('aria-label',`${direction==='up'?'Increase':'Decrease'} ${label}`);
+   button.addEventListener('click',()=>{
+    if(input.disabled||input.readOnly)return;
+    direction==='up'?input.stepUp():input.stepDown();
+    input.dispatchEvent(new Event('input',{bubbles:true}));
+    input.focus();
+   });
+   return button;
+  };
+  input.before(wrapper);wrapper.append(makeButton('down','−'),input,makeButton('up','+'));
+ });
+}
+
+function syncShapeGapLimit(){
+ $('shapeGap').max=val('unit')==='mm'?'12.7':'0.5';
+ const label=$('gapLabel').textContent.trim(),control=$('shapeGap').closest('.number-control');
+ control?.querySelector('[data-direction="down"]')?.setAttribute('aria-label',`Decrease ${label}`);
+ control?.querySelector('[data-direction="up"]')?.setAttribute('aria-label',`Increase ${label}`);
+}
+
+function syncNumberControlState(input){
+ input.closest('.number-control')?.querySelectorAll('.number-stepper').forEach(button=>button.disabled=input.disabled||input.readOnly);
+}
 
 function seed(){
  if(db)return;
@@ -804,11 +848,22 @@ watched.forEach(id=>$(id).addEventListener('input',()=>{if(['paperSelect','machi
 
 $('paperTypeSelect').addEventListener('change',()=>{renderProductFilters();renderPaperSizes();renderCuts();calculate()});
 $('paperGsmSelect').addEventListener('change',()=>{renderPaperSizes();renderCuts();calculate()});
-$('unit').addEventListener('change',()=>{const next=val('unit');convertInputs(lastUnit,next);lastUnit=next;$('bleedLabel').textContent=`Bleed / Side (${next})`;$('gapLabel').textContent=`Shape Gap (${next})`;calculate()});
+$('unit').addEventListener('change',()=>{const next=val('unit');convertInputs(lastUnit,next);lastUnit=next;$('bleedLabel').textContent=`Bleed / Side (${next})`;$('gapLabel').textContent=`Shape Gap (${next})`;syncShapeGapLimit();calculate()});
 $('rMachine').addEventListener('change',renderRateSelectors);
 ['cOW','cOH','cW','cH'].forEach(id=>$(id).addEventListener('input',()=>{const f=bestPack(num('cOW'),num('cOH'),num('cW'),num('cH'));$('cPieces').value=f.count;$('cNote').value=f.note}));
 
-renderAll();lastUnit=val('unit');$('cOW').dispatchEvent(new Event('input'));calculate();
+renderAll();
+enhanceNumberInputs();
+new MutationObserver(mutations=>mutations.forEach(mutation=>{
+ if(mutation.type==='attributes'){
+  if(mutation.target.matches('input[type="number"]'))syncNumberControlState(mutation.target);
+  return;
+ }
+ mutation.addedNodes.forEach(node=>{
+  if(node.nodeType===1)enhanceNumberInputs(node.matches?.('input[type="number"][data-custom-stepper]')?node.parentElement:node);
+ });
+})).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['disabled','readonly']});
+lastUnit=val('unit');syncShapeGapLimit();$('cOW').dispatchEvent(new Event('input'));calculate();
 </script>
 
 <nav class="mobile-nav" aria-label="Quick navigation">
