@@ -74,6 +74,15 @@ td input[readonly]{border-color:transparent;background:transparent;font-weight:7
 .method-banner{margin-bottom:10px;padding:10px 12px;border:1px solid #c7d2fe;border-radius:13px;background:var(--brand-soft);color:#3730a3;font-size:12px;font-weight:800;line-height:1.45}
 .digital-status{background:#ecfeff;border-color:#a5f3fc;color:#155e75}
 .field-help{font-size:11px;color:var(--muted);line-height:1.4;margin-top:5px}
+.product-size-block{margin-top:12px;background:#f8fafc}
+.section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:10px}
+.section-head h3{margin:0}
+.unit-inline{display:flex;align-items:center;gap:7px;flex:0 0 auto}
+.unit-inline label{margin:0;font-weight:700;color:#4b5563}
+.unit-inline select{width:auto;min-width:88px;padding:8px 30px 8px 10px;min-height:38px}
+.production-basics{margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.production-basics input[readonly]{background:#f8fafc;color:#374151;font-weight:700}
+#offsetProductFields{margin-bottom:10px}
 @media(max-width:1000px){.app{grid-template-columns:1fr}.result{position:static}.row,.row3,.row2{grid-template-columns:1fr 1fr}}
 @media(max-width:700px){.compact-add{grid-template-columns:1fr}.compact-add button{width:100%}}
 @media(max-width:620px){.row,.row3,.row2,.metrics{grid-template-columns:1fr}.wrap{padding:12px}.big{font-size:24px}}
@@ -141,6 +150,7 @@ button{-webkit-tap-highlight-color:transparent}
  .row>div:first-child:nth-last-child(1),.row2>div:first-child:nth-last-child(1),.row3>div:first-child:nth-last-child(1){grid-column:1/-1}
  .compact-add{grid-template-columns:1fr}
  .compact-add button{grid-column:auto}
+ .section-head{align-items:center}
  canvas{height:200px}
 }
 
@@ -168,48 +178,45 @@ button{-webkit-tap-highlight-color:transparent}
 <h2><span class="step">1</span> Product</h2>
 <div class="row">
 <div><label>Product Type</label><select id="productTypeSelect"></select></div>
-<div><label>Job Name</label><input id="productName" value="A5 Flyer"></div>
-<div><label>Order Qty</label><input id="qty" type="number" value="5000"></div>
-<div><label>Printing Method</label><select id="printingMethod"><option value="offset">Offset Printing</option><option value="digital">Digital Printing</option></select></div>
+<div><label>Media Type</label><select id="paperTypeSelect"></select></div>
+<div><label>Thickness / GSM</label><select id="paperGsmSelect"></select></div>
+<div class="hidden" id="digitalPrintSidesWrap"><label>Print Sides</label><select id="digitalPrintSides"><option value="1">Single Side</option><option value="2">Double Side</option></select></div>
 </div>
 <div class="row2 hidden" id="customProductWrap" style="margin-top:10px">
 <div><label>Custom Product Type</label><input id="customProductType" placeholder="Enter product type"></div>
 <div></div>
 </div>
-<div class="row" style="margin-top:10px">
-<div><label>Measurement Unit</label><select id="unit"><option value="mm">mm</option><option value="in">inch</option></select></div>
+<div class="field-help" id="mediaCompatibilityHelp">Media choices follow the selected printing method.</div>
+<div class="subsection product-size-block">
+<div class="section-head">
+<h3>Finished Size</h3>
+<div class="unit-inline"><label for="unit">Unit</label><select id="unit"><option value="mm">mm</option><option value="in">inch</option></select></div>
+</div>
+<div class="row3">
 <div><label>Finished W</label><input id="finishedW" type="number" min="0" step="0.01" value="148"></div>
 <div><label>Finished H</label><input id="finishedH" type="number" min="0" step="0.01" value="210"></div>
-<div><label id="bleedLabel">Bleed (mm)</label><input id="bleed" type="number" min="0" step="0.01" value="2.54" data-custom-stepper></div>
+<div><label>Order Qty</label><input id="qty" type="number" min="0" value="5000"></div>
 </div>
-<div class="row2" id="mediaProductFields" style="margin-top:10px">
-<div><label>Media Type</label><select id="paperTypeSelect"></select></div>
-<div><label>Thickness / GSM</label><select id="paperGsmSelect"></select></div>
 </div>
-<div class="field-help" id="mediaCompatibilityHelp">Media choices follow the selected printing method.</div>
-<div class="row2" id="offsetProductFields" style="margin-top:10px">
-<div><label>Front Colors</label><input id="frontColors" type="number" min="0" max="6" value="4" data-custom-stepper></div>
-<div><label>Back Colors</label><input id="backColors" type="number" min="0" max="6" value="0" data-custom-stepper></div>
-</div>
-<div class="row hidden" id="digitalProductFields" style="margin-top:10px">
-<div id="digitalShapeWrap"><label>Shape</label><select id="digitalShape"><option value="rect">Rectangle / Square</option><option value="oval">Circle / Oval</option></select></div>
-<div id="digitalGapWrap"><label id="digitalGapLabel">Sticker Gap (mm)</label><input id="digitalGap" type="number" min="0" max="12.7" step="0.01" value="2.54" data-custom-stepper></div>
-<div id="digitalLayoutWrap"><label>Layout</label><select id="digitalLayout"><option value="grid">Grid</option><option value="honey">Honeycomb</option></select></div>
-<div id="digitalRotateWrap"><label>Rotate</label><select id="digitalRotate"><option value="yes">Allow</option><option value="no">No</option></select></div>
-<div class="hidden" id="digitalPrintSidesWrap"><label>Print Sides</label><select id="digitalPrintSides"><option value="1">Single Side</option><option value="2">Double Side</option></select></div>
-</div>
-<div class="field-help hidden" id="digitalBleedWarning"></div>
-<div class="row" style="margin-top:10px">
-<div id="laminationProductWrap"><label>Lamination</label><select id="laminationSelect"></select></div>
-<div id="laminationSideWrap"><label>Lamination Side</label><select id="laminationSide"><option value="1">Single Side</option><option value="2">Both Sides</option></select></div>
-<div><label id="bleedSizeLabel">Finished Size with Bleed</label><input id="bleedSize" readonly></div>
+<div class="row2" style="margin-top:10px">
+<div><label>Job Name</label><input id="productName" value="A5 Flyer"></div>
 <div></div>
 </div>
 </div>
 
 <div class="card" id="productionSection">
 <h2><span class="step">2</span> Production</h2>
+<div class="row production-basics">
+<div><label>Printing Method</label><select id="printingMethod"><option value="offset">Offset Printing</option><option value="digital">Digital Printing</option></select></div>
+<div><label id="bleedLabel">Bleed (mm)</label><input id="bleed" type="number" min="0" step="1" value="2.54" data-custom-stepper></div>
+<div><label id="bleedSizeLabel">Artwork Size</label><input id="bleedSize" readonly></div>
+<div><label>Layout Pitch</label><input id="layoutPitch" readonly></div>
+</div>
 <div id="offsetProductionFields">
+<div class="row2" id="offsetProductFields">
+<div><label>Front Colors</label><input id="frontColors" type="number" min="0" max="6" step="1" value="4" data-custom-stepper></div>
+<div id="backColorsWrap"><label>Back Colors</label><input id="backColors" type="number" min="0" max="6" step="1" value="0" data-custom-stepper></div>
+</div>
 <div class="row">
 <div><label>Original Big Sheet</label><select id="paperSelect"></select></div>
 <div><label>Printing Machine</label><select id="machineSelect"></select></div>
@@ -228,12 +235,17 @@ button{-webkit-tap-highlight-color:transparent}
 <div><label>Calculation Mode</label><select id="productUpMode"><option value="auto">Auto</option><option value="manual">Manual</option></select></div>
 <div id="manualProductUpWrap"><label>Manual Products / Cut Sheet</label><input id="manualProductUp" type="number" min="1" value="1"></div>
 <div id="autoProductUpWrap"><label>Auto Result</label><input id="autoProductUpDisplay" class="auto-display" readonly></div>
-<div id="shapeGapWrap"><label id="gapLabel">Shape Gap (mm)</label><input id="shapeGap" type="number" min="0" max="12.7" step="0.01" value="0" data-custom-stepper></div>
+<div id="shapeGapWrap"><label id="gapLabel">Shape Gap (mm)</label><input id="shapeGap" type="number" min="0" max="12.7" step="1" value="0" data-custom-stepper></div>
 </div>
+<div class="field-help">Shape Gap is the clear space between the outer bleed edges of adjacent products.</div>
 </div>
 
 <div class="subsection">
 <h3>Lamination Cost</h3>
+<div class="row2" style="margin-bottom:10px">
+<div id="laminationProductWrap"><label>Lamination</label><select id="laminationSelect"></select></div>
+<div id="laminationSideWrap"><label>Lamination Side</label><select id="laminationSide"><option value="1">Single Side</option><option value="2">Both Sides</option></select></div>
+</div>
 <div class="row3">
 <div><label>Cost Mode</label><select id="laminationMode"><option value="auto">Auto • Cut Sheet Area × Sheet Qty</option><option value="flat">Flat Fee • Manual</option></select></div>
 <div id="laminationRateWrap"><label>Auto Lamination Fee</label><input id="laminationRateDisplay" readonly></div>
@@ -281,6 +293,13 @@ button{-webkit-tap-highlight-color:transparent}
 
 <div id="digitalProductionFields" class="hidden">
 <div class="method-banner digital-status" id="digitalMethodBanner">Digital Production • Media compatibility determines the available machine. Cost rates will be added in the next phase.</div>
+<div class="row" id="digitalProductFields" style="margin-bottom:10px">
+<div id="digitalShapeWrap"><label>Shape</label><select id="digitalShape"><option value="rect">Rectangle / Square</option><option value="oval">Circle / Oval</option></select></div>
+<div id="digitalGapWrap"><label id="digitalGapLabel">Sticker Gap (mm)</label><input id="digitalGap" type="number" min="0" max="12.7" step="1" value="2.54" data-custom-stepper></div>
+<div id="digitalLayoutWrap"><label>Layout</label><select id="digitalLayout"><option value="grid">Grid</option><option value="honey">Honeycomb</option></select></div>
+<div id="digitalRotateWrap"><label>Rotate</label><select id="digitalRotate"><option value="yes">Allow</option><option value="no">No</option></select></div>
+</div>
+<div class="field-help" style="margin:-4px 0 10px">Gap is the clear space between the outer bleed edges of adjacent products.</div>
 <div class="row">
 <div><label>Media Size / Preset</label><select id="digitalMediaSelect"></select></div>
 <div><label>Compatible Machine</label><select id="digitalMachineSelect"></select></div>
@@ -472,7 +491,7 @@ button{-webkit-tap-highlight-color:transparent}
 </div>
 
 <div class="group-title">Production</div>
-<div class="kv"><span>Finished + Bleed</span><b id="finishedBleedResult">-</b></div>
+<div class="kv"><span>Artwork Size</span><b id="finishedBleedResult">-</b></div>
 <div class="kv"><span>Original Sheet</span><b id="originalInfo">-</b></div>
 <div class="kv"><span>Machine</span><b id="machineInfo">-</b></div>
 <div class="kv"><span>Cut Sheet</span><b id="cutInfo">-</b></div>
@@ -573,7 +592,7 @@ function enhanceNumberInputs(root=document){
    button.setAttribute('aria-label',`${direction==='up'?'Increase':'Decrease'} ${label}`);
    button.addEventListener('click',()=>{
     if(input.disabled||input.readOnly)return;
-    direction==='up'?input.stepUp():input.stepDown();
+    stepCustomNumber(input,direction);
     input.dispatchEvent(new Event('input',{bubbles:true}));
     input.focus();
    });
@@ -593,6 +612,17 @@ function enhanceNumberInputs(root=document){
   syncCustomNumberLabel(input);
   syncNumberControlState(input);
  });
+}
+
+function stepCustomNumber(input,direction){
+ const step=Number(input.step)||1;
+ const current=Number.isFinite(input.valueAsNumber)?input.valueAsNumber:(input.min===''?0:Number(input.min));
+ const minimum=input.min===''?-Infinity:Number(input.min);
+ const maximum=input.max===''?Infinity:Number(input.max);
+ const decimals=value=>String(value).includes('.')?String(value).split('.')[1].length:0;
+ const precision=Math.min(6,Math.max(decimals(input.value),decimals(input.step)));
+ const next=Math.min(maximum,Math.max(minimum,current+(direction==='up'?step:-step)));
+ input.value=String(Number(next.toFixed(precision)));
 }
 
 function clampCustomNumberInput(input){
@@ -621,6 +651,13 @@ function syncDigitalGapLimit(){
  $('digitalGap').max=val('unit')==='mm'?'12.7':'0.5';
  syncCustomNumberLabel($('digitalGap'));
  syncNumberControlState($('digitalGap'));
+}
+function syncProductionStepPolicy(){
+ const step=val('unit')==='mm'?'1':'0.05';
+ ['bleed','shapeGap','digitalGap'].forEach(id=>{
+  $(id).step=step;
+  syncNumberControlState($(id));
+ });
 }
 
 function syncNumberControlState(input){
@@ -864,20 +901,23 @@ function updateDigitalMethodBanner(){
 }
 function syncDigitalConditionalUI(){
  const digital=val('printingMethod')==='digital',sticker=isStickerProduct(),machine=selectedDigitalMachine(),unit=val('unit');
- const showSides=digital&&!sticker&&machine?.name==='Konica';
+ const showSides=!sticker&&(!digital||machine?.name==='Konica');
  $('digitalShapeWrap').classList.toggle('hidden',digital&&!sticker);
  $('digitalLayoutWrap').classList.toggle('hidden',digital&&!sticker);
  $('digitalPrintSidesWrap').classList.toggle('hidden',!showSides);
- $('digitalPrintSidesResultRow').classList.toggle('hidden',!showSides);
+ $('digitalPrintSidesResultRow').classList.toggle('hidden',!digital||!showSides);
  if(!sticker){$('digitalShape').value='rect';$('digitalLayout').value='grid'}
  if(!showSides)$('digitalPrintSides').value='1';
+ if(!digital){
+  const doubleSide=showSides&&val('digitalPrintSides')==='2';
+  $('backColorsWrap').classList.toggle('hidden',!doubleSide);
+  if(!doubleSide)$('backColors').value='0';
+  else if(num('backColors')===0)$('backColors').value='4';
+ }
  $('digitalGapLabel').textContent=`${sticker?'Sticker':'Product'} Gap (${unit})`;
  $('bleedLabel').textContent=`Bleed (${unit})`;
- $('bleedSizeLabel').textContent=digital?'Artwork Size':'Finished Size with Bleed';
+ $('bleedSizeLabel').textContent='Artwork Size';
  syncCustomNumberLabel($('bleed'));syncCustomNumberLabel($('digitalGap'));
- const warning=digital&&num('bleed')>0&&num('digitalGap')<num('bleed')*2;
- $('digitalBleedWarning').classList.toggle('hidden',!warning);
- $('digitalBleedWarning').textContent=warning?`Gap is smaller than 2 × Bleed. Layout spacing is automatically protected at ${(num('bleed')*2).toFixed(unit==='mm'?2:3)} ${unit}.`:'';
 }
 function renderCuts(){
  const p=selectedPaper(),m=selectedMachine(),old=val('cutSelect');
@@ -979,7 +1019,7 @@ function chooseBest(p,m){
 function digitalCountGrid(uw,uh,sw,sh,gap,shape,layout){
  if(uw<=0||uh<=0||sw<=0||sh<=0||gap<0)return{count:0,cols:0,rows:0,layout:[],mode:'Invalid'};
  if(shape==='oval'&&layout==='honey'){
-  const dx=sw+gap,dy=sh*.8660254+gap,out=[];
+  const dx=sw+gap,dy=(sh+gap)*.8660254,out=[];
   let row=0,maxCols=0,minCols=Infinity;
   for(let y=0;y+sh<=uh+1e-6;y+=dy){
    const offset=row%2?dx/2:0;
@@ -999,7 +1039,7 @@ function calculateDigitalLayout(){
  const mL=num('digitalMarginL'),mR=num('digitalMarginR'),mT=num('digitalMarginT'),mB=num('digitalMarginB');
  const factor=val('unit')==='mm'?1/25.4:1;
  const cutW=num('finishedW')*factor,cutH=num('finishedH')*factor,bleed=num('bleed')*factor,gap=num('digitalGap')*factor;
- const originalW=cutW+bleed*2,originalH=cutH+bleed*2,layoutGap=Math.max(0,gap-bleed*2);
+ const originalW=cutW+bleed*2,originalH=cutH+bleed*2,layoutGap=gap;
  const panelW=W/sx,panelH=H/sy,usableW=panelW-mL-mR,usableH=panelH-mT-mB;
  const invalid=[W,H,originalW,originalH].some(n=>n<=0)||[mL,mR,mT,mB,gap].some(n=>n<0)||usableW<=0||usableH<=0||!media||!machine||!machineFits(machine,{w:W,h:H});
  if(invalid)return{valid:false,media,machine,W,H,sx,sy,panelW,panelH,usableW,usableH};
@@ -1034,7 +1074,9 @@ function calculateDigital(){
  updateDigitalMethodBanner();
  const result=calculateDigitalLayout(),unit=val('unit');
  const bleed=productInches();
+ const layoutGap=unit==='mm'?num('digitalGap')/25.4:num('digitalGap');
  $('bleedSize').value=`${displayMeasure(bleed.w)} × ${displayMeasure(bleed.h)} ${unit}`;
+ $('layoutPitch').value=`${displayMeasure(bleed.w+layoutGap)} × ${displayMeasure(bleed.h+layoutGap)} ${unit}`;
  if(!result.valid){
   $('digitalStatusBadge').textContent='No valid digital layout';
   $('digitalPrimaryResult').textContent='0 / Panel';
@@ -1140,6 +1182,10 @@ function syncUI(){
 
 function calculateOffset(){
  syncUI();
+ const productSize=productInches(),unit=val('unit');
+ const clearGap=unit==='mm'?num('shapeGap')/25.4:num('shapeGap');
+ $('bleedSize').value=`${displayMeasure(productSize.w)} × ${displayMeasure(productSize.h)} ${unit}`;
+ $('layoutPitch').value=`${displayMeasure(productSize.w+clearGap)} × ${displayMeasure(productSize.h+clearGap)} ${unit}`;
  const p=selectedPaper(),m=selectedMachine();
  if(!p||!m){$('statusBadge').textContent='Add paper and machine';return}
  renderCuts();
@@ -1155,7 +1201,6 @@ function calculateOffset(){
  const profit=subtotal*num('profitMargin')/100,final=subtotal+profit;
  const pa=printableArea(m,item.c);
 
- $('bleedSize').value=`${displayMeasure(item.ps.w)} × ${displayMeasure(item.ps.h)} ${val('unit')}`;
  $('finishedBleedResult').textContent=$('bleedSize').value;
  $('cutPerOriginal').textContent=item.origPieces;
  $('productsPerCut').textContent=item.productCount;
@@ -1299,7 +1344,7 @@ $('productTypeSelect').addEventListener('change',()=>{syncProductMethodAvailabil
 $('digitalMediaSelect').addEventListener('change',()=>{loadDigitalMediaDefaults();calculate()});
 $('paperTypeSelect').addEventListener('change',()=>{renderProductFilters();renderPaperSizes();renderDigitalMedia();renderCuts();calculate()});
 $('paperGsmSelect').addEventListener('change',()=>{renderPaperSizes();renderDigitalMedia();renderCuts();calculate()});
-$('unit').addEventListener('change',()=>{const next=val('unit');convertInputs(lastUnit,next);lastUnit=next;$('bleedLabel').textContent=`Bleed (${next})`;$('gapLabel').textContent=`Shape Gap (${next})`;syncCustomNumberLabel($('bleed'));syncShapeGapLimit();syncDigitalGapLimit();syncDigitalConditionalUI();calculate()});
+$('unit').addEventListener('change',()=>{const next=val('unit');convertInputs(lastUnit,next);lastUnit=next;$('bleedLabel').textContent=`Bleed (${next})`;$('gapLabel').textContent=`Shape Gap (${next})`;syncProductionStepPolicy();syncCustomNumberLabel($('bleed'));syncShapeGapLimit();syncDigitalGapLimit();syncDigitalConditionalUI();calculate()});
 $('rMachine').addEventListener('change',renderRateSelectors);
 ['cOW','cOH','cW','cH'].forEach(id=>$(id).addEventListener('input',()=>{const f=bestPack(num('cOW'),num('cOH'),num('cW'),num('cH'));$('cPieces').value=f.count;$('cNote').value=f.note}));
 
@@ -1314,7 +1359,7 @@ new MutationObserver(mutations=>mutations.forEach(mutation=>{
   if(node.nodeType===1)enhanceNumberInputs(node.matches?.('input[type="number"][data-custom-stepper]')?node.parentElement:node);
  });
 })).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['disabled','readonly']});
-lastUnit=val('unit');syncShapeGapLimit();syncDigitalGapLimit();$('cOW').dispatchEvent(new Event('input'));calculate();
+lastUnit=val('unit');syncProductionStepPolicy();syncShapeGapLimit();syncDigitalGapLimit();$('cOW').dispatchEvent(new Event('input'));calculate();
 </script>
 
 <nav class="mobile-nav" aria-label="Quick navigation">
