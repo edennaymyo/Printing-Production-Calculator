@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Offset Printing Production App v30 Responsive</title>
+<title>Printing Cost Calculator • Offset + Digital</title>
 <style>
 :root{
  --bg:#f5f7fb;--card:#fff;--ink:#172033;--muted:#697386;--line:#e5e7eb;
@@ -71,6 +71,9 @@ td input[readonly]{border-color:transparent;background:transparent;font-weight:7
 .compact-add{display:grid;grid-template-columns:minmax(150px,1.2fr) minmax(110px,.8fr) minmax(110px,.8fr) auto;gap:8px;align-items:end;margin-bottom:10px}
 .compact-add button{height:42px}
 .auto-display{background:#ecfdf5;border-color:#bbf7d0;color:#065f46;font-weight:800}
+.method-banner{margin-bottom:10px;padding:10px 12px;border:1px solid #c7d2fe;border-radius:13px;background:var(--brand-soft);color:#3730a3;font-size:12px;font-weight:800;line-height:1.45}
+.digital-status{background:#ecfeff;border-color:#a5f3fc;color:#155e75}
+.field-help{font-size:11px;color:var(--muted);line-height:1.4;margin-top:5px}
 @media(max-width:1000px){.app{grid-template-columns:1fr}.result{position:static}.row,.row3,.row2{grid-template-columns:1fr 1fr}}
 @media(max-width:700px){.compact-add{grid-template-columns:1fr}.compact-add button{width:100%}}
 @media(max-width:620px){.row,.row3,.row2,.metrics{grid-template-columns:1fr}.wrap{padding:12px}.big{font-size:24px}}
@@ -152,9 +155,9 @@ button{-webkit-tap-highlight-color:transparent}
 <body>
 <header>
 <div class="wrap">
-<h1>Offset Printing Production App v30</h1>
-<div class="sub">Responsive Production UI • Desktop + Tablet + Mobile • Stable Offline Estimator</div>
-<div class="flow">1 Product <span>→</span> 2 Production <span>→</span> 3 Live Result</div>
+<h1>Printing Cost Calculator</h1>
+<div class="sub">Offset + Digital Production • Responsive Offline Estimator</div>
+<div class="flow">1 Product <span>→</span> 2 Production Route <span>→</span> 3 Live Result</div>
 </div>
 </header>
 
@@ -164,24 +167,36 @@ button{-webkit-tap-highlight-color:transparent}
 <div class="card" id="productSection">
 <h2><span class="step">1</span> Product</h2>
 <div class="row">
-<div><label>Product Name</label><input id="productName" value="A5 Flyer"></div>
+<div><label>Product Type</label><select id="productTypeSelect"></select></div>
+<div><label>Job Name</label><input id="productName" value="A5 Flyer"></div>
 <div><label>Order Qty</label><input id="qty" type="number" value="5000"></div>
-<div><label>Front Colors</label><input id="frontColors" type="number" min="0" max="6" value="4" data-custom-stepper></div>
-<div><label>Back Colors</label><input id="backColors" type="number" min="0" max="6" value="0" data-custom-stepper></div>
+<div><label>Printing Method</label><select id="printingMethod"><option value="offset">Offset Printing</option><option value="digital">Digital Printing</option></select></div>
+</div>
+<div class="row2 hidden" id="customProductWrap" style="margin-top:10px">
+<div><label>Custom Product Type</label><input id="customProductType" placeholder="Enter product type"></div>
+<div></div>
 </div>
 <div class="row" style="margin-top:10px">
 <div><label>Measurement Unit</label><select id="unit"><option value="mm">mm</option><option value="in">inch</option></select></div>
-<div><label>Finished W</label><input id="finishedW" type="number" step="0.01" value="148"></div>
-<div><label>Finished H</label><input id="finishedH" type="number" step="0.01" value="210"></div>
+<div><label>Finished W</label><input id="finishedW" type="number" min="0" step="0.01" value="148"></div>
+<div><label>Finished H</label><input id="finishedH" type="number" min="0" step="0.01" value="210"></div>
 <div><label id="bleedLabel">Bleed / Side (mm)</label><input id="bleed" type="number" min="0" step="0.01" value="2.54" data-custom-stepper></div>
 </div>
-<div class="row" style="margin-top:10px">
+<div class="row" id="offsetProductFields" style="margin-top:10px">
+<div><label>Front Colors</label><input id="frontColors" type="number" min="0" max="6" value="4" data-custom-stepper></div>
+<div><label>Back Colors</label><input id="backColors" type="number" min="0" max="6" value="0" data-custom-stepper></div>
 <div><label>Paper Type</label><select id="paperTypeSelect"></select></div>
 <div><label>Paper GSM</label><select id="paperGsmSelect"></select></div>
+</div>
+<div class="row hidden" id="digitalProductFields" style="margin-top:10px">
+<div><label>Shape</label><select id="digitalShape"><option value="rect">Rectangle / Square</option><option value="oval">Circle / Oval</option></select></div>
+<div><label id="digitalGapLabel">Sticker Gap (mm)</label><input id="digitalGap" type="number" min="0" max="12.7" step="0.01" value="2.54" data-custom-stepper></div>
+<div><label>Layout</label><select id="digitalLayout"><option value="grid">Grid</option><option value="honey">Honeycomb</option></select></div>
+<div><label>Rotate</label><select id="digitalRotate"><option value="yes">Allow</option><option value="no">No</option></select></div>
+</div>
+<div class="row" style="margin-top:10px">
 <div><label>Lamination</label><select id="laminationSelect"></select></div>
 <div id="laminationSideWrap"><label>Lamination Side</label><select id="laminationSide"><option value="1">Single Side</option><option value="2">Both Sides</option></select></div>
-</div>
-<div class="row2" style="margin-top:10px">
 <div><label>Finished Size with Bleed</label><input id="bleedSize" readonly></div>
 <div></div>
 </div>
@@ -189,6 +204,7 @@ button{-webkit-tap-highlight-color:transparent}
 
 <div class="card" id="productionSection">
 <h2><span class="step">2</span> Production</h2>
+<div id="offsetProductionFields">
 <div class="row">
 <div><label>Original Big Sheet</label><select id="paperSelect"></select></div>
 <div><label>Printing Machine</label><select id="machineSelect"></select></div>
@@ -258,11 +274,40 @@ button{-webkit-tap-highlight-color:transparent}
 </div>
 </div>
 
+<div id="digitalProductionFields" class="hidden">
+<div class="method-banner digital-status">Digital Sticker POC • Media compatibility determines the available machine. Cost rates will be added in the next phase.</div>
+<div class="row">
+<div><label>Digital Media</label><select id="digitalMediaSelect"></select></div>
+<div><label>Compatible Machine</label><select id="digitalMachineSelect"></select></div>
+<div><label>Media Width (inch)</label><input id="digitalMediaW" type="number" min="0" step="0.1"></div>
+<div><label>Media Height (inch)</label><input id="digitalMediaH" type="number" min="0" step="0.1"></div>
+</div>
+<div class="subsection">
+<h3>Panel & Printable Area</h3>
+<div class="row">
+<div><label>Horizontal Split</label><input id="digitalSplitX" type="number" min="1" step="1" value="1"></div>
+<div><label>Vertical Split</label><input id="digitalSplitY" type="number" min="1" step="1" value="1"></div>
+<div><label>Margin Left (inch)</label><input id="digitalMarginL" type="number" min="0" step="0.1" value="0.5"></div>
+<div><label>Margin Right (inch)</label><input id="digitalMarginR" type="number" min="0" step="0.1" value="0.5"></div>
+</div>
+<div class="row2" style="margin-top:10px">
+<div><label>Margin Top (inch)</label><input id="digitalMarginT" type="number" min="0" step="0.1" value="0.5"></div>
+<div><label>Margin Bottom (inch)</label><input id="digitalMarginB" type="number" min="0" step="0.1" value="0.5"></div>
+</div>
+<div class="field-help">Media presets supply the production defaults. Margins and split values remain editable for shop-specific setup.</div>
+</div>
+</div>
+</div>
+
 <div class="card" id="databaseSection">
 <h2>Database & Admin Settings</h2>
+<div class="db-group-label">Customer Products</div>
+<div class="tabs">
+<button class="tab" data-tab="productTab">Product DB</button>
+</div>
 <div class="db-group-label">Materials</div>
 <div class="tabs">
-<button class="tab active" data-tab="paperTab">Paper DB</button>
+<button class="tab active" data-tab="paperTab">Media DB</button>
 <button class="tab" data-tab="laminationTab">Lamination DB</button>
 </div>
 <div class="db-group-label">Production</div>
@@ -274,18 +319,32 @@ button{-webkit-tap-highlight-color:transparent}
 <button class="tab" data-tab="capacityTab">Cutting Capacity DB</button>
 </div>
 
-<div id="paperTab" class="db-panel paper">
-<h3>Paper Database</h3>
-<div class="admin-note">Existing rows: Pack Price only editable.</div>
+<div id="productTab" class="db-panel hidden">
+<h3>Product Database</h3>
+<div class="admin-note">Product type controls which printing methods the customer can choose. Job Name remains free text.</div>
 <div class="compact-add">
-<div><label>Paper Type</label><input id="pType" value="Art Paper"></div>
+<div><label>Product Type</label><input id="productDbName" value="Sticker"></div>
+<div><label>Available Methods</label><select id="productDbMethods"><option value="digital">Digital</option><option value="offset">Offset</option><option value="both">Offset + Digital</option></select></div>
+<div></div>
+<button onclick="addProductType()">+ Add</button>
+</div>
+<div class="table-wrap"><table id="productTable"></table></div>
+</div>
+
+<div id="paperTab" class="db-panel paper">
+<h3>Media Database</h3>
+<div class="admin-note">Paper and sticker media can support Offset, Digital, or both. Existing Offset pricing remains unchanged.</div>
+<div class="compact-add">
+<div><label>Media Name</label><input id="pType" value="Art Paper"></div>
 <div><label>GSM</label><input id="pGsm" type="number" value="150"></div>
-<div><label>Original Size</label><div class="row2"><input id="pW" type="number" value="31"><input id="pH" type="number" value="43"></div></div>
+<div><label>Media Size</label><div class="row2"><input id="pW" type="number" value="31"><input id="pH" type="number" value="43"></div></div>
 <button onclick="addPaper()">+ Add</button>
 </div>
-<div class="row2" style="margin-bottom:10px">
+<div class="row" style="margin-bottom:10px">
 <div><label>Sheets / Pack</label><input id="pSheets" type="number" value="125"></div>
 <div><label>Pack Price</label><input id="pPrice" type="number" value="135000"></div>
+<div><label>Production Method</label><select id="pMethod"><option value="offset">Offset</option><option value="digital">Digital</option><option value="both">Offset + Digital</option></select></div>
+<div><label>Compatible Machines</label><input id="pMachines" placeholder="Komori 26, Konica"></div>
 </div>
 <div class="table-wrap"><table id="paperTable"></table></div>
 </div>
@@ -298,6 +357,10 @@ button{-webkit-tap-highlight-color:transparent}
 <div><label>Max W</label><input id="mW" type="number"></div>
 <div><label>Max H</label><input id="mH" type="number"></div>
 <button onclick="addMachine()">+ Add</button>
+</div>
+<div class="row2" style="margin-bottom:10px">
+<div><label>Printing Method</label><select id="mMethod"><option value="offset">Offset</option><option value="digital">Digital</option></select></div>
+<div><label>Feed Type</label><select id="mFeed"><option value="sheet">Sheet</option><option value="roll">Roll / Large Format</option></select></div>
 </div>
 <div class="row" style="margin-bottom:10px">
 <div><label>Gripper</label><input id="mGripper" type="number" value="0.4"></div>
@@ -384,6 +447,7 @@ button{-webkit-tap-highlight-color:transparent}
 <aside class="result">
 <div class="card" id="resultSection">
 <h2><span class="step">3</span> Live Result</h2>
+<div id="offsetResultFields">
 <div class="row2">
 <div><label>Profit Margin %</label><input id="profitMargin" type="number" value="30"></div>
 <div><label>Final Price / Piece</label><input id="pricePerPiece" readonly></div>
@@ -431,6 +495,31 @@ button{-webkit-tap-highlight-color:transparent}
 <div class="preview-title">2. Cut Sheet → Finished Products</div>
 <canvas id="productPreview"></canvas>
 <div class="note" id="previewNote"></div>
+</div>
+
+<div id="digitalResultFields" class="hidden">
+<div class="pill digital-status" id="digitalStatusBadge">Digital Layout Ready</div>
+<div class="big" id="digitalPrimaryResult">0 / Panel</div>
+<div class="metrics">
+<div class="metric"><strong id="digitalPiecesPerPanel">0</strong><span>Pieces / Panel</span></div>
+<div class="metric"><strong id="digitalPanelsNeeded">0</strong><span>Panels Needed</span></div>
+<div class="metric"><strong id="digitalPiecesPerMedia">0</strong><span>Pieces / Full Media</span></div>
+<div class="metric"><strong id="digitalMediaNeeded">0</strong><span>Full Media Needed</span></div>
+</div>
+<div class="group-title">Digital Production</div>
+<div class="kv"><span>Product</span><b id="digitalProductResult">-</b></div>
+<div class="kv"><span>Media</span><b id="digitalMediaResult">-</b></div>
+<div class="kv"><span>Machine</span><b id="digitalMachineResult">-</b></div>
+<div class="kv"><span>Panel Size</span><b id="digitalPanelResult">-</b></div>
+<div class="kv"><span>Usable Area</span><b id="digitalUsableResult">-</b></div>
+<div class="kv"><span>Layout</span><b id="digitalLayoutResult">-</b></div>
+<div class="kv"><span>Orientation</span><b id="digitalOrientationResult">-</b></div>
+<div class="kv"><span>Layout Efficiency</span><b id="digitalEfficiencyResult">-</b></div>
+<div class="kv"><span>Full Media Capacity Waste</span><b id="digitalWasteResult">-</b></div>
+<div class="preview-title">One Digital Panel Layout</div>
+<canvas id="digitalPreview"></canvas>
+<div class="note" id="digitalResultNote">Capacity/layout POC only. Digital media, ink/click, finishing, and machine rates are not included yet.</div>
+</div>
 </div>
 </aside>
 </main>
@@ -505,6 +594,11 @@ function syncShapeGapLimit(){
  syncCustomNumberLabel($('shapeGap'));
  syncNumberControlState($('shapeGap'));
 }
+function syncDigitalGapLimit(){
+ $('digitalGap').max=val('unit')==='mm'?'12.7':'0.5';
+ syncCustomNumberLabel($('digitalGap'));
+ syncNumberControlState($('digitalGap'));
+}
 
 function syncNumberControlState(input){
  const control=input.closest('.number-control');
@@ -544,7 +638,31 @@ function seed(){
  };
  localStorage.setItem(KEY,JSON.stringify(db));
 }
-seed();db.printingPolicy=db.printingPolicy||{r1:1100,r2:2200,r3:3300,increment:1000};localStorage.setItem(KEY,JSON.stringify(db));
+function ensureDataModel(){
+ db.products=db.products||[
+  {name:'Sticker',methods:['digital']},
+  {name:'Label Tag',methods:['offset','digital']},
+  {name:'Flyer',methods:['offset','digital']},
+  {name:'Business Card',methods:['offset','digital']}
+ ];
+ db.papers.forEach(p=>{p.methods=p.methods||['offset'];p.machines=p.machines||[]});
+ db.machines.forEach(m=>{m.method=m.method||'offset';m.feedType=m.feedType||'sheet'});
+ const digitalMachines=[
+  {name:'Konica',w:19,h:13,gripper:0,top:0,left:0,right:0,platePrice:0,method:'digital',feedType:'sheet'},
+  {name:'Epson S80670',w:58.5,h:24,gripper:0,top:0,left:0,right:0,platePrice:0,method:'digital',feedType:'roll'}
+ ];
+ digitalMachines.forEach(machine=>{if(!db.machines.some(m=>m.name===machine.name))db.machines.push(machine)});
+ const digitalMedia=[
+  {type:'PP Matte Sticker',gsm:0,w:13,h:19,sheets:1,price:0,methods:['digital'],machines:['Konica'],digitalPreset:'konica-13x19',splitX:1,splitY:1,mL:.5,mR:.5,mT:.9,mB:.5},
+  {type:'Sticker Roll 5ft',gsm:0,w:58.5,h:24,sheets:1,price:0,methods:['digital'],machines:['Epson S80670'],digitalPreset:'epson-5ft',splitX:5,splitY:2,mL:.5,mR:.5,mT:.5,mB:.5},
+  {type:'Sticker Roll 4ft',gsm:0,w:48,h:24,sheets:1,price:0,methods:['digital'],machines:['Epson S80670'],digitalPreset:'epson-4ft',splitX:4,splitY:2,mL:.5,mR:.5,mT:.5,mB:.5}
+ ];
+ digitalMedia.forEach(media=>{if(!db.papers.some(p=>p.digitalPreset===media.digitalPreset))db.papers.push(media)});
+ db.printingPolicy=db.printingPolicy||{r1:1100,r2:2200,r3:3300,increment:1000};
+}
+const itemMethods=item=>item?.methods||[item?.method||'offset'];
+const supportsMethod=(item,method)=>itemMethods(item).includes(method);
+seed();ensureDataModel();localStorage.setItem(KEY,JSON.stringify(db));
 
 function saveDB(){localStorage.setItem(KEY,JSON.stringify(db));renderAll();calculate()}
 
@@ -600,29 +718,77 @@ function displayMeasure(inches){
 function convertInputs(from,to){
  if(from===to)return;
  const factor=from==='mm'?1/25.4:25.4;
- ['finishedW','finishedH','bleed','shapeGap'].forEach(id=>{$(id).value=(num(id)*factor).toFixed(to==='mm'?2:3)});
+ ['finishedW','finishedH','bleed','shapeGap','digitalGap'].forEach(id=>{$(id).value=(num(id)*factor).toFixed(to==='mm'?2:3)});
  lastUnit=to;
 }
 
 function selectedPaper(){return db.papers[Number(val('paperSelect'))]||null}
 function selectedMachine(){return db.machines[Number(val('machineSelect'))]||null}
+function selectedDigitalMedia(){return db.papers[Number(val('digitalMediaSelect'))]||null}
+function selectedDigitalMachine(){return db.machines[Number(val('digitalMachineSelect'))]||null}
 function selectedLamination(){const i=Number(val('laminationSelect'));return i>=0?db.laminations[i]||null:null}
 function capacityFor(gsm){return [...db.capacities].sort((a,b)=>a.maxGsm-b.maxGsm).find(x=>gsm<=x.maxGsm)||db.capacities.at(-1)||{sheets:0,maxGsm:0}}
 function rateFor(m,c){return db.rates.find(r=>r.machine===m.name&&sameSize(r.w,r.h,c.w,c.h))?.price||14000}
 
 function renderProductFilters(){
- const types=[...new Set(db.papers.map(p=>p.type))],oldType=val('paperTypeSelect');
+ const types=[...new Set(db.papers.filter(p=>supportsMethod(p,'offset')).map(p=>p.type))],oldType=val('paperTypeSelect');
  $('paperTypeSelect').innerHTML=types.map(t=>`<option value="${t}">${t}</option>`).join('');
  if(types.includes(oldType))$('paperTypeSelect').value=oldType;
- const type=val('paperTypeSelect'),gsms=[...new Set(db.papers.filter(p=>p.type===type).map(p=>p.gsm))].sort((a,b)=>a-b),oldGsm=Number(val('paperGsmSelect'));
+ const type=val('paperTypeSelect'),gsms=[...new Set(db.papers.filter(p=>supportsMethod(p,'offset')&&p.type===type).map(p=>p.gsm))].sort((a,b)=>a-b),oldGsm=Number(val('paperGsmSelect'));
  $('paperGsmSelect').innerHTML=gsms.map(g=>`<option value="${g}">${g} gsm</option>`).join('');
  if(gsms.includes(oldGsm))$('paperGsmSelect').value=String(oldGsm);
 }
 function renderPaperSizes(){
  const type=val('paperTypeSelect'),gsm=Number(val('paperGsmSelect')),old=val('paperSelect');
- const rows=db.papers.map((p,i)=>({p,i})).filter(x=>x.p.type===type&&x.p.gsm===gsm);
+ const rows=db.papers.map((p,i)=>({p,i})).filter(x=>supportsMethod(x.p,'offset')&&x.p.type===type&&x.p.gsm===gsm);
  $('paperSelect').innerHTML=rows.map(x=>`<option value="${x.i}">${x.p.w}×${x.p.h} • ${x.p.sheets} sheets/pack • ${money(x.p.price)}</option>`).join('');
  if(rows.some(x=>String(x.i)===old))$('paperSelect').value=old;
+}
+function currentProductType(){
+ if(val('productTypeSelect')==='custom')return{name:val('customProductType')||'Custom',methods:['offset','digital']};
+ return db.products[Number(val('productTypeSelect'))]||db.products[0]||{name:'Custom',methods:['offset','digital']};
+}
+function renderProductTypes(){
+ const old=val('productTypeSelect');
+ $('productTypeSelect').innerHTML=db.products.map((p,i)=>`<option value="${i}">${p.name}</option>`).join('')+'<option value="custom">Custom</option>';
+ if(old==='custom'||(old!==''&&db.products[Number(old)]))$('productTypeSelect').value=old;
+ else{
+  const flyerIndex=db.products.findIndex(p=>p.name==='Flyer');
+  $('productTypeSelect').value=String(flyerIndex>=0?flyerIndex:0);
+ }
+ syncProductMethodAvailability();
+}
+function syncProductMethodAvailability(){
+ const product=currentProductType(),methods=product.methods||['offset','digital'];
+ [...$('printingMethod').options].forEach(option=>option.disabled=!methods.includes(option.value));
+ if(!methods.includes(val('printingMethod')))$('printingMethod').value=methods[0]||'offset';
+ $('customProductWrap').classList.toggle('hidden',val('productTypeSelect')!=='custom');
+}
+function renderDigitalMedia(){
+ const old=val('digitalMediaSelect');
+ const rows=db.papers.map((p,i)=>({p,i})).filter(x=>supportsMethod(x.p,'digital'));
+ $('digitalMediaSelect').innerHTML=rows.map(x=>`<option value="${x.i}">${x.p.type} • ${x.p.w}×${x.p.h} in</option>`).join('');
+ if(rows.some(x=>String(x.i)===old))$('digitalMediaSelect').value=old;
+ loadDigitalMediaDefaults();
+}
+function loadDigitalMediaDefaults(){
+ const media=selectedDigitalMedia();
+ if(!media)return;
+ $('digitalMediaW').value=media.w;
+ $('digitalMediaH').value=media.h;
+ $('digitalSplitX').value=media.splitX||1;
+ $('digitalSplitY').value=media.splitY||1;
+ $('digitalMarginL').value=media.mL??.5;
+ $('digitalMarginR').value=media.mR??.5;
+ $('digitalMarginT').value=media.mT??.5;
+ $('digitalMarginB').value=media.mB??.5;
+ renderDigitalMachines();
+}
+function renderDigitalMachines(){
+ const media=selectedDigitalMedia(),old=val('digitalMachineSelect');
+ const rows=db.machines.map((m,i)=>({m,i})).filter(x=>x.m.method==='digital'&&(!media?.machines?.length||media.machines.includes(x.m.name)));
+ $('digitalMachineSelect').innerHTML=rows.map(x=>`<option value="${x.i}">${x.m.name} • max ${x.m.w}×${x.m.h}</option>`).join('');
+ if(rows.some(x=>String(x.i)===old))$('digitalMachineSelect').value=old;
 }
 function renderCuts(){
  const p=selectedPaper(),m=selectedMachine(),old=val('cutSelect');
@@ -721,6 +887,101 @@ function chooseBest(p,m){
  return best;
 }
 
+function digitalCountGrid(uw,uh,sw,sh,gap,shape,layout){
+ if(uw<=0||uh<=0||sw<=0||sh<=0||gap<0)return{count:0,cols:0,rows:0,layout:[],mode:'Invalid'};
+ if(shape==='oval'&&layout==='honey'){
+  const dx=sw+gap,dy=sh*.8660254+gap,out=[];
+  let row=0,maxCols=0,minCols=Infinity;
+  for(let y=0;y+sh<=uh+1e-6;y+=dy){
+   const offset=row%2?dx/2:0;
+   let cols=0;
+   for(let x=offset;x+sw<=uw+1e-6;x+=dx){out.push({x,y,w:sw,h:sh,oval:true});cols++}
+   maxCols=Math.max(maxCols,cols);minCols=Math.min(minCols,cols);row++;
+  }
+  return{count:out.length,cols:maxCols,minCols:minCols===Infinity?0:minCols,rows:row,layout:out,mode:'Honeycomb'};
+ }
+ const cols=Math.floor((uw+gap+1e-6)/(sw+gap)),rows=Math.floor((uh+gap+1e-6)/(sh+gap)),out=[];
+ for(let row=0;row<rows;row++)for(let col=0;col<cols;col++)out.push({x:col*(sw+gap),y:row*(sh+gap),w:sw,h:sh,oval:shape==='oval'});
+ return{count:cols*rows,cols,rows,layout:out,mode:'Grid'};
+}
+function calculateDigitalLayout(){
+ const media=selectedDigitalMedia(),machine=selectedDigitalMachine();
+ const W=num('digitalMediaW'),H=num('digitalMediaH'),sx=Math.max(1,Math.floor(num('digitalSplitX'))),sy=Math.max(1,Math.floor(num('digitalSplitY')));
+ const mL=num('digitalMarginL'),mR=num('digitalMarginR'),mT=num('digitalMarginT'),mB=num('digitalMarginB');
+ const factor=val('unit')==='mm'?1/25.4:1;
+ const originalW=num('finishedW')*factor,originalH=num('finishedH')*factor,gap=num('digitalGap')*factor;
+ const panelW=W/sx,panelH=H/sy,usableW=panelW-mL-mR,usableH=panelH-mT-mB;
+ const invalid=[W,H,originalW,originalH].some(n=>n<=0)||[mL,mR,mT,mB,gap].some(n=>n<0)||usableW<=0||usableH<=0||!media||!machine||!machineFits(machine,{w:W,h:H});
+ if(invalid)return{valid:false,media,machine,W,H,sx,sy,panelW,panelH,usableW,usableH};
+ const normal=digitalCountGrid(usableW,usableH,originalW,originalH,gap,val('digitalShape'),val('digitalLayout'));
+ let best={...normal,sw:originalW,sh:originalH,orientation:'Normal'};
+ if(val('digitalRotate')==='yes'&&Math.abs(originalW-originalH)>1e-6){
+  const rotated=digitalCountGrid(usableW,usableH,originalH,originalW,gap,val('digitalShape'),val('digitalLayout'));
+  if(rotated.count>normal.count)best={...rotated,sw:originalH,sh:originalW,orientation:'Rotated 90°'};
+ }
+ const panelsPerMedia=sx*sy,piecesPerMedia=best.count*panelsPerMedia,panelsNeeded=best.count?Math.ceil(num('qty')/best.count):0,mediaNeeded=piecesPerMedia?Math.ceil(num('qty')/piecesPerMedia):0;
+ const efficiency=usableW*usableH?Math.min(100,best.count*best.sw*best.sh/(usableW*usableH)*100):0;
+ return{valid:best.count>0,media,machine,W,H,sx,sy,panelW,panelH,usableW,usableH,gap,best,panelsPerMedia,piecesPerMedia,panelsNeeded,mediaNeeded,efficiency,waste:Math.max(0,mediaNeeded*piecesPerMedia-num('qty'))};
+}
+function drawDigitalPreview(result){
+ const canvas=$('digitalPreview'),rect=canvas.getBoundingClientRect(),dpr=devicePixelRatio||1;
+ canvas.width=rect.width*dpr;canvas.height=rect.height*dpr;
+ const ctx=canvas.getContext('2d');ctx.scale(dpr,dpr);ctx.clearRect(0,0,rect.width,rect.height);
+ if(!result.valid)return;
+ const pad=18,s=Math.min((rect.width-pad*2)/result.panelW,(rect.height-pad*2)/result.panelH),ox=(rect.width-result.panelW*s)/2,oy=(rect.height-result.panelH*s)/2;
+ ctx.strokeStyle='#4f46e5';ctx.lineWidth=2;ctx.strokeRect(ox,oy,result.panelW*s,result.panelH*s);
+ const ux=ox+num('digitalMarginL')*s,uy=oy+num('digitalMarginT')*s;
+ ctx.fillStyle='rgba(79,70,229,.06)';ctx.fillRect(ux,uy,result.usableW*s,result.usableH*s);
+ ctx.strokeStyle='rgba(79,70,229,.35)';ctx.strokeRect(ux,uy,result.usableW*s,result.usableH*s);
+ result.best.layout.forEach(item=>{
+  ctx.beginPath();ctx.strokeStyle='#047857';ctx.fillStyle='#ecfdf5';
+  const x=ux+item.x*s,y=uy+item.y*s,w=item.w*s,h=item.h*s;
+  if(item.oval){ctx.ellipse(x+w/2,y+h/2,w/2,h/2,0,0,Math.PI*2);ctx.fill();ctx.stroke()}
+  else{ctx.fillRect(x,y,w,h);ctx.strokeRect(x,y,w,h)}
+ });
+}
+function calculateDigital(){
+ const result=calculateDigitalLayout(),unit=val('unit');
+ const bleed=productInches();
+ $('bleedSize').value=`${displayMeasure(bleed.w)} × ${displayMeasure(bleed.h)} ${unit}`;
+ if(!result.valid){
+  $('digitalStatusBadge').textContent='No valid digital layout';
+  $('digitalPrimaryResult').textContent='0 / Panel';
+  ['digitalPiecesPerPanel','digitalPanelsNeeded','digitalPiecesPerMedia','digitalMediaNeeded'].forEach(id=>$(id).textContent='0');
+  $('digitalResultNote').textContent='Check media size, machine compatibility, margins, sticker size, and gap.';
+  drawDigitalPreview(result);return;
+ }
+ const product=currentProductType(),pattern=result.best.mode==='Honeycomb'?`${result.best.cols}/${result.best.minCols} × ${result.best.rows}`:`${result.best.cols} × ${result.best.rows}`;
+ $('digitalStatusBadge').textContent=`Digital • ${result.machine.name}`;
+ $('digitalPrimaryResult').textContent=`${result.best.count} / Panel`;
+ $('digitalPiecesPerPanel').textContent=result.best.count;
+ $('digitalPanelsNeeded').textContent=result.panelsNeeded;
+ $('digitalPiecesPerMedia').textContent=result.piecesPerMedia;
+ $('digitalMediaNeeded').textContent=result.mediaNeeded;
+ $('digitalProductResult').textContent=`${product.name} • ${num('finishedW')}×${num('finishedH')} ${unit}`;
+ $('digitalMediaResult').textContent=`${result.media.type} • ${result.W}×${result.H} in`;
+ $('digitalMachineResult').textContent=result.machine.name;
+ $('digitalPanelResult').textContent=`${result.panelW.toFixed(2)}×${result.panelH.toFixed(2)} in • ${result.sx}×${result.sy} panels`;
+ $('digitalUsableResult').textContent=`${result.usableW.toFixed(2)}×${result.usableH.toFixed(2)} in`;
+ $('digitalLayoutResult').textContent=`${result.best.mode} • ${pattern}`;
+ $('digitalOrientationResult').textContent=result.best.orientation;
+ $('digitalEfficiencyResult').textContent=result.efficiency.toFixed(1)+'%';
+ $('digitalWasteResult').textContent=result.waste.toLocaleString()+' pieces';
+ $('digitalResultNote').textContent='Capacity/layout POC only. Digital media, ink/click, finishing, and machine rates are not included yet.';
+ drawDigitalPreview(result);
+}
+function syncMethodUI(){
+ syncProductMethodAvailability();
+ const digital=val('printingMethod')==='digital';
+ $('offsetProductFields').classList.toggle('hidden',digital);
+ $('digitalProductFields').classList.toggle('hidden',!digital);
+ $('offsetProductionFields').classList.toggle('hidden',digital);
+ $('digitalProductionFields').classList.toggle('hidden',!digital);
+ $('offsetResultFields').classList.toggle('hidden',digital);
+ $('digitalResultFields').classList.toggle('hidden',!digital);
+ $('laminationSideWrap').classList.toggle('hidden',!selectedLamination());
+}
+
 function syncUI(){
  const autoCut=val('cutMode')==='auto';
  $('manualCutWrap').classList.toggle('hidden',autoCut);
@@ -753,7 +1014,7 @@ function syncUI(){
  $('dieShapeRateWrap').classList.toggle('hidden',straight||dieFlat);
 }
 
-function calculate(){
+function calculateOffset(){
  syncUI();
  const p=selectedPaper(),m=selectedMachine();
  if(!p||!m){$('statusBadge').textContent='Add paper and machine';return}
@@ -819,6 +1080,11 @@ function calculate(){
  draw('productPreview',item.c.w,item.c.h,val('productUpMode')==='manual'?manualLayout(item.c,item.productCount):item.pack.layout,`${item.c.w}×${item.c.h}`);
  $('previewNote').textContent=`${item.origPieces} cut sheets × ${item.productCount} products = ${item.origPieces*item.productCount} products / original sheet.`;
 }
+function calculate(){
+ syncMethodUI();
+ if(val('printingMethod')==='digital')calculateDigital();
+ else calculateOffset();
+}
 function manualLayout(c,count){
  const cols=Math.ceil(Math.sqrt(count)),rows=Math.ceil(count/cols),w=c.w/cols,h=c.h/rows,out=[];
  for(let i=0;i<count;i++)out.push({x:(i%cols)*w,y:Math.floor(i/cols)*h,w,h,rot:false});
@@ -833,11 +1099,19 @@ function draw(id,SW,SH,layout,title){
  layout.forEach((r,i)=>{ctx.fillStyle=r.rot?'#eef2ff':'#ecfdf5';ctx.strokeStyle=r.rot?'#4f46e5':'#047857';ctx.fillRect(ox+r.x*s,oy+r.y*s,r.w*s,r.h*s);ctx.strokeRect(ox+r.x*s,oy+r.y*s,r.w*s,r.h*s);ctx.fillStyle='#111827';if(r.w*s>20&&r.h*s>18)ctx.fillText(i+1,ox+r.x*s+5,oy+r.y*s+15)});
 }
 
-function addPaper(){db.papers.push({type:val('pType'),gsm:num('pGsm'),w:num('pW'),h:num('pH'),sheets:num('pSheets'),price:num('pPrice')});saveDB()}
+function methodList(value){return value==='both'?['offset','digital']:[value]}
+function addProductType(){
+ const name=val('productDbName').trim();if(!name)return;
+ db.products.push({name,methods:methodList(val('productDbMethods'))});saveDB();
+}
+function addPaper(){
+ const machines=val('pMachines').split(',').map(name=>name.trim()).filter(Boolean);
+ db.papers.push({type:val('pType'),gsm:num('pGsm'),w:num('pW'),h:num('pH'),sheets:num('pSheets'),price:num('pPrice'),methods:methodList(val('pMethod')),machines});saveDB();
+}
 function savePaperPrice(i){db.papers[i].price=Number($(`paperPrice_${i}`).value)||0;saveDB()}
 function addMachine(){
  if(!val('mName')||!num('mW')||!num('mH'))return alert('Machine name and max size required');
- db.machines.push({name:val('mName'),w:Math.max(num('mW'),num('mH')),h:Math.min(num('mW'),num('mH')),gripper:num('mGripper'),top:num('mTop'),left:num('mLeft'),right:num('mRight'),platePrice:num('mPlate')});
+ db.machines.push({name:val('mName'),w:Math.max(num('mW'),num('mH')),h:Math.min(num('mW'),num('mH')),gripper:num('mGripper'),top:num('mTop'),left:num('mLeft'),right:num('mRight'),platePrice:num('mPlate'),method:val('mMethod'),feedType:val('mFeed')});
  saveDB()
 }
 function saveMachinePlate(i){db.machines[i].platePrice=Number($(`machinePlate_${i}`).value)||0;saveDB()}
@@ -850,18 +1124,20 @@ function saveLamination(i){db.laminations[i].name=$(`lamName_${i}`).value;db.lam
 function del(kind,i){db[kind].splice(i,1);saveDB()}
 
 function renderRateSelectors(){
- $('rMachine').innerHTML=db.machines.map(m=>`<option value="${m.name}">${m.name}</option>`).join('');
- const m=db.machines.find(x=>x.name===val('rMachine'))||db.machines[0];
+ const offsetMachines=db.machines.filter(m=>m.method==='offset');
+ $('rMachine').innerHTML=offsetMachines.map(m=>`<option value="${m.name}">${m.name}</option>`).join('');
+ const m=offsetMachines.find(x=>x.name===val('rMachine'))||offsetMachines[0];
  $('rCut').innerHTML=db.cuts.filter(c=>machineFits(m,c)).map(c=>`<option value='${JSON.stringify({w:c.w,h:c.h})}'>${c.w}×${c.h}</option>`).join('');
 }
 function renderAll(){
- renderProductFilters();renderPaperSizes();
- $('machineSelect').innerHTML=db.machines.map((m,i)=>`<option value="${i}">${m.name} • max ${m.w}×${m.h}</option>`).join('');
+ renderProductTypes();renderProductFilters();renderPaperSizes();renderDigitalMedia();
+ $('machineSelect').innerHTML=db.machines.map((m,i)=>({m,i})).filter(x=>x.m.method==='offset').map(x=>`<option value="${x.i}">${x.m.name} • max ${x.m.w}×${x.m.h}</option>`).join('');
  $('laminationSelect').innerHTML='<option value="-1">None</option>'+db.laminations.map((l,i)=>`<option value="${i}">${l.name} • ${l.rate}/sq.in</option>`).join('');
  renderCuts();renderRateSelectors();
 
- $('paperTable').innerHTML='<tr><th>Paper</th><th>GSM</th><th>Size</th><th>Pack</th><th>Price</th><th>Action</th></tr>'+db.papers.map((p,i)=>`<tr><td><input readonly value="${p.type}"></td><td><input readonly value="${p.gsm}"></td><td><input readonly value="${p.w}×${p.h}"></td><td><input readonly value="${p.sheets}"></td><td><input id="paperPrice_${i}" type="number" value="${p.price}"></td><td><div class="actions"><button class="small" onclick="savePaperPrice(${i})">Save</button><button class="small danger" onclick="del('papers',${i})">Delete</button></div></td></tr>`).join('');
- $('machineTable').innerHTML='<tr><th>Machine</th><th>Max Size</th><th>Margins</th><th>Plate / Color</th><th>Action</th></tr>'+db.machines.map((m,i)=>`<tr><td>${m.name}</td><td>${m.w}×${m.h}</td><td>G ${m.gripper} • T ${m.top} • L ${m.left} • R ${m.right}</td><td><input id="machinePlate_${i}" type="number" value="${m.platePrice}"></td><td><div class="actions"><button class="small" onclick="saveMachinePlate(${i})">Save</button><button class="small danger" onclick="del('machines',${i})">Delete</button></div></td></tr>`).join('');
+ $('productTable').innerHTML='<tr><th>Product</th><th>Methods</th><th>Action</th></tr>'+db.products.map((p,i)=>`<tr><td>${p.name}</td><td>${p.methods.map(method=>method==='offset'?'Offset':'Digital').join(' + ')}</td><td><div class="actions"><button class="small danger" onclick="del('products',${i})">Delete</button></div></td></tr>`).join('');
+ $('paperTable').innerHTML='<tr><th>Media</th><th>GSM</th><th>Size</th><th>Method</th><th>Machines</th><th>Pack</th><th>Price</th><th>Action</th></tr>'+db.papers.map((p,i)=>`<tr><td><input readonly value="${p.type}"></td><td><input readonly value="${p.gsm||'-'}"></td><td><input readonly value="${p.w}×${p.h}"></td><td>${itemMethods(p).map(method=>method==='offset'?'Offset':'Digital').join(' + ')}</td><td>${p.machines?.join(', ')||'Any compatible'}</td><td><input readonly value="${p.sheets}"></td><td><input id="paperPrice_${i}" type="number" value="${p.price}"></td><td><div class="actions"><button class="small" onclick="savePaperPrice(${i})">Save</button><button class="small danger" onclick="del('papers',${i})">Delete</button></div></td></tr>`).join('');
+ $('machineTable').innerHTML='<tr><th>Machine</th><th>Method</th><th>Feed</th><th>Max Size</th><th>Margins</th><th>Plate / Color</th><th>Action</th></tr>'+db.machines.map((m,i)=>`<tr><td>${m.name}</td><td>${m.method==='digital'?'Digital':'Offset'}</td><td>${m.feedType}</td><td>${m.w}×${m.h}</td><td>G ${m.gripper} • T ${m.top} • L ${m.left} • R ${m.right}</td><td><input id="machinePlate_${i}" type="number" value="${m.platePrice}"></td><td><div class="actions"><button class="small" onclick="saveMachinePlate(${i})">Save</button><button class="small danger" onclick="del('machines',${i})">Delete</button></div></td></tr>`).join('');
  $('cutTable').innerHTML='<tr><th>Original</th><th>Cut</th><th>Pieces</th><th>Layout</th><th>Action</th></tr>'+db.cuts.map((c,i)=>`<tr><td>${c.ow}×${c.oh}</td><td>${c.w}×${c.h}</td><td>${c.pieces}</td><td>${c.note}</td><td><div class="actions"><button class="small danger" onclick="del('cuts',${i})">Delete</button></div></td></tr>`).join('');
  $('rateTable').innerHTML='<tr><th>Machine</th><th>Cut</th><th>Rate</th><th>Action</th></tr>'+db.rates.map((r,i)=>`<tr><td>${r.machine}</td><td>${r.w}×${r.h}</td><td>${money(r.price)}</td><td><div class="actions"><button class="small danger" onclick="del('rates',${i})">Delete</button></div></td></tr>`).join('')+(db.rates.length?'':'<tr><td colspan="4" style="text-align:center;color:#697386">No custom rates. Default 14,000 active.</td></tr>');
  $('capacityTable').innerHTML='<tr><th>Max GSM</th><th>Sheets / Stack</th><th>Action</th></tr>'+db.capacities.map((r,i)=>`<tr><td><input id="capGsm_${i}" type="number" value="${r.maxGsm}"></td><td><input id="capSheets_${i}" type="number" value="${r.sheets}"></td><td><div class="actions"><button class="small" onclick="saveCapacity(${i})">Save</button><button class="small danger" onclick="del('capacities',${i})">Delete</button></div></td></tr>`).join('');
@@ -875,16 +1151,18 @@ function renderAll(){
 document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{
  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
  btn.classList.add('active');
- ['paperTab','machineTab','cutTab','rateTab','policyTab','capacityTab','laminationTab'].forEach(id=>$(id).classList.add('hidden'));
+ ['productTab','paperTab','machineTab','cutTab','rateTab','policyTab','capacityTab','laminationTab'].forEach(id=>$(id).classList.add('hidden'));
  $(btn.dataset.tab).classList.remove('hidden');
 }));
 
-const watched=['productName','qty','frontColors','backColors','finishedW','finishedH','bleed','paperSelect','machineSelect','cutMode','cutSelect','productUpMode','manualProductUp','shapeGap','laminationSelect','laminationSide','laminationMode','flatLaminationFee','cuttingType','knifeMode','quoteCutSetup','quoteKnifeRate','dieBoardMode','dieShapeRate','manualDieBoardFee','dieCutRunRate','otherFinishing','otherCost','waste','profitMargin'];
+const watched=['productName','customProductType','qty','printingMethod','frontColors','backColors','finishedW','finishedH','bleed','paperSelect','machineSelect','cutMode','cutSelect','productUpMode','manualProductUp','shapeGap','digitalGap','digitalShape','digitalLayout','digitalRotate','digitalMachineSelect','digitalMediaW','digitalMediaH','digitalSplitX','digitalSplitY','digitalMarginL','digitalMarginR','digitalMarginT','digitalMarginB','laminationSelect','laminationSide','laminationMode','flatLaminationFee','cuttingType','knifeMode','quoteCutSetup','quoteKnifeRate','dieBoardMode','dieShapeRate','manualDieBoardFee','dieCutRunRate','otherFinishing','otherCost','waste','profitMargin'];
 watched.forEach(id=>$(id).addEventListener('input',()=>{if(['paperSelect','machineSelect','cutMode'].includes(id))renderCuts();calculate()}));
 
+$('productTypeSelect').addEventListener('change',()=>{syncProductMethodAvailability();calculate()});
+$('digitalMediaSelect').addEventListener('change',()=>{loadDigitalMediaDefaults();calculate()});
 $('paperTypeSelect').addEventListener('change',()=>{renderProductFilters();renderPaperSizes();renderCuts();calculate()});
 $('paperGsmSelect').addEventListener('change',()=>{renderPaperSizes();renderCuts();calculate()});
-$('unit').addEventListener('change',()=>{const next=val('unit');convertInputs(lastUnit,next);lastUnit=next;$('bleedLabel').textContent=`Bleed / Side (${next})`;$('gapLabel').textContent=`Shape Gap (${next})`;syncCustomNumberLabel($('bleed'));syncShapeGapLimit();calculate()});
+$('unit').addEventListener('change',()=>{const next=val('unit');convertInputs(lastUnit,next);lastUnit=next;$('bleedLabel').textContent=`Bleed / Side (${next})`;$('gapLabel').textContent=`Shape Gap (${next})`;$('digitalGapLabel').textContent=`Sticker Gap (${next})`;syncCustomNumberLabel($('bleed'));syncShapeGapLimit();syncDigitalGapLimit();calculate()});
 $('rMachine').addEventListener('change',renderRateSelectors);
 ['cOW','cOH','cW','cH'].forEach(id=>$(id).addEventListener('input',()=>{const f=bestPack(num('cOW'),num('cOH'),num('cW'),num('cH'));$('cPieces').value=f.count;$('cNote').value=f.note}));
 
@@ -899,7 +1177,7 @@ new MutationObserver(mutations=>mutations.forEach(mutation=>{
   if(node.nodeType===1)enhanceNumberInputs(node.matches?.('input[type="number"][data-custom-stepper]')?node.parentElement:node);
  });
 })).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['disabled','readonly']});
-lastUnit=val('unit');syncShapeGapLimit();$('cOW').dispatchEvent(new Event('input'));calculate();
+lastUnit=val('unit');syncShapeGapLimit();syncDigitalGapLimit();$('cOW').dispatchEvent(new Event('input'));calculate();
 </script>
 
 <nav class="mobile-nav" aria-label="Quick navigation">
