@@ -70,9 +70,18 @@ td input[readonly]{border-color:transparent;background:transparent;font-weight:7
 .admin-note{padding:9px 11px;background:#f8fafc;border:1px solid var(--line);border-radius:11px;font-size:12px;color:var(--muted);margin-bottom:10px}
 .compact-add{display:grid;grid-template-columns:minmax(150px,1.2fr) minmax(110px,.8fr) minmax(110px,.8fr) auto;gap:8px;align-items:end;margin-bottom:10px}
 .compact-add button{height:42px}
+.machine-picker{display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:6px;padding:6px;border:1px solid var(--line);border-radius:12px;background:#fff}
+.machine-choice{display:flex;align-items:center;gap:8px;min-height:44px;margin:0;padding:7px 9px;border:1px solid var(--line);border-radius:9px;background:#f8fafc;color:var(--ink);font-size:12px;cursor:pointer}
+.machine-choice input{flex:0 0 auto;width:18px;min-height:18px;margin:0;padding:0}
+.machine-choice span{line-height:1.3}
+.machine-picker-empty{padding:9px;color:var(--muted);font-size:12px}
+.machine-picker-cell{min-width:190px}
+.unknown-machine{margin-top:5px;color:var(--danger);font-size:11px;line-height:1.35}
+.error-status{background:#fef2f2;border-color:#fecaca;color:var(--danger)}
 .auto-display{background:#ecfdf5;border-color:#bbf7d0;color:#065f46;font-weight:800}
 .method-banner{margin-bottom:10px;padding:10px 12px;border:1px solid #c7d2fe;border-radius:13px;background:var(--brand-soft);color:#3730a3;font-size:12px;font-weight:800;line-height:1.45}
 .digital-status{background:#ecfeff;border-color:#a5f3fc;color:#155e75}
+.method-banner.error-status,.pill.error-status{background:#fef2f2;border-color:#fecaca;color:var(--danger)}
 .field-help{font-size:11px;color:var(--muted);line-height:1.4;margin-top:5px}
 .product-size-block{margin-top:12px;background:#f8fafc}
 .section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:10px}
@@ -223,6 +232,7 @@ button{-webkit-tap-highlight-color:transparent}
 <div><label>Cutting Mode</label><select id="cutMode"><option value="manual">Manual Cut</option><option value="auto">Auto Best Cost</option></select></div>
 <div><label>Waste Cut Sheets</label><input id="waste" type="number" value="50"></div>
 </div>
+<div class="method-banner error-status hidden" id="offsetMachineWarning" style="margin-top:10px">No compatible Offset machine. Edit this media in Media DB.</div>
 <div class="row2" style="margin-top:10px">
 <div id="manualCutWrap"><label>Manual Cut Sheet</label><select id="cutSelect"></select></div>
 <div id="autoCutWrap" class="hidden"><label>Auto Selected Cut Sheet</label><input id="autoCutDisplay" class="auto-display" readonly></div>
@@ -357,7 +367,7 @@ button{-webkit-tap-highlight-color:transparent}
 
 <div id="paperTab" class="db-panel paper">
 <h3>Media Database</h3>
-<div class="admin-note">Cost is used by Offset and Konica Cost + Markup. Epson Sell Rate is the final customer price per billed sq.ft.; 5ft and 4ft presets bill 10 and 8 sq.ft. per full media.</div>
+<div class="admin-note">Cost is used by Offset and Konica Cost + Markup. Epson Sell Rate is the final customer price per billed sq.ft.; 5ft and 4ft presets bill 10 and 8 sq.ft. per full media. Compatible Machines come from Machine DB; none selected means any machine for the chosen production method.</div>
 <div class="compact-add">
 <div><label>Media Name</label><input id="pType" value="Art Paper"></div>
 <div><label>GSM</label><input id="pGsm" type="number" value="150"></div>
@@ -368,7 +378,7 @@ button{-webkit-tap-highlight-color:transparent}
 <div><label>Sheets / Pack</label><input id="pSheets" type="number" value="125"></div>
 <div><label>Pack / Full Media Price</label><input id="pPrice" type="number" value="135000"></div>
 <div><label>Production Method</label><select id="pMethod"><option value="offset">Offset</option><option value="digital">Digital</option><option value="both">Offset + Digital</option></select></div>
-<div><label>Compatible Machines</label><input id="pMachines" placeholder="Komori 26, Konica"></div>
+<div><label>Compatible Machines</label><div id="pMachines" class="machine-picker"></div><div class="field-help">Select by machine name. Leave all unchecked to allow any machine for this production method.</div></div>
 <div><label>Billable SqFt (Digital)</label><input id="pBillableSqft" type="number" min="0" value="0"></div>
 <div><label>Epson Sell Rate / SqFt</label><input id="pSellRateSqft" type="number" min="0" value="0"></div>
 </div>
@@ -779,6 +789,12 @@ function ensureDataModel(){
    Object.assign(existing,{type:media.type,w:media.w,h:media.h,methods:media.methods,machines:media.machines,splitX:media.splitX,splitY:media.splitY,mL:media.mL,mR:media.mR,mT:media.mT,mB:media.mB,sizeLabel:media.sizeLabel,preferred:!!media.preferred,...(media.billableSqft?{billableSqft:media.billableSqft}:{}),...(sellRateSqft!=null?{sellRateSqft}:{})});
   }
  });
+ db.papers.forEach(media=>{
+  media.machines=[...new Set((media.machines||[]).map(rawName=>{
+   const name=String(rawName||'').trim();
+   return db.machines.find(machine=>machine.name.toLowerCase()===name.toLowerCase())?.name||name;
+  }).filter(Boolean))];
+ });
  db.digitalPricingRulesVersion=1;
  db.printingPolicy=db.printingPolicy||{r1:1100,r2:2200,r3:3300,increment:1000};
 }
@@ -844,10 +860,16 @@ function convertInputs(from,to){
  lastUnit=to;
 }
 
-function selectedPaper(){return db.papers[Number(val('paperSelect'))]||null}
-function selectedMachine(){return db.machines[Number(val('machineSelect'))]||null}
-function selectedDigitalMedia(){return db.papers[Number(val('digitalMediaSelect'))]||null}
-function selectedDigitalMachine(){return db.machines[Number(val('digitalMachineSelect'))]||null}
+function selectedDbItem(selectId,items){
+ const raw=val(selectId);
+ if(raw==='')return null;
+ const index=Number(raw);
+ return Number.isInteger(index)&&index>=0?items[index]||null:null;
+}
+function selectedPaper(){return selectedDbItem('paperSelect',db.papers)}
+function selectedMachine(){return selectedDbItem('machineSelect',db.machines)}
+function selectedDigitalMedia(){return selectedDbItem('digitalMediaSelect',db.papers)}
+function selectedDigitalMachine(){return selectedDbItem('digitalMachineSelect',db.machines)}
 function selectedLamination(){const i=Number(val('laminationSelect'));return i>=0?db.laminations[i]||null:null}
 function capacityFor(gsm){return [...db.capacities].sort((a,b)=>a.maxGsm-b.maxGsm).find(x=>gsm<=x.maxGsm)||db.capacities.at(-1)||{sheets:0,maxGsm:0}}
 function rateFor(m,c){return db.rates.find(r=>r.machine===m.name&&sameSize(r.w,r.h,c.w,c.h))?.price||14000}
@@ -879,6 +901,7 @@ function renderPaperSizes(){
  const rows=db.papers.map((p,i)=>({p,i})).filter(x=>supportsMethod(x.p,'offset')&&x.p.type===type&&x.p.gsm===gsm);
  $('paperSelect').innerHTML=rows.map(x=>`<option value="${x.i}">${x.p.w}×${x.p.h} • ${x.p.sheets} sheets/pack • ${money(x.p.price)}</option>`).join('');
  if(rows.some(x=>String(x.i)===old))$('paperSelect').value=old;
+ renderOffsetMachines();
 }
 function currentProductType(){
  if(val('productTypeSelect')==='custom')return{name:val('customProductType')||'Custom',methods:['offset','digital']};
@@ -913,9 +936,24 @@ function renderDigitalMedia(){
  if(rows.some(x=>String(x.i)===old))$('digitalMediaSelect').value=old;
  loadDigitalMediaDefaults();
 }
+function renderOffsetMachines(){
+ const media=selectedPaper(),old=val('machineSelect');
+ const rows=db.machines.map((m,i)=>({m,i})).filter(x=>x.m.method==='offset'&&(!media?.machines?.length||media.machines.includes(x.m.name)));
+ $('machineSelect').innerHTML=rows.length?rows.map(x=>`<option value="${x.i}">${x.m.name} • max ${x.m.w}×${x.m.h}</option>`).join(''):'<option value="">No compatible Offset machine</option>';
+ if(rows.some(x=>String(x.i)===old))$('machineSelect').value=old;
+ $('machineSelect').disabled=!rows.length;
+ const missing=!!media&&!rows.length;
+ $('offsetMachineWarning').classList.toggle('hidden',!missing);
+ if(missing)$('offsetMachineWarning').textContent=`No compatible Offset machine for ${media.type} ${media.w}×${media.h}. Edit Compatible Machines in Media DB.`;
+}
 function loadDigitalMediaDefaults(){
  const media=selectedDigitalMedia();
- if(!media)return;
+ if(!media){
+  $('digitalMachineSelect').innerHTML='<option value="">No compatible Digital machine</option>';
+  $('digitalMachineSelect').disabled=true;
+  updateDigitalMethodBanner();
+  return;
+ }
  $('digitalMediaW').value=media.w;
  $('digitalMediaH').value=media.h;
  $('digitalSplitX').value=media.splitX||1;
@@ -930,12 +968,18 @@ function loadDigitalMediaDefaults(){
 function renderDigitalMachines(){
  const media=selectedDigitalMedia(),old=val('digitalMachineSelect');
  const rows=db.machines.map((m,i)=>({m,i})).filter(x=>x.m.method==='digital'&&(!media?.machines?.length||media.machines.includes(x.m.name)));
- $('digitalMachineSelect').innerHTML=rows.map(x=>`<option value="${x.i}">${x.m.name} • max ${x.m.displayW||x.m.w}×${x.m.displayH||x.m.h}</option>`).join('');
+ $('digitalMachineSelect').innerHTML=rows.length?rows.map(x=>`<option value="${x.i}">${x.m.name} • max ${x.m.displayW||x.m.w}×${x.m.displayH||x.m.h}</option>`).join(''):'<option value="">No compatible Digital machine</option>';
  if(rows.some(x=>String(x.i)===old))$('digitalMachineSelect').value=old;
+ $('digitalMachineSelect').disabled=!rows.length;
 }
 function updateDigitalMethodBanner(){
  const media=selectedDigitalMedia(),machine=selectedDigitalMachine();
- if(!media||!machine){$('digitalMethodBanner').textContent='Choose a compatible Digital media and machine.';return}
+ if(!media||!machine){
+  $('digitalMethodBanner').classList.add('error-status');
+  $('digitalMethodBanner').textContent=media?`No compatible Digital machine for ${media.type} ${media.w}×${media.h}. Edit Compatible Machines in Media DB.`:'Choose a compatible Digital media and machine.';
+  return;
+ }
+ $('digitalMethodBanner').classList.remove('error-status');
  const sx=Math.max(1,Number(media.splitX)||1),sy=Math.max(1,Number(media.splitY)||1);
  const usableW=media.w/sx-(Number(media.mL)||0)-(Number(media.mR)||0),usableH=media.h/sy-(Number(media.mT)||0)-(Number(media.mB)||0);
  const maxW=machine.displayW||machine.w,maxH=machine.displayH||machine.h;
@@ -1134,14 +1178,16 @@ function calculateDigital(){
   const showCostBreakdown=product.digitalPricingMode!=='fixed_sheet_tier'&&rate.model!=='sqft';
   $('digitalMarkupWrap').classList.toggle('hidden',!showCostBreakdown);
   ['digitalMediaCostRow','digitalPrintingCostRow','digitalSubtotalRow','digitalProfitRow'].forEach(id=>$(id).classList.toggle('hidden',!showCostBreakdown));
-  $('digitalStatusBadge').textContent='No valid digital layout';
+  const missingMachine=!!result.media&&!result.machine;
+  $('digitalStatusBadge').textContent=missingMachine?'No compatible Digital machine':'No valid digital layout';
+  $('digitalStatusBadge').classList.add('error-status');
   $('digitalPrimaryResult').textContent='0 / Panel';
   ['digitalPiecesPerPanel','digitalPanelsNeeded','digitalPiecesPerMedia','digitalMediaNeeded'].forEach(id=>$(id).textContent='0');
   $('digitalPricingModelResult').textContent='-';
   $('digitalBillableResult').textContent='-';
   ['digitalMediaCostResult','digitalPrintingCostResult','digitalSubtotalResult','digitalProfitResult','digitalFinalPriceResult'].forEach(id=>$(id).textContent=money(0));
   $('digitalPricePerPiece').value=money(0);
-  $('digitalResultNote').textContent='Check media size, machine compatibility, margins, sticker size, and gap.';
+  $('digitalResultNote').textContent=missingMachine?'Edit Compatible Machines for this media in Media DB.':'Check media size, machine compatibility, margins, product size, and gap.';
   drawDigitalPreview(result);return;
  }
  const product=currentProductType(),pattern=result.best.mode==='Honeycomb'?`${result.best.cols}/${result.best.minCols} × ${result.best.rows}`:`${result.best.cols} × ${result.best.rows}`;
@@ -1182,6 +1228,7 @@ function calculateDigital(){
  $('digitalMarkupWrap').classList.toggle('hidden',!showCostBreakdown);
  ['digitalMediaCostRow','digitalPrintingCostRow','digitalSubtotalRow','digitalProfitRow'].forEach(id=>$(id).classList.toggle('hidden',!showCostBreakdown));
  $('digitalStatusBadge').textContent=`Digital • ${result.machine.name}`;
+ $('digitalStatusBadge').classList.remove('error-status');
  $('digitalPrimaryResult').textContent=`${result.best.count} / Panel`;
  $('digitalPiecesPerPanel').textContent=result.best.count;
  $('digitalPanelsNeeded').textContent=result.panelsNeeded;
@@ -1214,7 +1261,7 @@ function syncMethodUI(){
  syncProductMethodAvailability();
  const digital=val('printingMethod')==='digital';
  syncDigitalConditionalUI();
- $('mediaCompatibilityHelp').textContent=digital?'Digital media and GSM are filtered to compatible presets; Production shows the available machine and size.':'Offset media and GSM are filtered to configured sheet stocks.';
+ $('mediaCompatibilityHelp').textContent=digital?'Digital media, GSM, and machines are filtered by Media DB compatibility.':'Offset media sizes and machines are filtered by Media DB compatibility.';
  $('offsetProductFields').classList.toggle('hidden',digital);
  $('digitalProductFields').classList.toggle('hidden',!digital);
  $('offsetProductionFields').classList.toggle('hidden',digital);
@@ -1259,6 +1306,17 @@ function syncUI(){
  $('dieShapeRateWrap').classList.toggle('hidden',straight||dieFlat);
 }
 
+function invalidateOffsetResult(message){
+ $('statusBadge').textContent=message;
+ $('statusBadge').classList.add('error-status');
+ $('finalTotal').textContent=money(0);$('pricePerPiece').value=money(0);
+ ['cutPerOriginal','productsPerCut','productsPerOriginal'].forEach(id=>$(id).textContent='0');
+ $('layoutEfficiency').textContent='0%';
+ ['originalInfo','machineInfo','cutInfo','printableInfo','requiredCutSheets','totalCutSheets','originalSheetsNeeded','printingRound','knifeCutsResult','knifeActionsResult'].forEach(id=>$(id).textContent='-');
+ ['paperCost','printingCost','plateCost','cuttingCost','dieBoardCost','dieCuttingCost','laminationCost','otherCosts','subtotal','profitValue'].forEach(id=>$(id).textContent=money(0));
+ $('previewNote').textContent=message;
+ ['originalPreview','productPreview'].forEach(id=>{const canvas=$(id),ctx=canvas.getContext('2d');ctx.clearRect(0,0,canvas.width,canvas.height)});
+}
 function calculateOffset(){
  syncUI();
  const productSize=productInches(),unit=val('unit');
@@ -1266,7 +1324,8 @@ function calculateOffset(){
  $('bleedSize').value=`${displayMeasure(productSize.w)} × ${displayMeasure(productSize.h)} ${unit}`;
  $('layoutPitch').value=`${displayMeasure(productSize.w+clearGap)} × ${displayMeasure(productSize.h+clearGap)} ${unit}`;
  const p=selectedPaper(),m=selectedMachine();
- if(!p||!m){$('statusBadge').textContent='Add paper and machine';return}
+ if(!p){invalidateOffsetResult('Choose an Offset media');return}
+ if(!m){invalidateOffsetResult('No compatible Offset machine');return}
  renderCuts();
  const item=val('cutMode')==='auto'?chooseBest(p,m):candidate(p,db.cuts[Number(val('cutSelect'))],m);
  if(!item){$('statusBadge').textContent='No valid layout';return}
@@ -1310,6 +1369,7 @@ function calculateOffset(){
  $('finalTotal').textContent=money(final);
  $('pricePerPiece').value=money(final/Math.max(1,num('qty')));
  $('statusBadge').textContent=`${val('cutMode')==='auto'?'Auto Best':'Manual'} • ${item.c.w}×${item.c.h}`;
+ $('statusBadge').classList.remove('error-status');
  $('activeCuttingCostPreview').value=money(val('cuttingType')==='straight'?straightCost:dieBoard+dieRun);
  $('diePiecesOnBoard').value=item.productCount;
  $('dieCutPreview').value=money(dieBoard+dieRun);
@@ -1348,17 +1408,33 @@ function draw(id,SW,SH,layout,title){
 }
 
 function methodList(value){return value==='both'?['offset','digital']:[value]}
+function machinesForMethods(methods){return db.machines.filter(machine=>methods.includes(machine.method))}
+function machinePickerMarkup(machines,selectedNames,inputAttributes){
+ if(!machines.length)return'<div class="machine-picker-empty">Add a matching machine in Machine DB first.</div>';
+ return machines.map(machine=>`<label class="machine-choice"><input type="checkbox" value="${machine.name}" ${selectedNames.includes(machine.name)?'checked':''} ${inputAttributes}><span>${machine.name}</span></label>`).join('');
+}
+function renderAddPaperMachineChoices(){
+ const selected=[...$('pMachines').querySelectorAll('input:checked')].map(input=>input.value);
+ const machines=machinesForMethods(methodList(val('pMethod')));
+ $('pMachines').innerHTML=machinePickerMarkup(machines,selected,'name="pMachineChoice"');
+}
+function paperMachinePickerMarkup(media,index){
+ const candidates=machinesForMethods(itemMethods(media)),selected=media.machines||[];
+ const unknown=selected.filter(name=>!candidates.some(machine=>machine.name===name));
+ return `<div class="machine-picker">${machinePickerMarkup(candidates,selected,`data-paper-machine="${index}"`)}</div>${unknown.length?`<div class="unknown-machine">Unknown or wrong method: ${unknown.join(', ')}</div>`:''}<div class="field-help">None selected = any ${itemMethods(media).map(method=>method==='offset'?'Offset':'Digital').join(' / ')} machine</div>`;
+}
 function addProductType(){
  const name=val('productDbName').trim();if(!name)return;
  db.products.push({name,methods:methodList(val('productDbMethods')),singleSideOnly:name.toLowerCase().includes('sticker')||name.toLowerCase().includes('warranty seal'),digitalPricingMode:val('productDbDigitalPricing')});saveDB();
 }
 function addPaper(){
- const machines=val('pMachines').split(',').map(name=>name.trim()).filter(Boolean);
+ const machines=[...$('pMachines').querySelectorAll('input:checked')].map(input=>input.value);
  db.papers.push({type:val('pType'),gsm:num('pGsm'),w:num('pW'),h:num('pH'),sheets:num('pSheets'),price:num('pPrice'),billableSqft:num('pBillableSqft'),sellRateSqft:num('pSellRateSqft'),methods:methodList(val('pMethod')),machines});saveDB();
 }
 function savePaperPricing(i){
  db.papers[i].price=Number($(`paperPrice_${i}`).value)||0;
  db.papers[i].sellRateSqft=Number($(`paperSellRateSqft_${i}`).value)||0;
+ db.papers[i].machines=[...document.querySelectorAll(`[data-paper-machine="${i}"]:checked`)].map(input=>input.value);
  saveDB();
 }
 function addMachine(){
@@ -1418,12 +1494,12 @@ function renderDigitalRates(){
 }
 function renderAll(){
  renderProductTypes();renderProductFilters();renderPaperSizes();renderDigitalMedia();
- $('machineSelect').innerHTML=db.machines.map((m,i)=>({m,i})).filter(x=>x.m.method==='offset').map(x=>`<option value="${x.i}">${x.m.name} • max ${x.m.w}×${x.m.h}</option>`).join('');
+ renderAddPaperMachineChoices();
  $('laminationSelect').innerHTML='<option value="-1">None</option>'+db.laminations.map((l,i)=>`<option value="${i}">${l.name} • ${l.rate}/sq.in</option>`).join('');
  renderCuts();renderRateSelectors();renderDigitalTierSelectors();renderDigitalRates();
 
  $('productTable').innerHTML='<tr><th>Product</th><th>Methods</th><th>Digital Sides</th><th>Digital Pricing</th><th>Action</th></tr>'+db.products.map((p,i)=>`<tr><td>${p.name}</td><td>${p.methods.map(method=>method==='offset'?'Offset':'Digital').join(' + ')}</td><td>${p.singleSideOnly?'Single only':'Selectable'}</td><td>${p.digitalPricingMode==='fixed_sheet_tier'?'Fixed Sheet Tiers':'Cost + Markup'}</td><td><div class="actions"><button class="small danger" onclick="del('products',${i})">Delete</button></div></td></tr>`).join('');
- $('paperTable').innerHTML='<tr><th>Media</th><th>GSM</th><th>Size</th><th>Method</th><th>Machines</th><th>Pack</th><th>Cost</th><th>Billable SqFt</th><th>Sell / SqFt</th><th>Action</th></tr>'+db.papers.map((p,i)=>`<tr><td><input readonly value="${p.type}"></td><td><input readonly value="${p.gsm||'-'}"></td><td><input readonly value="${p.w}×${p.h}"></td><td>${itemMethods(p).map(method=>method==='offset'?'Offset':'Digital').join(' + ')}</td><td>${p.machines?.join(', ')||'Any compatible'}</td><td><input readonly value="${p.sheets}"></td><td><input id="paperPrice_${i}" type="number" min="0" value="${p.price}"></td><td>${p.billableSqft||'-'}</td><td><input id="paperSellRateSqft_${i}" type="number" min="0" value="${p.sellRateSqft||0}"></td><td><div class="actions"><button class="small" onclick="savePaperPricing(${i})">Save</button><button class="small danger" onclick="del('papers',${i})">Delete</button></div></td></tr>`).join('');
+ $('paperTable').innerHTML='<tr><th>Media</th><th>GSM</th><th>Size</th><th>Method</th><th>Compatible Machines</th><th>Pack</th><th>Cost</th><th>Billable SqFt</th><th>Sell / SqFt</th><th>Action</th></tr>'+db.papers.map((p,i)=>`<tr><td><input readonly value="${p.type}"></td><td><input readonly value="${p.gsm||'-'}"></td><td><input readonly value="${p.w}×${p.h}"></td><td>${itemMethods(p).map(method=>method==='offset'?'Offset':'Digital').join(' + ')}</td><td class="machine-picker-cell">${paperMachinePickerMarkup(p,i)}</td><td><input readonly value="${p.sheets}"></td><td><input id="paperPrice_${i}" type="number" min="0" value="${p.price}"></td><td>${p.billableSqft||'-'}</td><td><input id="paperSellRateSqft_${i}" type="number" min="0" value="${p.sellRateSqft||0}"></td><td><div class="actions"><button class="small" onclick="savePaperPricing(${i})">Save</button><button class="small danger" onclick="del('papers',${i})">Delete</button></div></td></tr>`).join('');
  $('machineTable').innerHTML='<tr><th>Machine</th><th>Method</th><th>Feed</th><th>Max Size</th><th>Margins</th><th>Plate / Color</th><th>Action</th></tr>'+db.machines.map((m,i)=>`<tr><td>${m.name}</td><td>${m.method==='digital'?'Digital':'Offset'}</td><td>${m.feedType}</td><td>${m.displayW||m.w}×${m.displayH||m.h}</td><td>G ${m.gripper} • T ${m.top} • L ${m.left} • R ${m.right}</td><td><input id="machinePlate_${i}" type="number" value="${m.platePrice}"></td><td><div class="actions"><button class="small" onclick="saveMachinePlate(${i})">Save</button><button class="small danger" onclick="del('machines',${i})">Delete</button></div></td></tr>`).join('');
  $('cutTable').innerHTML='<tr><th>Original</th><th>Cut</th><th>Pieces</th><th>Layout</th><th>Action</th></tr>'+db.cuts.map((c,i)=>`<tr><td>${c.ow}×${c.oh}</td><td>${c.w}×${c.h}</td><td>${c.pieces}</td><td>${c.note}</td><td><div class="actions"><button class="small danger" onclick="del('cuts',${i})">Delete</button></div></td></tr>`).join('');
  $('rateTable').innerHTML='<tr><th>Machine</th><th>Cut</th><th>Rate</th><th>Action</th></tr>'+db.rates.map((r,i)=>`<tr><td>${r.machine}</td><td>${r.w}×${r.h}</td><td>${money(r.price)}</td><td><div class="actions"><button class="small danger" onclick="del('rates',${i})">Delete</button></div></td></tr>`).join('')+(db.rates.length?'':'<tr><td colspan="4" style="text-align:center;color:#697386">No custom rates. Default 14,000 active.</td></tr>');
@@ -1443,13 +1519,14 @@ document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>
 }));
 
 const watched=['productName','customProductType','qty','frontColors','backColors','finishedW','finishedH','bleed','paperSelect','machineSelect','cutMode','cutSelect','productUpMode','manualProductUp','shapeGap','digitalGap','digitalShape','digitalLayout','digitalRotate','digitalPrintSides','digitalProfitMargin','digitalMachineSelect','digitalMediaW','digitalMediaH','digitalSplitX','digitalSplitY','digitalMarginL','digitalMarginR','digitalMarginT','digitalMarginB','laminationSelect','laminationSide','laminationMode','flatLaminationFee','cuttingType','knifeMode','quoteCutSetup','quoteKnifeRate','dieBoardMode','dieShapeRate','manualDieBoardFee','dieCutRunRate','otherFinishing','otherCost','waste','profitMargin'];
-watched.forEach(id=>$(id).addEventListener('input',()=>{if(['paperSelect','machineSelect','cutMode'].includes(id))renderCuts();calculate()}));
+watched.forEach(id=>$(id).addEventListener('input',()=>{if(id==='paperSelect')renderOffsetMachines();if(['paperSelect','machineSelect','cutMode'].includes(id))renderCuts();calculate()}));
 
 $('printingMethod').addEventListener('change',()=>{renderProductFilters();renderPaperSizes();renderDigitalMedia();renderCuts();calculate()});
 $('productTypeSelect').addEventListener('change',()=>{syncProductMethodAvailability();renderProductFilters();selectRecommendedMediaForProduct();renderProductFilters();renderPaperSizes();renderDigitalMedia();renderCuts();calculate()});
 $('digitalMediaSelect').addEventListener('change',()=>{loadDigitalMediaDefaults();calculate()});
 $('paperTypeSelect').addEventListener('change',()=>{renderProductFilters();renderPaperSizes();renderDigitalMedia();renderCuts();calculate()});
 $('paperGsmSelect').addEventListener('change',()=>{renderPaperSizes();renderDigitalMedia();renderCuts();calculate()});
+$('pMethod').addEventListener('change',renderAddPaperMachineChoices);
 $('unit').addEventListener('change',()=>{const next=val('unit');convertInputs(lastUnit,next);lastUnit=next;$('bleedLabel').textContent=`Bleed (${next})`;$('gapLabel').textContent=`Shape Gap (${next})`;syncProductionStepPolicy();syncCustomNumberLabel($('bleed'));syncShapeGapLimit();syncDigitalGapLimit();syncDigitalConditionalUI();calculate()});
 $('rMachine').addEventListener('change',renderRateSelectors);
 ['cOW','cOH','cW','cH'].forEach(id=>$(id).addEventListener('input',()=>{const f=bestPack(num('cOW'),num('cOH'),num('cW'),num('cH'));$('cPieces').value=f.count;$('cNote').value=f.note}));
