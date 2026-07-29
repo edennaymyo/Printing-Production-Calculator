@@ -179,7 +179,7 @@ button{-webkit-tap-highlight-color:transparent}
 <div class="row">
 <div><label>Product Type</label><select id="productTypeSelect"></select></div>
 <div><label>Media Type</label><select id="paperTypeSelect"></select></div>
-<div><label>Thickness / GSM</label><select id="paperGsmSelect"></select></div>
+<div id="paperGsmWrap"><label>Thickness / GSM</label><select id="paperGsmSelect"></select></div>
 <div class="hidden" id="digitalPrintSidesWrap"><label>Print Sides</label><select id="digitalPrintSides"><option value="1">Single Side</option><option value="2">Double Side</option></select></div>
 </div>
 <div class="row2 hidden" id="customProductWrap" style="margin-top:10px">
@@ -349,7 +349,7 @@ button{-webkit-tap-highlight-color:transparent}
 <div class="compact-add">
 <div><label>Product Type</label><input id="productDbName" value="Sticker"></div>
 <div><label>Available Methods</label><select id="productDbMethods"><option value="digital">Digital</option><option value="offset">Offset</option><option value="both">Offset + Digital</option></select></div>
-<div></div>
+<div><label>Digital Pricing</label><select id="productDbDigitalPricing"><option value="cost_plus">Cost + Markup</option><option value="fixed_sheet_tier">Fixed Sheet Tiers</option></select></div>
 <button onclick="addProductType()">+ Add</button>
 </div>
 <div class="table-wrap"><table id="productTable"></table></div>
@@ -357,7 +357,7 @@ button{-webkit-tap-highlight-color:transparent}
 
 <div id="paperTab" class="db-panel paper">
 <h3>Media Database</h3>
-<div class="admin-note">Offset price is per pack. Digital price is per sheet/full media. Epson billed area uses the shop policy value, such as 10 or 8 sq.ft.</div>
+<div class="admin-note">Cost is used by Offset and Konica Cost + Markup. Epson Sell Rate is the final customer price per billed sq.ft.; 5ft and 4ft presets bill 10 and 8 sq.ft. per full media.</div>
 <div class="compact-add">
 <div><label>Media Name</label><input id="pType" value="Art Paper"></div>
 <div><label>GSM</label><input id="pGsm" type="number" value="150"></div>
@@ -370,6 +370,7 @@ button{-webkit-tap-highlight-color:transparent}
 <div><label>Production Method</label><select id="pMethod"><option value="offset">Offset</option><option value="digital">Digital</option><option value="both">Offset + Digital</option></select></div>
 <div><label>Compatible Machines</label><input id="pMachines" placeholder="Komori 26, Konica"></div>
 <div><label>Billable SqFt (Digital)</label><input id="pBillableSqft" type="number" min="0" value="0"></div>
+<div><label>Epson Sell Rate / SqFt</label><input id="pSellRateSqft" type="number" min="0" value="0"></div>
 </div>
 <div class="table-wrap"><table id="paperTable"></table></div>
 </div>
@@ -428,8 +429,21 @@ button{-webkit-tap-highlight-color:transparent}
 </div>
 <div class="table-wrap"><table id="rateTable"></table></div>
 <h3 style="margin-top:18px">Digital Printing Rates</h3>
-<div class="admin-note">Konica = per sheet / side. Epson = per billed sq.ft. Sticker jobs are always Single Side.</div>
+<div class="admin-note">Konica rate is printing cost per sheet / side and is combined with media cost + Markup. Epson uses the media Sell Rate / SqFt; its machine rate is only a fallback.</div>
 <div class="table-wrap"><table id="digitalRateTable"></table></div>
+<h3 style="margin-top:18px">Fixed Sheet Selling Price Tiers</h3>
+<div class="admin-note">Used only by products set to Fixed Sheet Tiers. The selected tier is the highest minimum sheet quantity reached; this is the final customer price and does not add Markup.</div>
+<div class="row" style="margin-bottom:10px">
+<div><label>Product</label><select id="digitalTierProduct"></select></div>
+<div><label>Media</label><select id="digitalTierMedia"></select></div>
+<div><label>Machine</label><select id="digitalTierMachine"></select></div>
+<div><label>Minimum Sheets</label><input id="digitalTierMin" type="number" min="1" step="1" value="1"></div>
+</div>
+<div class="row2" style="margin-bottom:10px">
+<div><label>Final Price / Sheet</label><input id="digitalTierPrice" type="number" min="0" value="20000"></div>
+<div style="display:flex;align-items:end"><button style="width:100%" onclick="addOrUpdateDigitalTier()">Save Tier</button></div>
+</div>
+<div class="table-wrap"><table id="digitalTierTable"></table></div>
 </div>
 
 
@@ -527,7 +541,7 @@ button{-webkit-tap-highlight-color:transparent}
 
 <div id="digitalResultFields" class="hidden">
 <div class="row2">
-<div><label>Markup %</label><input id="digitalProfitMargin" type="number" min="0" value="30"></div>
+<div id="digitalMarkupWrap"><label>Markup %</label><input id="digitalProfitMargin" type="number" min="0" value="30"></div>
 <div><label>Final Price / Piece</label><input id="digitalPricePerPiece" readonly></div>
 </div>
 <div class="pill digital-status" id="digitalStatusBadge">Digital Layout Ready</div>
@@ -553,10 +567,10 @@ button{-webkit-tap-highlight-color:transparent}
 <div class="kv"><span>Pricing Model</span><b id="digitalPricingModelResult">-</b></div>
 <div class="kv hidden" id="digitalPrintSidesResultRow"><span>Print Sides</span><b id="digitalPrintSidesResult">-</b></div>
 <div class="kv"><span id="digitalBillableLabel">Billable Quantity</span><b id="digitalBillableResult">-</b></div>
-<div class="kv"><span>Media Cost</span><b id="digitalMediaCostResult">-</b></div>
-<div class="kv"><span>Printing Cost</span><b id="digitalPrintingCostResult">-</b></div>
-<div class="kv"><span>Subtotal</span><b id="digitalSubtotalResult">-</b></div>
-<div class="kv"><span>Profit</span><b id="digitalProfitResult">-</b></div>
+<div class="kv" id="digitalMediaCostRow"><span>Media Cost</span><b id="digitalMediaCostResult">-</b></div>
+<div class="kv" id="digitalPrintingCostRow"><span>Printing Cost</span><b id="digitalPrintingCostResult">-</b></div>
+<div class="kv" id="digitalSubtotalRow"><span>Subtotal</span><b id="digitalSubtotalResult">-</b></div>
+<div class="kv" id="digitalProfitRow"><span>Markup Amount</span><b id="digitalProfitResult">-</b></div>
 <div class="kv"><span>Final Price</span><b id="digitalFinalPriceResult">-</b></div>
 <div class="preview-title">One Digital Panel Layout</div>
 <canvas id="digitalPreview"></canvas>
@@ -699,13 +713,25 @@ function seed(){
  localStorage.setItem(KEY,JSON.stringify(db));
 }
 function ensureDataModel(){
- db.products=db.products||[
+ const defaultProducts=[
   {name:'Sticker',methods:['digital'],singleSideOnly:true},
+  {name:'Warranty Seal',methods:['digital'],singleSideOnly:true,digitalPricingMode:'fixed_sheet_tier',preferredMedia:'PP Matte Sticker'},
   {name:'Label Tag',methods:['offset','digital']},
   {name:'Flyer',methods:['offset','digital']},
   {name:'Business Card',methods:['offset','digital']}
  ];
- db.products.forEach(product=>{if(product.name.toLowerCase().includes('sticker'))product.singleSideOnly=true});
+ db.products=Array.isArray(db.products)?db.products:[];
+ if(!db.products.length)defaultProducts.forEach(product=>db.products.push(product));
+ const needsDigitalPricingMigration=Number(db.digitalPricingRulesVersion||0)<1;
+ if(needsDigitalPricingMigration){
+  let warrantyProduct=db.products.find(item=>item.name==='Warranty Seal');
+  if(!warrantyProduct){warrantyProduct={...defaultProducts.find(product=>product.name==='Warranty Seal')};db.products.push(warrantyProduct)}
+  else Object.assign(warrantyProduct,{singleSideOnly:true,digitalPricingMode:'fixed_sheet_tier',preferredMedia:'PP Matte Sticker'});
+ }
+ db.products.forEach(product=>{
+  if(product.name.toLowerCase().includes('sticker')||product.name.toLowerCase().includes('warranty seal'))product.singleSideOnly=true;
+  product.digitalPricingMode=product.digitalPricingMode||'cost_plus';
+ });
  db.papers.forEach(p=>{p.methods=p.methods||['offset'];p.machines=p.machines||[]});
  db.machines.forEach(m=>{m.method=m.method||'offset';m.feedType=m.feedType||'sheet'});
  const digitalMachines=[
@@ -722,6 +748,14 @@ function ensureDataModel(){
   {machine:'Konica',model:'sheet_side',rate:2000},
   {machine:'Epson S80670',model:'sqft',rate:0}
  ].forEach(rate=>{if(!db.digitalRates.some(item=>item.machine===rate.machine))db.digitalRates.push(rate)});
+ db.digitalPriceTiers=Array.isArray(db.digitalPriceTiers)?db.digitalPriceTiers:[];
+ [
+  {product:'Warranty Seal',mediaType:'PP Matte Sticker',machine:'Konica',minSheets:1,pricePerSheet:20000},
+  {product:'Warranty Seal',mediaType:'PP Matte Sticker',machine:'Konica',minSheets:10,pricePerSheet:14500}
+ ].forEach(tier=>{
+  if(!needsDigitalPricingMigration)return;
+  if(!db.digitalPriceTiers.some(item=>item.product===tier.product&&item.mediaType===tier.mediaType&&item.machine===tier.machine&&Number(item.minSheets)===tier.minSheets))db.digitalPriceTiers.push(tier);
+ });
  const legacyArtPaper=db.papers.find(p=>p.digitalPreset==='konica-art-paper-150');
  if(legacyArtPaper)legacyArtPaper.digitalPreset='konica-art-paper-150-standard';
  const legacyArtCard=db.papers.find(p=>p.digitalPreset==='konica-art-card-250');
@@ -729,8 +763,9 @@ function ensureDataModel(){
  const digitalMedia=[
   {type:'PP Matte Sticker',gsm:0,w:12.4,h:18.4,sheets:1,price:0,methods:['digital'],machines:['Konica'],digitalPreset:'konica-standard-12.4x18.4',sizeLabel:'Standard',preferred:true,splitX:1,splitY:1,mL:0,mR:0,mT:0,mB:0},
   {type:'PP Matte Sticker',gsm:0,w:13,h:19,sheets:1,price:0,methods:['digital'],machines:['Konica'],digitalPreset:'konica-13x19',sizeLabel:'Max',splitX:1,splitY:1,mL:.3,mR:.3,mT:.3,mB:.3},
-  {type:'Sticker Roll 5ft',gsm:0,w:58.5,h:24,sheets:1,price:0,methods:['digital'],machines:['Epson S80670'],digitalPreset:'epson-5ft',billableSqft:10,splitX:5,splitY:2,mL:.5,mR:.5,mT:.5,mB:.5},
-  {type:'Sticker Roll 4ft',gsm:0,w:48,h:24,sheets:1,price:0,methods:['digital'],machines:['Epson S80670'],digitalPreset:'epson-4ft',billableSqft:8,splitX:4,splitY:2,mL:.5,mR:.5,mT:.5,mB:.5},
+  {type:'White Gloss Sticker',gsm:0,w:58.5,h:24,sheets:1,price:0,methods:['digital'],machines:['Epson S80670'],digitalPreset:'epson-5ft',billableSqft:10,sellRateSqft:3500,sizeLabel:'5ft Roll',splitX:5,splitY:2,mL:.5,mR:.5,mT:.5,mB:.5},
+  {type:'White Gloss Sticker',gsm:0,w:48,h:24,sheets:1,price:0,methods:['digital'],machines:['Epson S80670'],digitalPreset:'epson-4ft',billableSqft:8,sellRateSqft:3500,sizeLabel:'4ft Roll',splitX:4,splitY:2,mL:.5,mR:.5,mT:.5,mB:.5},
+  {type:'Holographic Laser Sticker',gsm:0,w:48,h:24,sheets:1,price:0,methods:['digital'],machines:['Epson S80670'],digitalPreset:'epson-holographic-laser-4ft',billableSqft:8,sellRateSqft:5500,sizeLabel:'4ft Roll',splitX:4,splitY:2,mL:.5,mR:.5,mT:.5,mB:.5},
   {type:'Art Paper',gsm:150,w:12.4,h:18.4,sheets:1,price:0,methods:['digital'],machines:['Konica'],digitalPreset:'konica-art-paper-150-standard',sizeLabel:'Standard',preferred:true,splitX:1,splitY:1,mL:0,mR:0,mT:0,mB:0},
   {type:'Art Paper',gsm:150,w:13,h:19,sheets:1,price:0,methods:['digital'],machines:['Konica'],digitalPreset:'konica-art-paper-150-max',sizeLabel:'Max',splitX:1,splitY:1,mL:.3,mR:.3,mT:.3,mB:.3},
   {type:'Art Card',gsm:250,w:12.4,h:18.4,sheets:1,price:0,methods:['digital'],machines:['Konica'],digitalPreset:'konica-art-card-250-standard',sizeLabel:'Standard',preferred:true,splitX:1,splitY:1,mL:0,mR:0,mT:0,mB:0},
@@ -739,8 +774,12 @@ function ensureDataModel(){
  digitalMedia.forEach(media=>{
   const existing=db.papers.find(p=>p.digitalPreset===media.digitalPreset);
   if(!existing)db.papers.push(media);
-  else Object.assign(existing,{w:media.w,h:media.h,splitX:media.splitX,splitY:media.splitY,mL:media.mL,mR:media.mR,mT:media.mT,mB:media.mB,sizeLabel:media.sizeLabel,preferred:!!media.preferred,...(media.billableSqft?{billableSqft:media.billableSqft}:{})});
+  else{
+   const sellRateSqft=existing.sellRateSqft==null?media.sellRateSqft:existing.sellRateSqft;
+   Object.assign(existing,{type:media.type,w:media.w,h:media.h,methods:media.methods,machines:media.machines,splitX:media.splitX,splitY:media.splitY,mL:media.mL,mR:media.mR,mT:media.mT,mB:media.mB,sizeLabel:media.sizeLabel,preferred:!!media.preferred,...(media.billableSqft?{billableSqft:media.billableSqft}:{}),...(sellRateSqft!=null?{sellRateSqft}:{})});
+  }
  });
+ db.digitalPricingRulesVersion=1;
  db.printingPolicy=db.printingPolicy||{r1:1100,r2:2200,r3:3300,increment:1000};
 }
 const itemMethods=item=>item?.methods||[item?.method||'offset'];
@@ -817,6 +856,12 @@ function digitalRateFor(machine){
  if(!machine)return{model:'sheet_side',rate:0};
  return db.digitalRates.find(rate=>rate.machine===machine.name)||{machine:machine.name,model:machine.feedType==='roll'?'sqft':'sheet_side',rate:0};
 }
+function digitalTierFor(product,media,machine,sheets){
+ if(!product||!media||!machine||product.digitalPricingMode!=='fixed_sheet_tier')return null;
+ return db.digitalPriceTiers
+  .filter(tier=>tier.product===product.name&&tier.machine===machine.name&&tier.mediaType===media.type&&Number(tier.minSheets)<=sheets)
+  .sort((a,b)=>Number(b.minSheets)-Number(a.minSheets))[0]||null;
+}
 
 function renderProductFilters(){
  const method=val('printingMethod')||'offset';
@@ -827,6 +872,7 @@ function renderProductFilters(){
  const type=val('paperTypeSelect'),gsms=[...new Set(eligible.filter(p=>p.type===type).map(p=>Number(p.gsm)||0))].sort((a,b)=>a-b),oldGsm=Number(val('paperGsmSelect'));
  $('paperGsmSelect').innerHTML=gsms.map(g=>`<option value="${g}">${g?`${g} gsm`:'Not specified'}</option>`).join('');
  if(gsms.includes(oldGsm))$('paperGsmSelect').value=String(oldGsm);
+ $('paperGsmWrap').classList.toggle('hidden',method==='digital'&&gsms.length===1&&gsms[0]===0);
 }
 function renderPaperSizes(){
  const type=val('paperTypeSelect'),gsm=Number(val('paperGsmSelect')),old=val('paperSelect');
@@ -855,8 +901,8 @@ function syncProductMethodAvailability(){
  $('customProductWrap').classList.toggle('hidden',val('productTypeSelect')!=='custom');
 }
 function selectRecommendedMediaForProduct(){
- const product=currentProductType().name.toLowerCase();
- const preferred=product.includes('sticker')?'PP Matte Sticker':product.includes('business card')||product.includes('label')?'Art Card':product.includes('flyer')?'Art Paper':'';
+ const selected=currentProductType(),product=selected.name.toLowerCase();
+ const preferred=selected.preferredMedia||(product.includes('sticker')||product.includes('warranty seal')?'PP Matte Sticker':product.includes('business card')||product.includes('label')?'Art Card':product.includes('flyer')?'Art Paper':'');
  if(preferred&&[...$('paperTypeSelect').options].some(option=>option.value===preferred))$('paperTypeSelect').value=preferred;
 }
 function renderDigitalMedia(){
@@ -895,7 +941,13 @@ function updateDigitalMethodBanner(){
  const maxW=machine.displayW||machine.w,maxH=machine.displayH||machine.h;
  const sizeRole=media.preferred?'Common working media':'Selected media';
  const usable=machine.name==='Konica'?` • Usable ${usableW.toFixed(1)}×${usableH.toFixed(1)} in`:'';
- const rate=digitalRateFor(machine),pricing=rate.model==='sqft'?`${rate.rate?money(rate.rate):'Rate not set'} / sqft`:`${money(rate.rate)} / sheet${isStickerProduct()?'':' / side'}`;
+ const rate=digitalRateFor(machine),product=currentProductType(),tier=digitalTierFor(product,media,machine,Math.max(1,calculateDigitalLayout().mediaNeeded||1));
+ const sqftSellRate=Number(media.sellRateSqft)||Number(rate.rate)||0;
+ const pricing=product.digitalPricingMode==='fixed_sheet_tier'
+  ?(tier?`Fixed tier ${money(tier.pricePerSheet)} / sheet`:'Fixed tier not set')
+  :rate.model==='sqft'
+   ?`${sqftSellRate?money(sqftSellRate):'Sell rate not set'} / billed sqft`
+   :`${money(rate.rate)} printing cost / sheet${isStickerProduct()?'':' / side'} + Markup`;
  const billingPolicy=rate.model==='sqft'?` • ${Number(media.billableSqft)||(media.w*media.h/144).toFixed(2)} billed sqft / full media`:'';
  $('digitalMethodBanner').textContent=`Digital • ${machine.name} • Machine max ${maxW}×${maxH} in • ${sizeRole} ${media.w}×${media.h} in${usable}${billingPolicy} • ${pricing}.`;
 }
@@ -1078,9 +1130,15 @@ function calculateDigital(){
  $('bleedSize').value=`${displayMeasure(bleed.w)} × ${displayMeasure(bleed.h)} ${unit}`;
  $('layoutPitch').value=`${displayMeasure(bleed.w+layoutGap)} × ${displayMeasure(bleed.h+layoutGap)} ${unit}`;
  if(!result.valid){
+  const product=currentProductType(),rate=digitalRateFor(result.machine);
+  const showCostBreakdown=product.digitalPricingMode!=='fixed_sheet_tier'&&rate.model!=='sqft';
+  $('digitalMarkupWrap').classList.toggle('hidden',!showCostBreakdown);
+  ['digitalMediaCostRow','digitalPrintingCostRow','digitalSubtotalRow','digitalProfitRow'].forEach(id=>$(id).classList.toggle('hidden',!showCostBreakdown));
   $('digitalStatusBadge').textContent='No valid digital layout';
   $('digitalPrimaryResult').textContent='0 / Panel';
   ['digitalPiecesPerPanel','digitalPanelsNeeded','digitalPiecesPerMedia','digitalMediaNeeded'].forEach(id=>$(id).textContent='0');
+  $('digitalPricingModelResult').textContent='-';
+  $('digitalBillableResult').textContent='-';
   ['digitalMediaCostResult','digitalPrintingCostResult','digitalSubtotalResult','digitalProfitResult','digitalFinalPriceResult'].forEach(id=>$(id).textContent=money(0));
   $('digitalPricePerPiece').value=money(0);
   $('digitalResultNote').textContent='Check media size, machine compatibility, margins, sticker size, and gap.';
@@ -1088,20 +1146,41 @@ function calculateDigital(){
  }
  const product=currentProductType(),pattern=result.best.mode==='Honeycomb'?`${result.best.cols}/${result.best.minCols} × ${result.best.rows}`:`${result.best.cols} × ${result.best.rows}`;
  const rate=digitalRateFor(result.machine),showSides=!isStickerProduct()&&result.machine.name==='Konica',sides=showSides?Math.max(1,Number(val('digitalPrintSides'))||1):1;
- const mediaCost=result.mediaNeeded*((Number(result.media.price)||0)/Math.max(1,Number(result.media.sheets)||1));
- let billable=0,printingCost=0,billableLabel='',billableText='',pricingModel='';
- if(rate.model==='sqft'){
+ const tier=digitalTierFor(product,result.media,result.machine,result.mediaNeeded);
+ let billable=0,mediaCost=0,printingCost=0,subtotal=0,markup=0,final=0,billableLabel='',billableText='',pricingModel='',resultNote='',pricingKind='cost_plus';
+ if(product.digitalPricingMode==='fixed_sheet_tier'){
+  pricingKind='fixed_sheet_tier';
+  billable=result.mediaNeeded;
+  billableLabel='Billable Sheets';billableText=`${billable.toLocaleString()} sheets`;
+  if(tier){
+   final=billable*Number(tier.pricePerSheet);
+   const tierMinimum=Number(tier.minSheets);
+   pricingModel=`Fixed tier • ${money(tier.pricePerSheet)} / sheet from ${tierMinimum.toLocaleString()} sheet${tierMinimum===1?'':'s'}`;
+   resultNote='Final selling price includes media, printing, and cutting. Markup is not added.';
+  }else{
+   pricingModel='Fixed tier • No matching rule';
+   resultNote=`Add a Fixed Sheet Tier for ${product.name} + ${result.media.type} + ${result.machine.name}.`;
+  }
+ }else if(rate.model==='sqft'){
+  pricingKind='sell_sqft';
   const sqftPerMedia=Number(result.media.billableSqft)||result.W*result.H/144;
-  billable=result.mediaNeeded*sqftPerMedia;printingCost=billable*rate.rate;
-  billableLabel='Billable SqFt';billableText=`${billable.toLocaleString()} sqft`;
-  pricingModel=`${money(rate.rate)} / sqft`;
+  const sellRate=Number(result.media.sellRateSqft)||Number(rate.rate)||0;
+  billable=result.mediaNeeded*sqftPerMedia;final=billable*sellRate;
+  billableLabel='Billable SqFt';billableText=`${billable.toLocaleString()} sqft (${result.mediaNeeded.toLocaleString()} full media × ${sqftPerMedia.toLocaleString()})`;
+  pricingModel=`Final sell rate • ${money(sellRate)} / billed sqft`;
+  resultNote=sellRate?'Full-media billed area pricing applied. Markup is not added.':`Set the Epson Sell Rate / SqFt for ${result.media.type} in Media DB.`;
  }else{
-  billable=result.mediaNeeded*sides;printingCost=billable*rate.rate;
+  mediaCost=result.mediaNeeded*((Number(result.media.price)||0)/Math.max(1,Number(result.media.sheets)||1));
+  billable=result.mediaNeeded*sides;printingCost=billable*Number(rate.rate);
   billableLabel=isStickerProduct()?'Billable Sheets':'Billable Sheet Sides';
   billableText=isStickerProduct()?`${result.mediaNeeded.toLocaleString()} sheets`:`${result.mediaNeeded.toLocaleString()} sheets × ${sides} side${sides>1?'s':''}`;
-  pricingModel=`${money(rate.rate)} / sheet${isStickerProduct()?'':' / side'}`;
+  pricingModel=`Cost + Markup • ${money(rate.rate)} printing / sheet${isStickerProduct()?'':' / side'}`;
+  subtotal=mediaCost+printingCost;markup=subtotal*num('digitalProfitMargin')/100;final=subtotal+markup;
+  resultNote=rate.rate?`${result.machine.name} printing cost + media cost + Markup applied.`:`Set the ${result.machine.name} printing cost in Printing Rate DB.`;
  }
- const subtotal=mediaCost+printingCost,profit=subtotal*num('digitalProfitMargin')/100,final=subtotal+profit;
+ const showCostBreakdown=pricingKind==='cost_plus';
+ $('digitalMarkupWrap').classList.toggle('hidden',!showCostBreakdown);
+ ['digitalMediaCostRow','digitalPrintingCostRow','digitalSubtotalRow','digitalProfitRow'].forEach(id=>$(id).classList.toggle('hidden',!showCostBreakdown));
  $('digitalStatusBadge').textContent=`Digital • ${result.machine.name}`;
  $('digitalPrimaryResult').textContent=`${result.best.count} / Panel`;
  $('digitalPiecesPerPanel').textContent=result.best.count;
@@ -1125,10 +1204,10 @@ function calculateDigital(){
  $('digitalMediaCostResult').textContent=money(mediaCost);
  $('digitalPrintingCostResult').textContent=money(printingCost);
  $('digitalSubtotalResult').textContent=money(subtotal);
- $('digitalProfitResult').textContent=money(profit);
+ $('digitalProfitResult').textContent=money(markup);
  $('digitalFinalPriceResult').textContent=money(final);
  $('digitalPricePerPiece').value=money(final/Math.max(1,num('qty')));
- $('digitalResultNote').textContent=rate.rate?`${result.machine.name} pricing applied automatically from Printing Rate DB.`:`Set the ${result.machine.name} Digital rate in Printing Rate DB to calculate Printing Cost.`;
+ $('digitalResultNote').textContent=resultNote;
  drawDigitalPreview(result);
 }
 function syncMethodUI(){
@@ -1271,13 +1350,17 @@ function draw(id,SW,SH,layout,title){
 function methodList(value){return value==='both'?['offset','digital']:[value]}
 function addProductType(){
  const name=val('productDbName').trim();if(!name)return;
- db.products.push({name,methods:methodList(val('productDbMethods')),singleSideOnly:name.toLowerCase().includes('sticker')});saveDB();
+ db.products.push({name,methods:methodList(val('productDbMethods')),singleSideOnly:name.toLowerCase().includes('sticker')||name.toLowerCase().includes('warranty seal'),digitalPricingMode:val('productDbDigitalPricing')});saveDB();
 }
 function addPaper(){
  const machines=val('pMachines').split(',').map(name=>name.trim()).filter(Boolean);
- db.papers.push({type:val('pType'),gsm:num('pGsm'),w:num('pW'),h:num('pH'),sheets:num('pSheets'),price:num('pPrice'),billableSqft:num('pBillableSqft'),methods:methodList(val('pMethod')),machines});saveDB();
+ db.papers.push({type:val('pType'),gsm:num('pGsm'),w:num('pW'),h:num('pH'),sheets:num('pSheets'),price:num('pPrice'),billableSqft:num('pBillableSqft'),sellRateSqft:num('pSellRateSqft'),methods:methodList(val('pMethod')),machines});saveDB();
 }
-function savePaperPrice(i){db.papers[i].price=Number($(`paperPrice_${i}`).value)||0;saveDB()}
+function savePaperPricing(i){
+ db.papers[i].price=Number($(`paperPrice_${i}`).value)||0;
+ db.papers[i].sellRateSqft=Number($(`paperSellRateSqft_${i}`).value)||0;
+ saveDB();
+}
 function addMachine(){
  if(!val('mName')||!num('mW')||!num('mH'))return alert('Machine name and max size required');
  const machine={name:val('mName'),w:Math.max(num('mW'),num('mH')),h:Math.min(num('mW'),num('mH')),gripper:num('mGripper'),top:num('mTop'),left:num('mLeft'),right:num('mRight'),platePrice:num('mPlate'),method:val('mMethod'),feedType:val('mFeed')};
@@ -1292,6 +1375,14 @@ function saveDigitalRate(i){
  const rate=db.digitalRates[i];if(!rate)return;
  rate.model=val(`digitalRateModel_${i}`);rate.rate=num(`digitalRatePrice_${i}`);saveDB();
 }
+function addOrUpdateDigitalTier(){
+ const tier={product:val('digitalTierProduct'),mediaType:val('digitalTierMedia'),machine:val('digitalTierMachine'),minSheets:Math.max(1,Math.floor(num('digitalTierMin'))),pricePerSheet:num('digitalTierPrice')};
+ if(!tier.product||!tier.mediaType||!tier.machine||tier.pricePerSheet<=0)return alert('Product, media, machine, minimum sheets, and price are required.');
+ const existing=db.digitalPriceTiers.find(item=>item.product===tier.product&&item.mediaType===tier.mediaType&&item.machine===tier.machine&&Number(item.minSheets)===tier.minSheets);
+ if(existing)Object.assign(existing,tier);else db.digitalPriceTiers.push(tier);
+ db.digitalPriceTiers.sort((a,b)=>a.product.localeCompare(b.product)||Number(a.minSheets)-Number(b.minSheets));
+ saveDB();
+}
 function addCapacity(){db.capacities.push({maxGsm:num('capGsm'),sheets:num('capSheets')});db.capacities.sort((a,b)=>a.maxGsm-b.maxGsm);saveDB()}
 function saveCapacity(i){db.capacities[i].maxGsm=Number($(`capGsm_${i}`).value)||0;db.capacities[i].sheets=Number($(`capSheets_${i}`).value)||0;saveDB()}
 function addLamination(){db.laminations.push({name:val('lamName'),rate:num('lamRate')});saveDB()}
@@ -1304,20 +1395,35 @@ function renderRateSelectors(){
  const m=offsetMachines.find(x=>x.name===val('rMachine'))||offsetMachines[0];
  $('rCut').innerHTML=db.cuts.filter(c=>machineFits(m,c)).map(c=>`<option value='${JSON.stringify({w:c.w,h:c.h})}'>${c.w}×${c.h}</option>`).join('');
 }
+function renderDigitalTierSelectors(){
+ const productOld=val('digitalTierProduct'),mediaOld=val('digitalTierMedia'),machineOld=val('digitalTierMachine');
+ const products=db.products.filter(product=>(product.methods||[]).includes('digital')&&product.digitalPricingMode==='fixed_sheet_tier');
+ const mediaTypes=[...new Set(db.papers.filter(media=>supportsMethod(media,'digital')).map(media=>media.type))];
+ const machines=db.machines.filter(machine=>machine.method==='digital');
+ $('digitalTierProduct').innerHTML=products.map(product=>`<option value="${product.name}">${product.name}</option>`).join('');
+ $('digitalTierMedia').innerHTML=mediaTypes.map(type=>`<option value="${type}">${type}</option>`).join('');
+ $('digitalTierMachine').innerHTML=machines.map(machine=>`<option value="${machine.name}">${machine.name}</option>`).join('');
+ if(products.some(product=>product.name===productOld))$('digitalTierProduct').value=productOld;
+ if(mediaTypes.includes(mediaOld))$('digitalTierMedia').value=mediaOld;
+ else if(mediaTypes.includes('PP Matte Sticker'))$('digitalTierMedia').value='PP Matte Sticker';
+ if(machines.some(machine=>machine.name===machineOld))$('digitalTierMachine').value=machineOld;
+ else if(machines.some(machine=>machine.name==='Konica'))$('digitalTierMachine').value='Konica';
+}
 function renderDigitalRates(){
  db.machines.filter(machine=>machine.method==='digital').forEach(machine=>{
   if(!db.digitalRates.some(rate=>rate.machine===machine.name))db.digitalRates.push({machine:machine.name,model:machine.feedType==='roll'?'sqft':'sheet_side',rate:0});
  });
- $('digitalRateTable').innerHTML='<tr><th>Machine</th><th>Pricing Model</th><th>Rate</th><th>Action</th></tr>'+db.digitalRates.map((rate,i)=>`<tr><td>${rate.machine}</td><td><select id="digitalRateModel_${i}"><option value="sheet_side" ${rate.model==='sheet_side'?'selected':''}>Per Sheet / Side</option><option value="sqft" ${rate.model==='sqft'?'selected':''}>Per SqFt</option></select></td><td><input id="digitalRatePrice_${i}" type="number" min="0" value="${rate.rate}"></td><td><button class="small" onclick="saveDigitalRate(${i})">Save</button></td></tr>`).join('');
+ $('digitalRateTable').innerHTML='<tr><th>Machine</th><th>Rate Unit</th><th>Cost / Fallback Rate</th><th>Action</th></tr>'+db.digitalRates.map((rate,i)=>`<tr><td>${rate.machine}</td><td><select id="digitalRateModel_${i}"><option value="sheet_side" ${rate.model==='sheet_side'?'selected':''}>Per Sheet / Side</option><option value="sqft" ${rate.model==='sqft'?'selected':''}>Per SqFt</option></select></td><td><input id="digitalRatePrice_${i}" type="number" min="0" value="${rate.rate}"></td><td><button class="small" onclick="saveDigitalRate(${i})">Save</button></td></tr>`).join('');
+ $('digitalTierTable').innerHTML='<tr><th>Product</th><th>Media</th><th>Machine</th><th>From Sheets</th><th>Final / Sheet</th><th>Action</th></tr>'+db.digitalPriceTiers.map((tier,i)=>`<tr><td>${tier.product}</td><td>${tier.mediaType}</td><td>${tier.machine}</td><td>${Number(tier.minSheets).toLocaleString()}</td><td>${money(tier.pricePerSheet)}</td><td><button class="small danger" onclick="del('digitalPriceTiers',${i})">Delete</button></td></tr>`).join('');
 }
 function renderAll(){
  renderProductTypes();renderProductFilters();renderPaperSizes();renderDigitalMedia();
  $('machineSelect').innerHTML=db.machines.map((m,i)=>({m,i})).filter(x=>x.m.method==='offset').map(x=>`<option value="${x.i}">${x.m.name} • max ${x.m.w}×${x.m.h}</option>`).join('');
  $('laminationSelect').innerHTML='<option value="-1">None</option>'+db.laminations.map((l,i)=>`<option value="${i}">${l.name} • ${l.rate}/sq.in</option>`).join('');
- renderCuts();renderRateSelectors();renderDigitalRates();
+ renderCuts();renderRateSelectors();renderDigitalTierSelectors();renderDigitalRates();
 
- $('productTable').innerHTML='<tr><th>Product</th><th>Methods</th><th>Digital Sides</th><th>Action</th></tr>'+db.products.map((p,i)=>`<tr><td>${p.name}</td><td>${p.methods.map(method=>method==='offset'?'Offset':'Digital').join(' + ')}</td><td>${p.singleSideOnly?'Single only':'Selectable'}</td><td><div class="actions"><button class="small danger" onclick="del('products',${i})">Delete</button></div></td></tr>`).join('');
- $('paperTable').innerHTML='<tr><th>Media</th><th>GSM</th><th>Size</th><th>Method</th><th>Machines</th><th>Pack</th><th>Price</th><th>Billable SqFt</th><th>Action</th></tr>'+db.papers.map((p,i)=>`<tr><td><input readonly value="${p.type}"></td><td><input readonly value="${p.gsm||'-'}"></td><td><input readonly value="${p.w}×${p.h}"></td><td>${itemMethods(p).map(method=>method==='offset'?'Offset':'Digital').join(' + ')}</td><td>${p.machines?.join(', ')||'Any compatible'}</td><td><input readonly value="${p.sheets}"></td><td><input id="paperPrice_${i}" type="number" value="${p.price}"></td><td>${p.billableSqft||'-'}</td><td><div class="actions"><button class="small" onclick="savePaperPrice(${i})">Save</button><button class="small danger" onclick="del('papers',${i})">Delete</button></div></td></tr>`).join('');
+ $('productTable').innerHTML='<tr><th>Product</th><th>Methods</th><th>Digital Sides</th><th>Digital Pricing</th><th>Action</th></tr>'+db.products.map((p,i)=>`<tr><td>${p.name}</td><td>${p.methods.map(method=>method==='offset'?'Offset':'Digital').join(' + ')}</td><td>${p.singleSideOnly?'Single only':'Selectable'}</td><td>${p.digitalPricingMode==='fixed_sheet_tier'?'Fixed Sheet Tiers':'Cost + Markup'}</td><td><div class="actions"><button class="small danger" onclick="del('products',${i})">Delete</button></div></td></tr>`).join('');
+ $('paperTable').innerHTML='<tr><th>Media</th><th>GSM</th><th>Size</th><th>Method</th><th>Machines</th><th>Pack</th><th>Cost</th><th>Billable SqFt</th><th>Sell / SqFt</th><th>Action</th></tr>'+db.papers.map((p,i)=>`<tr><td><input readonly value="${p.type}"></td><td><input readonly value="${p.gsm||'-'}"></td><td><input readonly value="${p.w}×${p.h}"></td><td>${itemMethods(p).map(method=>method==='offset'?'Offset':'Digital').join(' + ')}</td><td>${p.machines?.join(', ')||'Any compatible'}</td><td><input readonly value="${p.sheets}"></td><td><input id="paperPrice_${i}" type="number" min="0" value="${p.price}"></td><td>${p.billableSqft||'-'}</td><td><input id="paperSellRateSqft_${i}" type="number" min="0" value="${p.sellRateSqft||0}"></td><td><div class="actions"><button class="small" onclick="savePaperPricing(${i})">Save</button><button class="small danger" onclick="del('papers',${i})">Delete</button></div></td></tr>`).join('');
  $('machineTable').innerHTML='<tr><th>Machine</th><th>Method</th><th>Feed</th><th>Max Size</th><th>Margins</th><th>Plate / Color</th><th>Action</th></tr>'+db.machines.map((m,i)=>`<tr><td>${m.name}</td><td>${m.method==='digital'?'Digital':'Offset'}</td><td>${m.feedType}</td><td>${m.displayW||m.w}×${m.displayH||m.h}</td><td>G ${m.gripper} • T ${m.top} • L ${m.left} • R ${m.right}</td><td><input id="machinePlate_${i}" type="number" value="${m.platePrice}"></td><td><div class="actions"><button class="small" onclick="saveMachinePlate(${i})">Save</button><button class="small danger" onclick="del('machines',${i})">Delete</button></div></td></tr>`).join('');
  $('cutTable').innerHTML='<tr><th>Original</th><th>Cut</th><th>Pieces</th><th>Layout</th><th>Action</th></tr>'+db.cuts.map((c,i)=>`<tr><td>${c.ow}×${c.oh}</td><td>${c.w}×${c.h}</td><td>${c.pieces}</td><td>${c.note}</td><td><div class="actions"><button class="small danger" onclick="del('cuts',${i})">Delete</button></div></td></tr>`).join('');
  $('rateTable').innerHTML='<tr><th>Machine</th><th>Cut</th><th>Rate</th><th>Action</th></tr>'+db.rates.map((r,i)=>`<tr><td>${r.machine}</td><td>${r.w}×${r.h}</td><td>${money(r.price)}</td><td><div class="actions"><button class="small danger" onclick="del('rates',${i})">Delete</button></div></td></tr>`).join('')+(db.rates.length?'':'<tr><td colspan="4" style="text-align:center;color:#697386">No custom rates. Default 14,000 active.</td></tr>');
