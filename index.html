@@ -51,6 +51,33 @@ button.small{padding:7px 9px;font-size:12px}
 .metric strong{display:block;font-size:22px}.metric span{font-size:12px;color:var(--muted)}
 .kv{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px dashed var(--line);font-size:14px}.kv b{text-align:right}
 .group-title{margin-top:14px;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.05em;color:#4b5563}
+.customer-quote{margin:14px 0;padding:14px;border:1px solid #c7d2fe;border-radius:16px;background:#f8faff}
+.customer-quote-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:11px}
+.customer-quote-head h3{margin:0;font-size:16px}.customer-quote-head p{margin:3px 0 0;color:var(--muted);font-size:12px;line-height:1.45}
+.quote-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.quote-card{min-width:0;padding:14px;border:1px solid var(--line);border-radius:14px;background:#fff}
+.quote-card.reference{border-color:#a5f3fc;box-shadow:inset 0 4px 0 #06b6d4}
+.quote-card.delivery{border-color:#c7d2fe;box-shadow:inset 0 4px 0 var(--brand)}
+.quote-kicker{display:block;margin-bottom:8px;color:#4b5563;font-size:11px;font-weight:900;letter-spacing:.06em;text-transform:uppercase}
+.quote-yield{display:flex;align-items:baseline;gap:7px;margin-bottom:9px}
+.quote-yield strong{font-size:36px;line-height:1;color:#111827;letter-spacing:-.04em}
+.quote-yield span{color:var(--muted);font-size:13px;font-weight:800}
+.quote-meta{display:grid;gap:5px;color:var(--muted);font-size:12px;line-height:1.35}
+.quote-meta div{display:flex;justify-content:space-between;gap:10px}.quote-meta b{color:var(--ink);text-align:right}
+.delivery-breakdown{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:10px}
+.delivery-stat{padding:10px;border:1px solid var(--line);border-radius:12px;background:#fff}
+.delivery-stat span{display:block;color:var(--muted);font-size:11px}.delivery-stat b{display:block;margin-top:4px;font-size:15px}
+.quote-copy{margin-top:10px;padding-top:10px;border-top:1px dashed #c7d2fe}
+.quote-copy label{font-weight:800;color:#4b5563}
+.quote-copy textarea{min-height:104px;resize:vertical;line-height:1.5;background:#fff;font:inherit;font-size:12px}
+.quote-copy-actions{display:flex;align-items:center;gap:10px;margin-top:8px}
+.quote-copy-actions button{min-width:190px}.copy-status{color:var(--good);font-size:12px;font-weight:800}
+.production-details{margin-top:12px;border:1px solid var(--line);border-radius:14px;background:#fff;overflow:hidden}
+.production-details>summary{cursor:pointer;list-style:none;padding:12px 14px;background:#f8fafc;color:#374151;font-size:13px;font-weight:900}
+.production-details>summary::-webkit-details-marker{display:none}
+.production-details>summary::after{content:'＋';float:right;color:var(--brand);font-size:17px;line-height:1}
+.production-details[open]>summary::after{content:'−'}
+.production-details-body{padding:0 14px 14px}
 canvas{width:100%;height:240px;border:1px solid var(--line);border-radius:14px;background:#fff}
 .preview-title{font-size:13px;font-weight:800;margin:14px 0 6px}
 .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.db-group-label{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:#6b7280;margin:10px 0 6px}
@@ -95,6 +122,12 @@ td input[readonly]{border-color:transparent;background:transparent;font-weight:7
 @media(max-width:1000px){.app{grid-template-columns:1fr}.result{position:static}.row,.row3,.row2{grid-template-columns:1fr 1fr}}
 @media(max-width:700px){.compact-add{grid-template-columns:1fr}.compact-add button{width:100%}}
 @media(max-width:620px){.row,.row3,.row2,.metrics{grid-template-columns:1fr}.wrap{padding:12px}.big{font-size:24px}}
+@media(max-width:620px){
+ .quote-grid{grid-template-columns:1fr}
+ .delivery-breakdown{grid-template-columns:1fr 1fr}
+ .quote-copy-actions{align-items:stretch;flex-direction:column}
+ .quote-copy-actions button{width:100%}
+}
 
 
 /* v30 responsive production layer */
@@ -335,7 +368,7 @@ button{-webkit-tap-highlight-color:transparent}
 <h3>Continuous Roll & Customer Sheets</h3>
 <div class="row">
 <div><label>Roll Edge Margin / Side (inch)</label><input id="digitalRollMargin" type="number" min="0" step="0.1" value="0.5"></div>
-<div><label>Reference / Delivery Edge (inch)</label><input id="digitalDeliveryMargin" type="number" min="0" step="0.1" value="0.5"></div>
+<div><label>Delivery Cut Margin / Side (inch)</label><input id="digitalDeliveryMargin" type="number" min="0" step="0.1" value="0.5"></div>
 <div><label>Preferred Sheet Size (inch)</label><input id="digitalDeliveryPreferred" type="number" min="1" step="0.5" value="12"></div>
 <div><label>Maximum Sheet Size (inch)</label><input id="digitalDeliveryMax" type="number" min="1" step="0.5" value="15"></div>
 </div>
@@ -565,6 +598,53 @@ button{-webkit-tap-highlight-color:transparent}
 <div><label>Final Price / Piece</label><input id="digitalPricePerPiece" readonly></div>
 </div>
 <div class="pill digital-status" id="digitalStatusBadge">Digital Layout Ready</div>
+<div id="digitalRollResult" class="hidden">
+<section class="customer-quote" aria-labelledby="customerQuoteHeading">
+<div class="customer-quote-head">
+<div>
+<h3 id="customerQuoteHeading">Customer Quick Quote</h3>
+<p>The two numbers customers usually ask for first.</p>
+</div>
+</div>
+<div class="quote-grid">
+<article class="quote-card reference">
+<span class="quote-kicker">1 SqFt Yield</span>
+<div class="quote-yield"><strong id="digitalReferencePieces">0</strong><span>pieces approx.</span></div>
+<div class="quote-meta">
+<div><span>Reference Sheet</span><b id="digitalReferenceSheet">-</b></div>
+<div><span>Layout</span><b id="digitalReferencePattern">-</b></div>
+<div><span>Rate</span><b id="digitalReferenceRate">-</b></div>
+</div>
+</article>
+<article class="quote-card delivery">
+<span class="quote-kicker">Delivery Sheet Yield</span>
+<div class="quote-yield"><strong id="digitalDeliveryCapacityResult">0</strong><span>pieces / full sheet</span></div>
+<div class="quote-meta">
+<div><span>Sheet Size</span><b id="digitalDeliverySizeResult">-</b></div>
+<div><span>Usable After Cut Margin</span><b id="digitalDeliveryUsableResult">-</b></div>
+<div><span>Layout</span><b id="digitalDeliveryLayoutResult">-</b></div>
+</div>
+</article>
+</div>
+<div class="delivery-breakdown">
+<div class="delivery-stat"><span>Order Qty</span><b id="digitalDeliveryOrderResult">-</b></div>
+<div class="delivery-stat"><span>Sheets Required</span><b id="digitalDeliverySheetsResult">-</b></div>
+<div class="delivery-stat"><span>Full Sheets</span><b id="digitalDeliveryFullResult">-</b></div>
+<div class="delivery-stat"><span>Last Sheet</span><b id="digitalDeliveryLastResult">-</b></div>
+</div>
+<div class="quote-copy">
+<label for="digitalCustomerQuote">Customer Message</label>
+<textarea id="digitalCustomerQuote" rows="4" readonly></textarea>
+<div class="quote-copy-actions">
+<button type="button" onclick="copyDigitalCustomerQuote()">Copy Customer Message</button>
+<span class="copy-status" id="digitalCopyStatus" role="status" aria-live="polite"></span>
+</div>
+</div>
+</section>
+</div>
+<details class="production-details" id="digitalProductionDetails" open>
+<summary>Production Details</summary>
+<div class="production-details-body">
 <div class="big" id="digitalPrimaryResult">0 / Panel</div>
 <div class="metrics">
 <div class="metric"><strong id="digitalPiecesPerPanel">0</strong><span id="digitalMetric1Label">Pieces / Panel</span></div>
@@ -583,18 +663,11 @@ button{-webkit-tap-highlight-color:transparent}
 <div class="kv"><span>Orientation</span><b id="digitalOrientationResult">-</b></div>
 <div class="kv"><span>Layout Efficiency</span><b id="digitalEfficiencyResult">-</b></div>
 <div class="kv"><span id="digitalWasteLabel">Full Media Capacity Waste</span><b id="digitalWasteResult">-</b></div>
-<div id="digitalRollResult" class="hidden">
-<div class="group-title">1 SqFt Quick Reference</div>
-<div class="kv"><span>Rate / SqFt</span><b id="digitalReferenceRate">-</b></div>
-<div class="kv"><span>Reference Sheet</span><b id="digitalReferenceSheet">-</b></div>
-<div class="kv"><span>Approx. Pieces / SqFt</span><b id="digitalReferencePieces">-</b></div>
-<div class="group-title">Customer Delivery</div>
-<div class="kv"><span>Recommended Cut Sheet</span><b id="digitalDeliverySizeResult">-</b></div>
-<div class="kv"><span>Pieces / Cut Sheet</span><b id="digitalDeliveryCapacityResult">-</b></div>
-<div class="kv"><span>Cut Sheets Required</span><b id="digitalDeliverySheetsResult">-</b></div>
-<div class="kv"><span>Last Sheet</span><b id="digitalDeliveryLastResult">-</b></div>
+<div class="preview-title" id="digitalPreviewTitle">One Digital Panel Layout</div>
+<canvas id="digitalPreview"></canvas>
 </div>
-<div class="group-title">Digital Costs</div>
+</details>
+<div class="group-title">Price Summary</div>
 <div class="kv"><span>Pricing Model</span><b id="digitalPricingModelResult">-</b></div>
 <div class="kv hidden" id="digitalPrintSidesResultRow"><span>Print Sides</span><b id="digitalPrintSidesResult">-</b></div>
 <div class="kv"><span id="digitalBillableLabel">Billable Quantity</span><b id="digitalBillableResult">-</b></div>
@@ -603,8 +676,6 @@ button{-webkit-tap-highlight-color:transparent}
 <div class="kv" id="digitalSubtotalRow"><span>Subtotal</span><b id="digitalSubtotalResult">-</b></div>
 <div class="kv" id="digitalProfitRow"><span>Markup Amount</span><b id="digitalProfitResult">-</b></div>
 <div class="kv"><span>Final Price</span><b id="digitalFinalPriceResult">-</b></div>
-<div class="preview-title" id="digitalPreviewTitle">One Digital Panel Layout</div>
-<canvas id="digitalPreview"></canvas>
 <div class="note" id="digitalResultNote">Capacity/layout POC only. Digital media, ink/click, finishing, and machine rates are not included yet.</div>
 </div>
 </div>
@@ -1318,10 +1389,28 @@ function drawDigitalPreview(result){
   else{ctx.fillRect(x,y,w,h);ctx.strokeRect(x,y,w,h)}
  });
 }
+async function copyDigitalCustomerQuote(){
+ const field=$('digitalCustomerQuote'),status=$('digitalCopyStatus'),text=field.value.trim();
+ if(!text)return;
+ let copied=false;
+ try{
+  if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(text);copied=true}
+ }catch(error){}
+ if(!copied){
+  field.focus();field.select();field.setSelectionRange(0,field.value.length);
+  try{copied=document.execCommand('copy')}catch(error){}
+ }
+ status.textContent=copied?'Copied — ready to paste':'Select the message and copy it manually';
+}
 function calculateDigital(){
  updateDigitalMethodBanner();
  const result=calculateDigitalLayout(),unit=val('unit');
  const roll=!!result.isRoll;
+ const productionDetails=$('digitalProductionDetails'),productionMode=roll?'roll':'sheet';
+ if(productionDetails.dataset.mode!==productionMode){
+  productionDetails.dataset.mode=productionMode;
+  productionDetails.open=!roll;
+ }
  $('digitalRollResult').classList.toggle('hidden',!roll||!result.valid);
  $('digitalSheetSettings').classList.toggle('hidden',roll);
  $('digitalRollSettings').classList.toggle('hidden',!roll);
@@ -1347,6 +1436,8 @@ function calculateDigital(){
   $('digitalBillableResult').textContent='-';
   ['digitalMediaCostResult','digitalPrintingCostResult','digitalSubtotalResult','digitalProfitResult','digitalFinalPriceResult'].forEach(id=>$(id).textContent=money(0));
   $('digitalPricePerPiece').value=money(0);
+  $('digitalCustomerQuote').value='';
+  $('digitalCopyStatus').textContent='';
   $('digitalResultNote').textContent=missingMachine?'Edit Compatible Machines for this media in Media DB.':'Check media size, machine compatibility, margins, product size, and gap.';
   drawDigitalPreview(result);return;
  }
@@ -1415,13 +1506,25 @@ function calculateDigital(){
  $('digitalPreviewTitle').textContent=roll?'Continuous Roll Layout (first rows)':'One Digital Panel Layout';
  if(roll){
   const referencePattern=result.reference.best.mode==='Honeycomb'?`${result.reference.best.cols}/${result.reference.best.minCols} × ${result.reference.best.rows}`:`${result.reference.best.cols} × ${result.reference.best.rows}`;
+  const orderQty=Math.max(1,Math.ceil(num('qty'))),delivery=result.delivery;
   $('digitalReferenceRate').textContent=`${money(sellRate)} / sqft`;
   $('digitalReferenceSheet').textContent=`12×12 in • usable ${result.reference.usable.toFixed(1)}×${result.reference.usable.toFixed(1)} in`;
-  $('digitalReferencePieces').textContent=`${result.reference.best.count.toLocaleString()} • ${referencePattern}`;
-  $('digitalDeliverySizeResult').textContent=result.delivery?`${result.delivery.width.toFixed(1)}×${result.delivery.height.toFixed(1)} in`:'Does not fit max sheet';
-  $('digitalDeliveryCapacityResult').textContent=result.delivery?`${result.delivery.capacity.toLocaleString()} • ${result.delivery.cols}×${result.delivery.rows}`:'-';
-  $('digitalDeliverySheetsResult').textContent=result.delivery?result.delivery.sheets.toLocaleString():'-';
-  $('digitalDeliveryLastResult').textContent=result.delivery?`${result.delivery.lastPieces.toLocaleString()} pieces`:'-';
+  $('digitalReferencePattern').textContent=referencePattern;
+  $('digitalReferencePieces').textContent=result.reference.best.count.toLocaleString();
+  $('digitalDeliveryOrderResult').textContent=`${orderQty.toLocaleString()} pieces`;
+  $('digitalDeliverySizeResult').textContent=delivery?`${delivery.width.toFixed(1)}×${delivery.height.toFixed(1)} in`:'Does not fit max sheet';
+  $('digitalDeliveryUsableResult').textContent=delivery?`${Math.max(0,delivery.width-result.deliveryMargin*2).toFixed(1)}×${Math.max(0,delivery.height-result.deliveryMargin*2).toFixed(1)} in • ${result.deliveryMargin.toFixed(1)}″ / side`:'-';
+  $('digitalDeliveryCapacityResult').textContent=delivery?delivery.capacity.toLocaleString():'0';
+  $('digitalDeliveryLayoutResult').textContent=delivery?`${delivery.cols} × ${delivery.rows}`:'-';
+  $('digitalDeliverySheetsResult').textContent=delivery?`${delivery.sheets.toLocaleString()} sheets`:'-';
+  const fullSheets=delivery?Math.floor(orderQty/delivery.capacity):0,remainder=delivery?orderQty%delivery.capacity:0;
+  $('digitalDeliveryFullResult').textContent=delivery?`${fullSheets.toLocaleString()} full`:'-';
+  $('digitalDeliveryLastResult').textContent=delivery?(remainder?`${remainder.toLocaleString()} pieces`:'Full'):'-';
+  const productSize=`${num('finishedW')}×${num('finishedH')} ${unit}`;
+  $('digitalCustomerQuote').value=delivery
+   ?`${product.name} ${productSize}: 1 sqft (12×12 in, usable ${result.reference.usable.toFixed(1)}×${result.reference.usable.toFixed(1)} in) ≈ ${result.reference.best.count.toLocaleString()} pieces (${referencePattern}). Recommended ${delivery.width.toFixed(1)}×${delivery.height.toFixed(1)} in delivery sheet, with ${result.deliveryMargin.toFixed(1)} in cut margin per side, holds ${delivery.capacity.toLocaleString()} pieces (${delivery.cols}×${delivery.rows}). Order ${orderQty.toLocaleString()} pieces = ${delivery.sheets.toLocaleString()} sheets${remainder?` (${fullSheets.toLocaleString()} full + last sheet ${remainder.toLocaleString()} pieces)`:` (${fullSheets.toLocaleString()} full sheets)`}.`
+   :`${product.name} ${productSize}: the current artwork does not fit the maximum delivery sheet size.`;
+  $('digitalCopyStatus').textContent='';
  }else{
   $('digitalPanelLabel').textContent='Panel Size';$('digitalUsableLabel').textContent='Usable Area';$('digitalWasteLabel').textContent='Full Media Capacity Waste';$('digitalPreviewTitle').textContent='One Digital Panel Layout';
  }
@@ -1722,6 +1825,7 @@ watched.forEach(id=>$(id).addEventListener('input',()=>{if(id==='paperSelect')re
 $('printingMethod').addEventListener('change',()=>{renderProductFilters();renderPaperSizes();renderDigitalMedia();renderCuts();calculate()});
 $('productTypeSelect').addEventListener('change',()=>{syncProductMethodAvailability();renderProductFilters();selectRecommendedMediaForProduct();renderProductFilters();renderPaperSizes();renderDigitalMedia();renderCuts();calculate()});
 $('digitalMediaSelect').addEventListener('change',()=>{loadDigitalMediaDefaults();calculate()});
+$('digitalProductionDetails').addEventListener('toggle',()=>{if($('digitalProductionDetails').open&&val('printingMethod')==='digital')drawDigitalPreview(calculateDigitalLayout())});
 $('paperTypeSelect').addEventListener('change',()=>{renderProductFilters();renderPaperSizes();renderDigitalMedia();renderCuts();calculate()});
 $('paperGsmSelect').addEventListener('change',()=>{renderPaperSizes();renderDigitalMedia();renderCuts();calculate()});
 $('pMethod').addEventListener('change',renderAddPaperMachineChoices);
