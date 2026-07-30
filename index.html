@@ -156,6 +156,7 @@ button{-webkit-tap-highlight-color:transparent}
 
 @media (max-width:520px){
  .row,.row3,.row2{grid-template-columns:1fr 1fr}
+ .digital-media-row{grid-template-columns:1fr}
  .row>div:first-child:nth-last-child(1),.row2>div:first-child:nth-last-child(1),.row3>div:first-child:nth-last-child(1){grid-column:1/-1}
  .compact-add{grid-template-columns:1fr}
  .compact-add button{grid-column:auto}
@@ -310,13 +311,13 @@ button{-webkit-tap-highlight-color:transparent}
 <div id="digitalRotateWrap"><label>Rotate</label><select id="digitalRotate"><option value="yes">Allow</option><option value="no">No</option></select></div>
 </div>
 <div class="field-help" style="margin:-4px 0 10px">Gap is the clear space between the outer bleed edges of adjacent products.</div>
-<div class="row">
+<div class="row digital-media-row">
 <div><label>Media Size / Preset</label><select id="digitalMediaSelect"></select></div>
 <div><label>Compatible Machine</label><select id="digitalMachineSelect"></select></div>
-<div><label>Physical Width (inch)</label><input id="digitalMediaW" type="number" min="0" step="0.1"></div>
-<div><label>Physical Height (inch)</label><input id="digitalMediaH" type="number" min="0" step="0.1"></div>
+<div><label id="digitalMediaWLabel">Physical Width (inch)</label><input id="digitalMediaW" type="number" min="0" step="0.1"></div>
+<div id="digitalMediaHWrap"><label>Physical Height (inch)</label><input id="digitalMediaH" type="number" min="0" step="0.1"></div>
 </div>
-<div class="subsection">
+<div class="subsection" id="digitalSheetSettings">
 <h3>Panel & Printable Area</h3>
 <div class="row">
 <div><label>Horizontal Split</label><input id="digitalSplitX" type="number" min="1" step="1" value="1"></div>
@@ -329,6 +330,16 @@ button{-webkit-tap-highlight-color:transparent}
 <div><label>Margin Bottom (inch)</label><input id="digitalMarginB" type="number" min="0" step="0.1" value="0.5"></div>
 </div>
 <div class="field-help">Media presets supply the production defaults. Margins and split values remain editable for shop-specific setup.</div>
+</div>
+<div class="subsection hidden" id="digitalRollSettings">
+<h3>Continuous Roll & Customer Sheets</h3>
+<div class="row">
+<div><label>Roll Edge Margin / Side (inch)</label><input id="digitalRollMargin" type="number" min="0" step="0.1" value="0.5"></div>
+<div><label>Reference / Delivery Edge (inch)</label><input id="digitalDeliveryMargin" type="number" min="0" step="0.1" value="0.5"></div>
+<div><label>Preferred Sheet Size (inch)</label><input id="digitalDeliveryPreferred" type="number" min="1" step="0.5" value="12"></div>
+<div><label>Maximum Sheet Size (inch)</label><input id="digitalDeliveryMax" type="number" min="1" step="0.5" value="15"></div>
+</div>
+<div class="field-help">Production uses the full roll width and calculates only the length required. Customer sheets stay close to 12″ and may grow up to 15″ when that reduces waste. Billing has a 1 sq.ft. minimum and rounds up to the next 0.5 sq.ft.</div>
 </div>
 </div>
 </div>
@@ -367,20 +378,19 @@ button{-webkit-tap-highlight-color:transparent}
 
 <div id="paperTab" class="db-panel paper">
 <h3>Media Database</h3>
-<div class="admin-note">Cost is used by Offset and Konica Cost + Markup. Epson Sell Rate is the final customer price per billed sq.ft.; 5ft and 4ft presets bill 10 and 8 sq.ft. per full media. Compatible Machines come from Machine DB; none selected means any machine for the chosen production method.</div>
+<div class="admin-note">Cost is used by Offset and Konica Cost + Markup. Epson Sell Rate is the final customer price per billed sq.ft.; continuous-roll billing uses the selected roll width and required print length. Compatible Machines come from Machine DB; none selected means any machine for the chosen production method.</div>
 <div class="compact-add">
 <div><label>Media Name</label><input id="pType" value="Art Paper"></div>
 <div><label>GSM</label><input id="pGsm" type="number" value="150"></div>
-<div><label>Media Size</label><div class="row2"><input id="pW" type="number" value="31"><input id="pH" type="number" value="43"></div></div>
+<div><label id="pWLabel">Media Size</label><div class="row2"><input id="pW" type="number" value="31"><input id="pH" type="number" value="43"></div><div class="field-help" id="pSizeHelp">Width × height in inches.</div></div>
 <button onclick="addPaper()">+ Add</button>
 </div>
 <div class="row" style="margin-bottom:10px">
-<div><label>Sheets / Pack</label><input id="pSheets" type="number" value="125"></div>
-<div><label>Pack / Full Media Price</label><input id="pPrice" type="number" value="135000"></div>
+<div id="pSheetsWrap"><label>Sheets / Pack</label><input id="pSheets" type="number" value="125"></div>
+<div id="pPriceWrap"><label>Pack / Full Media Price</label><input id="pPrice" type="number" value="135000"></div>
 <div><label>Production Method</label><select id="pMethod"><option value="offset">Offset</option><option value="digital">Digital</option><option value="both">Offset + Digital</option></select></div>
 <div><label>Compatible Machines</label><div id="pMachines" class="machine-picker"></div><div class="field-help">Select by machine name. Leave all unchecked to allow any machine for this production method.</div></div>
-<div><label>Billable SqFt (Digital)</label><input id="pBillableSqft" type="number" min="0" value="0"></div>
-<div><label>Epson Sell Rate / SqFt</label><input id="pSellRateSqft" type="number" min="0" value="0"></div>
+<div id="pSellRateWrap" class="hidden"><label>Epson Sell Rate / SqFt</label><input id="pSellRateSqft" type="number" min="0" value="0"></div>
 </div>
 <div class="table-wrap"><table id="paperTable"></table></div>
 </div>
@@ -557,22 +567,33 @@ button{-webkit-tap-highlight-color:transparent}
 <div class="pill digital-status" id="digitalStatusBadge">Digital Layout Ready</div>
 <div class="big" id="digitalPrimaryResult">0 / Panel</div>
 <div class="metrics">
-<div class="metric"><strong id="digitalPiecesPerPanel">0</strong><span>Pieces / Panel</span></div>
-<div class="metric"><strong id="digitalPanelsNeeded">0</strong><span>Panels Needed</span></div>
-<div class="metric"><strong id="digitalPiecesPerMedia">0</strong><span>Pieces / Full Media</span></div>
-<div class="metric"><strong id="digitalMediaNeeded">0</strong><span>Full Media Needed</span></div>
+<div class="metric"><strong id="digitalPiecesPerPanel">0</strong><span id="digitalMetric1Label">Pieces / Panel</span></div>
+<div class="metric"><strong id="digitalPanelsNeeded">0</strong><span id="digitalMetric2Label">Panels Needed</span></div>
+<div class="metric"><strong id="digitalPiecesPerMedia">0</strong><span id="digitalMetric3Label">Pieces / Full Media</span></div>
+<div class="metric"><strong id="digitalMediaNeeded">0</strong><span id="digitalMetric4Label">Full Media Needed</span></div>
 </div>
 <div class="group-title">Digital Production</div>
 <div class="kv"><span>Product</span><b id="digitalProductResult">-</b></div>
 <div class="kv"><span>Artwork Size</span><b id="digitalArtworkResult">-</b></div>
 <div class="kv"><span>Media</span><b id="digitalMediaResult">-</b></div>
 <div class="kv"><span>Machine</span><b id="digitalMachineResult">-</b></div>
-<div class="kv"><span>Panel Size</span><b id="digitalPanelResult">-</b></div>
-<div class="kv"><span>Usable Area</span><b id="digitalUsableResult">-</b></div>
+<div class="kv"><span id="digitalPanelLabel">Panel Size</span><b id="digitalPanelResult">-</b></div>
+<div class="kv"><span id="digitalUsableLabel">Usable Area</span><b id="digitalUsableResult">-</b></div>
 <div class="kv"><span>Layout</span><b id="digitalLayoutResult">-</b></div>
 <div class="kv"><span>Orientation</span><b id="digitalOrientationResult">-</b></div>
 <div class="kv"><span>Layout Efficiency</span><b id="digitalEfficiencyResult">-</b></div>
-<div class="kv"><span>Full Media Capacity Waste</span><b id="digitalWasteResult">-</b></div>
+<div class="kv"><span id="digitalWasteLabel">Full Media Capacity Waste</span><b id="digitalWasteResult">-</b></div>
+<div id="digitalRollResult" class="hidden">
+<div class="group-title">1 SqFt Quick Reference</div>
+<div class="kv"><span>Rate / SqFt</span><b id="digitalReferenceRate">-</b></div>
+<div class="kv"><span>Reference Sheet</span><b id="digitalReferenceSheet">-</b></div>
+<div class="kv"><span>Approx. Pieces / SqFt</span><b id="digitalReferencePieces">-</b></div>
+<div class="group-title">Customer Delivery</div>
+<div class="kv"><span>Recommended Cut Sheet</span><b id="digitalDeliverySizeResult">-</b></div>
+<div class="kv"><span>Pieces / Cut Sheet</span><b id="digitalDeliveryCapacityResult">-</b></div>
+<div class="kv"><span>Cut Sheets Required</span><b id="digitalDeliverySheetsResult">-</b></div>
+<div class="kv"><span>Last Sheet</span><b id="digitalDeliveryLastResult">-</b></div>
+</div>
 <div class="group-title">Digital Costs</div>
 <div class="kv"><span>Pricing Model</span><b id="digitalPricingModelResult">-</b></div>
 <div class="kv hidden" id="digitalPrintSidesResultRow"><span>Print Sides</span><b id="digitalPrintSidesResult">-</b></div>
@@ -582,7 +603,7 @@ button{-webkit-tap-highlight-color:transparent}
 <div class="kv" id="digitalSubtotalRow"><span>Subtotal</span><b id="digitalSubtotalResult">-</b></div>
 <div class="kv" id="digitalProfitRow"><span>Markup Amount</span><b id="digitalProfitResult">-</b></div>
 <div class="kv"><span>Final Price</span><b id="digitalFinalPriceResult">-</b></div>
-<div class="preview-title">One Digital Panel Layout</div>
+<div class="preview-title" id="digitalPreviewTitle">One Digital Panel Layout</div>
 <canvas id="digitalPreview"></canvas>
 <div class="note" id="digitalResultNote">Capacity/layout POC only. Digital media, ink/click, finishing, and machine rates are not included yet.</div>
 </div>
@@ -753,11 +774,28 @@ function ensureDataModel(){
   if(!existing)db.machines.push(machine);
   else if(machine.name==='Konica'){existing.displayW=13;existing.displayH=19}
  });
+ const needsRollMachineCleanup=Number(db.rollMachineCleanupVersion||0)<1;
+ if(needsRollMachineCleanup){
+  const testMachineNames=new Set(['epson','epson 1']);
+  const removedMachineNames=new Set(db.machines.filter(machine=>{
+   const name=String(machine.name||'').trim().toLowerCase();
+   return testMachineNames.has(name)||(machine.feedType==='roll'&&name!=='epson s80670');
+  }).map(machine=>String(machine.name||'').trim().toLowerCase()));
+  testMachineNames.forEach(name=>removedMachineNames.add(name));
+  db.machines=db.machines.filter(machine=>!removedMachineNames.has(String(machine.name||'').trim().toLowerCase()));
+  db.digitalRates=(Array.isArray(db.digitalRates)?db.digitalRates:[]).filter(rate=>!removedMachineNames.has(String(rate.machine||'').trim().toLowerCase()));
+  db.digitalPriceTiers=(Array.isArray(db.digitalPriceTiers)?db.digitalPriceTiers:[]).filter(tier=>!removedMachineNames.has(String(tier.machine||'').trim().toLowerCase()));
+  db.papers.forEach(media=>{media.machines=(media.machines||[]).filter(name=>!removedMachineNames.has(String(name||'').trim().toLowerCase()))});
+  db.rollMachineCleanupVersion=1;
+ }
  db.digitalRates=Array.isArray(db.digitalRates)?db.digitalRates:[];
  [
   {machine:'Konica',model:'sheet_side',rate:2000},
   {machine:'Epson S80670',model:'sqft',rate:0}
  ].forEach(rate=>{if(!db.digitalRates.some(item=>item.machine===rate.machine))db.digitalRates.push(rate)});
+ db.digitalRates.forEach(rate=>{
+  if(isRollMachine(db.machines.find(machine=>machine.name===rate.machine)))rate.model='sqft';
+ });
  db.digitalPriceTiers=Array.isArray(db.digitalPriceTiers)?db.digitalPriceTiers:[];
  [
   {product:'Warranty Seal',mediaType:'PP Matte Sticker',machine:'Konica',minSheets:1,pricePerSheet:20000},
@@ -773,9 +811,6 @@ function ensureDataModel(){
  const digitalMedia=[
   {type:'PP Matte Sticker',gsm:0,w:12.4,h:18.4,sheets:1,price:0,methods:['digital'],machines:['Konica'],digitalPreset:'konica-standard-12.4x18.4',sizeLabel:'Standard',preferred:true,splitX:1,splitY:1,mL:0,mR:0,mT:0,mB:0},
   {type:'PP Matte Sticker',gsm:0,w:13,h:19,sheets:1,price:0,methods:['digital'],machines:['Konica'],digitalPreset:'konica-13x19',sizeLabel:'Max',splitX:1,splitY:1,mL:.3,mR:.3,mT:.3,mB:.3},
-  {type:'White Gloss Sticker',gsm:0,w:58.5,h:24,sheets:1,price:0,methods:['digital'],machines:['Epson S80670'],digitalPreset:'epson-5ft',billableSqft:10,sellRateSqft:3500,sizeLabel:'5ft Roll',splitX:5,splitY:2,mL:.5,mR:.5,mT:.5,mB:.5},
-  {type:'White Gloss Sticker',gsm:0,w:48,h:24,sheets:1,price:0,methods:['digital'],machines:['Epson S80670'],digitalPreset:'epson-4ft',billableSqft:8,sellRateSqft:3500,sizeLabel:'4ft Roll',splitX:4,splitY:2,mL:.5,mR:.5,mT:.5,mB:.5},
-  {type:'Holographic Laser Sticker',gsm:0,w:48,h:24,sheets:1,price:0,methods:['digital'],machines:['Epson S80670'],digitalPreset:'epson-holographic-laser-4ft',billableSqft:8,sellRateSqft:5500,sizeLabel:'4ft Roll',splitX:4,splitY:2,mL:.5,mR:.5,mT:.5,mB:.5},
   {type:'Art Paper',gsm:150,w:12.4,h:18.4,sheets:1,price:0,methods:['digital'],machines:['Konica'],digitalPreset:'konica-art-paper-150-standard',sizeLabel:'Standard',preferred:true,splitX:1,splitY:1,mL:0,mR:0,mT:0,mB:0},
   {type:'Art Paper',gsm:150,w:13,h:19,sheets:1,price:0,methods:['digital'],machines:['Konica'],digitalPreset:'konica-art-paper-150-max',sizeLabel:'Max',splitX:1,splitY:1,mL:.3,mR:.3,mT:.3,mB:.3},
   {type:'Art Card',gsm:250,w:12.4,h:18.4,sheets:1,price:0,methods:['digital'],machines:['Konica'],digitalPreset:'konica-art-card-250-standard',sizeLabel:'Standard',preferred:true,splitX:1,splitY:1,mL:0,mR:0,mT:0,mB:0},
@@ -789,6 +824,27 @@ function ensureDataModel(){
    Object.assign(existing,{type:media.type,w:media.w,h:media.h,methods:media.methods,machines:media.machines,splitX:media.splitX,splitY:media.splitY,mL:media.mL,mR:media.mR,mT:media.mT,mB:media.mB,sizeLabel:media.sizeLabel,preferred:!!media.preferred,...(media.billableSqft?{billableSqft:media.billableSqft}:{}),...(sellRateSqft!=null?{sellRateSqft}:{})});
   }
  });
+ const needsRollLayoutMigration=Number(db.digitalRollLayoutVersion||0)<1;
+ if(needsRollLayoutMigration){
+  const legacyRollPresets=new Set(['epson-5ft','epson-4ft','epson-holographic-laser-4ft']);
+  const legacyRollMedia=db.papers.filter(media=>legacyRollPresets.has(media.digitalPreset));
+  const migratedRollMedia=[
+   {type:'White Gloss Sticker',gsm:0,w:58.5,h:0,sheets:1,price:0,methods:['digital'],machines:['Epson S80670'],digitalPreset:'epson-white-gloss-58.5-roll',sellRateSqft:3500,sizeLabel:'58.5″ Continuous Roll',rollWidth:58.5},
+   {type:'White Gloss Sticker',gsm:0,w:48,h:0,sheets:1,price:0,methods:['digital'],machines:['Epson S80670'],digitalPreset:'epson-white-gloss-48-roll',sellRateSqft:3500,sizeLabel:'48″ Continuous Roll',rollWidth:48},
+   {type:'Holographic Laser Sticker',gsm:0,w:48,h:0,sheets:1,price:0,methods:['digital'],machines:['Epson S80670'],digitalPreset:'epson-holographic-48-roll',sellRateSqft:5500,sizeLabel:'48″ Continuous Roll',rollWidth:48}
+  ];
+  const legacyWhite=legacyRollMedia.find(media=>media.digitalPreset==='epson-5ft')||legacyRollMedia.find(media=>media.digitalPreset==='epson-4ft');
+  const legacyWhite48=legacyRollMedia.find(media=>media.digitalPreset==='epson-4ft')||legacyWhite;
+  const legacyHolographic=legacyRollMedia.find(media=>media.digitalPreset==='epson-holographic-laser-4ft');
+  if(Number(legacyWhite?.sellRateSqft)>0)migratedRollMedia[0].sellRateSqft=Number(legacyWhite.sellRateSqft);
+  if(Number(legacyWhite48?.sellRateSqft)>0)migratedRollMedia[1].sellRateSqft=Number(legacyWhite48.sellRateSqft);
+  if(Number(legacyHolographic?.sellRateSqft)>0)migratedRollMedia[2].sellRateSqft=Number(legacyHolographic.sellRateSqft);
+  db.papers=db.papers.filter(media=>!legacyRollPresets.has(media.digitalPreset));
+  migratedRollMedia.forEach(media=>{
+   if(!db.papers.some(existing=>existing.digitalPreset===media.digitalPreset))db.papers.push(media);
+  });
+  db.digitalRollLayoutVersion=1;
+ }
  db.papers.forEach(media=>{
   media.machines=[...new Set((media.machines||[]).map(rawName=>{
    const name=String(rawName||'').trim();
@@ -874,6 +930,13 @@ function selectedLamination(){const i=Number(val('laminationSelect'));return i>=
 function capacityFor(gsm){return [...db.capacities].sort((a,b)=>a.maxGsm-b.maxGsm).find(x=>gsm<=x.maxGsm)||db.capacities.at(-1)||{sheets:0,maxGsm:0}}
 function rateFor(m,c){return db.rates.find(r=>r.machine===m.name&&sameSize(r.w,r.h,c.w,c.h))?.price||14000}
 function isStickerProduct(){const product=currentProductType();return !!product.singleSideOnly||product.name.toLowerCase().includes('sticker')}
+function isRollMachine(machine){return machine?.feedType==='roll'}
+function isRollMedia(media){
+ if(!media)return false;
+ if(Number(media.rollWidth)>0)return true;
+ return (media.machines||[]).some(name=>isRollMachine(db.machines.find(machine=>machine.name===name)));
+}
+function roundUpTo(value,step){return Math.ceil((value-1e-9)/step)*step}
 function digitalRateFor(machine){
  if(!machine)return{model:'sheet_side',rate:0};
  return db.digitalRates.find(rate=>rate.machine===machine.name)||{machine:machine.name,model:machine.feedType==='roll'?'sqft':'sheet_side',rate:0};
@@ -932,7 +995,7 @@ function renderDigitalMedia(){
  const old=val('digitalMediaSelect');
  const type=val('paperTypeSelect'),gsm=Number(val('paperGsmSelect'));
  const rows=db.papers.map((p,i)=>({p,i})).filter(x=>supportsMethod(x.p,'digital')&&x.p.type===type&&(Number(x.p.gsm)||0)===gsm).sort((a,b)=>Number(!!b.p.preferred)-Number(!!a.p.preferred));
- $('digitalMediaSelect').innerHTML=rows.map(x=>`<option value="${x.i}">${x.p.type} • ${x.p.w}×${x.p.h} in${x.p.sizeLabel?` • ${x.p.sizeLabel}`:''}</option>`).join('');
+ $('digitalMediaSelect').innerHTML=rows.map(x=>`<option value="${x.i}">${x.p.type} • ${isRollMedia(x.p)?`${Number(x.p.rollWidth||x.p.w)}″ Continuous Roll`:`${x.p.w}×${x.p.h} in${x.p.sizeLabel?` • ${x.p.sizeLabel}`:''}`}</option>`).join('');
  if(rows.some(x=>String(x.i)===old))$('digitalMediaSelect').value=old;
  loadDigitalMediaDefaults();
 }
@@ -954,8 +1017,8 @@ function loadDigitalMediaDefaults(){
   updateDigitalMethodBanner();
   return;
  }
- $('digitalMediaW').value=media.w;
- $('digitalMediaH').value=media.h;
+ $('digitalMediaW').value=media.rollWidth||media.w;
+ $('digitalMediaH').value=isRollMedia(media)?0:media.h;
  $('digitalSplitX').value=media.splitX||1;
  $('digitalSplitY').value=media.splitY||1;
  $('digitalMarginL').value=media.mL??.5;
@@ -968,7 +1031,7 @@ function loadDigitalMediaDefaults(){
 function renderDigitalMachines(){
  const media=selectedDigitalMedia(),old=val('digitalMachineSelect');
  const rows=db.machines.map((m,i)=>({m,i})).filter(x=>x.m.method==='digital'&&(!media?.machines?.length||media.machines.includes(x.m.name)));
- $('digitalMachineSelect').innerHTML=rows.length?rows.map(x=>`<option value="${x.i}">${x.m.name} • max ${x.m.displayW||x.m.w}×${x.m.displayH||x.m.h}</option>`).join(''):'<option value="">No compatible Digital machine</option>';
+ $('digitalMachineSelect').innerHTML=rows.length?rows.map(x=>`<option value="${x.i}">${x.m.name} • ${isRollMachine(x.m)?`max ${x.m.w}″ roll width`:`max ${x.m.displayW||x.m.w}×${x.m.displayH||x.m.h}`}</option>`).join(''):'<option value="">No compatible Digital machine</option>';
  if(rows.some(x=>String(x.i)===old))$('digitalMachineSelect').value=old;
  $('digitalMachineSelect').disabled=!rows.length;
 }
@@ -976,11 +1039,11 @@ function updateDigitalMethodBanner(){
  const media=selectedDigitalMedia(),machine=selectedDigitalMachine();
  if(!media||!machine){
   $('digitalMethodBanner').classList.add('error-status');
-  $('digitalMethodBanner').textContent=media?`No compatible Digital machine for ${media.type} ${media.w}×${media.h}. Edit Compatible Machines in Media DB.`:'Choose a compatible Digital media and machine.';
+  $('digitalMethodBanner').textContent=media?`No compatible Digital machine for ${media.type}. Edit Compatible Machines in Media DB.`:'Choose a compatible Digital media and machine.';
   return;
  }
  $('digitalMethodBanner').classList.remove('error-status');
- const sx=Math.max(1,Number(media.splitX)||1),sy=Math.max(1,Number(media.splitY)||1);
+ const roll=isRollMachine(machine),sx=Math.max(1,Number(media.splitX)||1),sy=Math.max(1,Number(media.splitY)||1);
  const usableW=media.w/sx-(Number(media.mL)||0)-(Number(media.mR)||0),usableH=media.h/sy-(Number(media.mT)||0)-(Number(media.mB)||0);
  const maxW=machine.displayW||machine.w,maxH=machine.displayH||machine.h;
  const sizeRole=media.preferred?'Common working media':'Selected media';
@@ -992,11 +1055,13 @@ function updateDigitalMethodBanner(){
   :rate.model==='sqft'
    ?`${sqftSellRate?money(sqftSellRate):'Sell rate not set'} / billed sqft`
    :`${money(rate.rate)} printing cost / sheet${isStickerProduct()?'':' / side'} + Markup`;
- const billingPolicy=rate.model==='sqft'?` • ${Number(media.billableSqft)||(media.w*media.h/144).toFixed(2)} billed sqft / full media`:'';
- $('digitalMethodBanner').textContent=`Digital • ${machine.name} • Machine max ${maxW}×${maxH} in • ${sizeRole} ${media.w}×${media.h} in${usable}${billingPolicy} • ${pricing}.`;
+ const mediaDescription=roll?`${Number(media.rollWidth||media.w)}″ roll width • continuous length`:`${media.w}×${media.h} in`;
+ const billingPolicy=roll?' • Min 1 sqft, rounded up by 0.5 sqft':'';
+ $('digitalMethodBanner').textContent=`Digital • ${machine.name} • ${roll?`Max roll width ${maxW} in`:`Machine max ${maxW}×${maxH} in`} • ${sizeRole} ${mediaDescription}${usable}${billingPolicy} • ${pricing}.`;
 }
 function syncDigitalConditionalUI(){
  const digital=val('printingMethod')==='digital',sticker=isStickerProduct(),machine=selectedDigitalMachine(),unit=val('unit');
+ const roll=digital&&isRollMachine(machine);
  const showSides=!sticker&&(!digital||machine?.name==='Konica');
  $('digitalShapeWrap').classList.toggle('hidden',digital&&!sticker);
  $('digitalLayoutWrap').classList.toggle('hidden',digital&&!sticker);
@@ -1011,6 +1076,10 @@ function syncDigitalConditionalUI(){
   else if(num('backColors')===0)$('backColors').value='4';
  }
  $('digitalGapLabel').textContent=`${sticker?'Sticker':'Product'} Gap (${unit})`;
+ $('digitalSheetSettings').classList.toggle('hidden',roll);
+ $('digitalRollSettings').classList.toggle('hidden',!roll);
+ $('digitalMediaHWrap').classList.toggle('hidden',roll);
+ $('digitalMediaWLabel').textContent=roll?'Roll Width (inch)':'Physical Width (inch)';
  $('bleedLabel').textContent=`Bleed (${unit})`;
  $('bleedSizeLabel').textContent='Artwork Size';
  syncCustomNumberLabel($('bleed'));syncCustomNumberLabel($('digitalGap'));
@@ -1129,6 +1198,82 @@ function digitalCountGrid(uw,uh,sw,sh,gap,shape,layout){
  for(let row=0;row<rows;row++)for(let col=0;col<cols;col++)out.push({x:col*(sw+gap),y:row*(sh+gap),w:sw,h:sh,oval:shape==='oval'});
  return{count:cols*rows,cols,rows,layout:out,mode:'Grid'};
 }
+function calculateRollOrientation(usableW,sw,sh,gap,qty,shape,layout,edgeMargin,rollW){
+ const fullCols=Math.floor((usableW+gap+1e-6)/(sw+gap));
+ if(fullCols<=0)return null;
+ const honey=shape==='oval'&&layout==='honey';
+ const offsetCols=honey?Math.max(0,Math.floor((usableW-(sw+gap)/2+gap+1e-6)/(sw+gap))):fullCols;
+ const rowCaps=honey&&offsetCols>0?[fullCols,offsetCols]:[fullCols];
+ const pairCapacity=rowCaps.reduce((total,count)=>total+count,0);
+ let rows=0,capacity=0;
+ if(rowCaps.length===2){
+  const pairs=Math.floor(Math.max(0,qty-1)/pairCapacity);
+  rows=pairs*2;capacity=pairs*pairCapacity;
+  while(capacity<qty){capacity+=rowCaps[rows%2];rows++}
+ }else{
+  rows=Math.ceil(qty/fullCols);capacity=rows*fullCols;
+ }
+ const rowStep=honey&&rowCaps.length===2?(sh+gap)*.8660254:sh+gap;
+ const contentLength=rows?sh+(rows-1)*rowStep:0;
+ const printLength=edgeMargin*2+contentLength;
+ const usedSqft=rollW*printLength/144;
+ const billableSqft=Math.max(1,roundUpTo(usedSqft,.5));
+ const previewRows=Math.min(rows,10),previewLayout=[];
+ for(let row=0;row<previewRows;row++){
+  const offset=rowCaps.length===2&&row%2?(sw+gap)/2:0;
+  const count=rowCaps[row%rowCaps.length];
+  for(let col=0;col<count;col++)previewLayout.push({x:offset+col*(sw+gap),y:row*rowStep,w:sw,h:sh,oval:shape==='oval'});
+ }
+ return{count:fullCols,cols:fullCols,minCols:Math.min(...rowCaps),rows,layout:previewLayout,mode:honey?'Honeycomb':'Grid',sw,sh,fullCols,offsetCols,rowCaps,capacity,printLength,contentLength,usedSqft,billableSqft,previewRows,rowStep};
+}
+function calculateRollReference(artworkW,artworkH,gap,shape,layout,allowRotate,margin){
+ const size=12,usable=Math.max(0,size-margin*2);
+ const normal=digitalCountGrid(usable,usable,artworkW,artworkH,gap,shape,layout);
+ let best={...normal,sw:artworkW,sh:artworkH,orientation:'Normal'};
+ if(allowRotate&&Math.abs(artworkW-artworkH)>1e-6){
+  const rotated=digitalCountGrid(usable,usable,artworkH,artworkW,gap,shape,layout);
+  if(rotated.count>best.count)best={...rotated,sw:artworkH,sh:artworkW,orientation:'Rotated 90°'};
+ }
+ return{size,margin,usable,best};
+}
+function calculateDeliveryPlan(best,gap,qty,margin,preferred,maxSize){
+ const step=.5,limit=Math.max(preferred,maxSize),maxColsBySize=Math.floor((limit-margin*2+gap+1e-6)/(best.sw+gap));
+ const maxRowsBySize=Math.floor((limit-margin*2+gap+1e-6)/(best.sh+gap));
+ const productionCols=best.rowCaps.length===2?Math.min(...best.rowCaps):best.fullCols;
+ const maxCols=Math.min(productionCols,maxColsBySize);
+ let selected=null;
+ for(let cols=1;cols<=maxCols;cols++)for(let rows=1;rows<=maxRowsBySize;rows++){
+  const width=roundUpTo(margin*2+cols*best.sw+Math.max(0,cols-1)*gap,step);
+  const height=roundUpTo(margin*2+rows*best.sh+Math.max(0,rows-1)*gap,step);
+  if(width>limit+1e-6||height>limit+1e-6)continue;
+  const capacity=cols*rows,sheets=Math.ceil(qty/capacity),growth=Math.max(0,Math.max(width,height)-preferred);
+  const score=[sheets,growth,Math.abs(width-height),sheets*capacity-qty,width*height];
+  if(!selected||score.some((value,index)=>value<selected.score[index]&&score.slice(0,index).every((prior,i)=>prior===selected.score[i])))selected={cols,rows,width,height,capacity,sheets,score};
+ }
+ if(!selected)return null;
+ selected.lastPieces=qty-selected.capacity*(selected.sheets-1);
+ return selected;
+}
+function calculateDigitalRollLayout(media,machine,W,artworkW,artworkH,gap){
+ const qty=Math.max(1,Math.ceil(num('qty'))),edgeMargin=num('digitalRollMargin'),deliveryMargin=num('digitalDeliveryMargin');
+ const preferred=Math.max(1,num('digitalDeliveryPreferred')),maxSize=Math.max(preferred,num('digitalDeliveryMax'));
+ const usableW=W-edgeMargin*2,allowRotate=val('digitalRotate')==='yes',shape=val('digitalShape'),layout=val('digitalLayout');
+ const invalid=[W,artworkW,artworkH].some(value=>value<=0)||[gap,edgeMargin,deliveryMargin].some(value=>value<0)||usableW<=0||W>Number(machine.w)+1e-6;
+ if(invalid)return{valid:false,isRoll:true,media,machine,W,H:0,sx:1,sy:1,panelW:W,panelH:0,usableW,usableH:0};
+ const normal=calculateRollOrientation(usableW,artworkW,artworkH,gap,qty,shape,layout,edgeMargin,W);
+ const candidates=normal?[{...normal,orientation:'Normal'}]:[];
+ if(allowRotate&&Math.abs(artworkW-artworkH)>1e-6){
+  const rotated=calculateRollOrientation(usableW,artworkH,artworkW,gap,qty,shape,layout,edgeMargin,W);
+  if(rotated)candidates.push({...rotated,orientation:'Rotated 90°'});
+ }
+ const best=candidates.sort((a,b)=>a.billableSqft-b.billableSqft||a.printLength-b.printLength||a.capacity-b.capacity)[0];
+ if(!best)return{valid:false,isRoll:true,media,machine,W,H:0,sx:1,sy:1,panelW:W,panelH:0,usableW,usableH:0};
+ const reference=calculateRollReference(artworkW,artworkH,gap,shape,layout,allowRotate,deliveryMargin);
+ const delivery=calculateDeliveryPlan(best,gap,qty,deliveryMargin,preferred,maxSize);
+ const efficiency=best.usedSqft?Math.min(100,qty*artworkW*artworkH/(best.usedSqft*144)*100):0;
+ const previewH=edgeMargin*2+(best.previewRows?best.sh+(best.previewRows-1)*best.rowStep:0);
+ return{valid:true,isRoll:true,media,machine,W,H:best.printLength,sx:1,sy:1,panelW:W,panelH:best.printLength,usableW,usableH:best.contentLength,gap,layoutGap:gap,bleed:0,artworkW,artworkH,best,panelsPerMedia:1,piecesPerMedia:best.capacity,panelsNeeded:best.rows,mediaNeeded:1,efficiency,waste:Math.max(0,best.capacity-qty),printLength:best.printLength,usedSqft:best.usedSqft,billableSqft:best.billableSqft,reference,delivery,edgeMargin,deliveryMargin,previewH};
+}
 function calculateDigitalLayout(){
  const media=selectedDigitalMedia(),machine=selectedDigitalMachine();
  const W=num('digitalMediaW'),H=num('digitalMediaH'),sx=Math.max(1,Math.floor(num('digitalSplitX'))),sy=Math.max(1,Math.floor(num('digitalSplitY')));
@@ -1136,6 +1281,10 @@ function calculateDigitalLayout(){
  const factor=val('unit')==='mm'?1/25.4:1;
  const cutW=num('finishedW')*factor,cutH=num('finishedH')*factor,bleed=num('bleed')*factor,gap=num('digitalGap')*factor;
  const originalW=cutW+bleed*2,originalH=cutH+bleed*2,layoutGap=gap;
+ if(media&&machine&&isRollMachine(machine)){
+  const roll=calculateDigitalRollLayout(media,machine,W,originalW,originalH,layoutGap);
+  return{...roll,bleed,cutW,cutH};
+ }
  const panelW=W/sx,panelH=H/sy,usableW=panelW-mL-mR,usableH=panelH-mT-mB;
  const invalid=[W,H,originalW,originalH].some(n=>n<=0)||[mL,mR,mT,mB,gap].some(n=>n<0)||usableW<=0||usableH<=0||!media||!machine||!machineFits(machine,{w:W,h:H});
  if(invalid)return{valid:false,media,machine,W,H,sx,sy,panelW,panelH,usableW,usableH};
@@ -1154,11 +1303,14 @@ function drawDigitalPreview(result){
  canvas.width=rect.width*dpr;canvas.height=rect.height*dpr;
  const ctx=canvas.getContext('2d');ctx.scale(dpr,dpr);ctx.clearRect(0,0,rect.width,rect.height);
  if(!result.valid)return;
- const pad=18,s=Math.min((rect.width-pad*2)/result.panelW,(rect.height-pad*2)/result.panelH),ox=(rect.width-result.panelW*s)/2,oy=(rect.height-result.panelH*s)/2;
- ctx.strokeStyle='#4f46e5';ctx.lineWidth=2;ctx.strokeRect(ox,oy,result.panelW*s,result.panelH*s);
- const ux=ox+num('digitalMarginL')*s,uy=oy+num('digitalMarginT')*s;
- ctx.fillStyle='rgba(79,70,229,.06)';ctx.fillRect(ux,uy,result.usableW*s,result.usableH*s);
- ctx.strokeStyle='rgba(79,70,229,.35)';ctx.strokeRect(ux,uy,result.usableW*s,result.usableH*s);
+ const frameH=result.isRoll?result.previewH:result.panelH;
+ const marginL=result.isRoll?result.edgeMargin:num('digitalMarginL'),marginT=result.isRoll?result.edgeMargin:num('digitalMarginT');
+ const previewUsableH=result.isRoll?Math.max(0,frameH-result.edgeMargin*2):result.usableH;
+ const pad=18,s=Math.min((rect.width-pad*2)/result.panelW,(rect.height-pad*2)/frameH),ox=(rect.width-result.panelW*s)/2,oy=(rect.height-frameH*s)/2;
+ ctx.strokeStyle='#4f46e5';ctx.lineWidth=2;ctx.strokeRect(ox,oy,result.panelW*s,frameH*s);
+ const ux=ox+marginL*s,uy=oy+marginT*s;
+ ctx.fillStyle='rgba(79,70,229,.06)';ctx.fillRect(ux,uy,result.usableW*s,previewUsableH*s);
+ ctx.strokeStyle='rgba(79,70,229,.35)';ctx.strokeRect(ux,uy,result.usableW*s,previewUsableH*s);
  result.best.layout.forEach(item=>{
   ctx.beginPath();ctx.strokeStyle='#047857';ctx.fillStyle='#ecfdf5';
   const x=ux+item.x*s,y=uy+item.y*s,w=item.w*s,h=item.h*s;
@@ -1169,6 +1321,10 @@ function drawDigitalPreview(result){
 function calculateDigital(){
  updateDigitalMethodBanner();
  const result=calculateDigitalLayout(),unit=val('unit');
+ const roll=!!result.isRoll;
+ $('digitalRollResult').classList.toggle('hidden',!roll||!result.valid);
+ $('digitalSheetSettings').classList.toggle('hidden',roll);
+ $('digitalRollSettings').classList.toggle('hidden',!roll);
  const bleed=productInches();
  const layoutGap=unit==='mm'?num('digitalGap')/25.4:num('digitalGap');
  $('bleedSize').value=`${displayMeasure(bleed.w)} × ${displayMeasure(bleed.h)} ${unit}`;
@@ -1182,6 +1338,10 @@ function calculateDigital(){
   $('digitalStatusBadge').textContent=missingMachine?'No compatible Digital machine':'No valid digital layout';
   $('digitalStatusBadge').classList.add('error-status');
   $('digitalPrimaryResult').textContent='0 / Panel';
+  $('digitalMetric1Label').textContent=roll?'Pieces / Row':'Pieces / Panel';
+  $('digitalMetric2Label').textContent=roll?'Rows Required':'Panels Needed';
+  $('digitalMetric3Label').textContent=roll?'Print Length':'Pieces / Full Media';
+  $('digitalMetric4Label').textContent=roll?'Billable SqFt':'Full Media Needed';
   ['digitalPiecesPerPanel','digitalPanelsNeeded','digitalPiecesPerMedia','digitalMediaNeeded'].forEach(id=>$(id).textContent='0');
   $('digitalPricingModelResult').textContent='-';
   $('digitalBillableResult').textContent='-';
@@ -1193,7 +1353,7 @@ function calculateDigital(){
  const product=currentProductType(),pattern=result.best.mode==='Honeycomb'?`${result.best.cols}/${result.best.minCols} × ${result.best.rows}`:`${result.best.cols} × ${result.best.rows}`;
  const rate=digitalRateFor(result.machine),showSides=!isStickerProduct()&&result.machine.name==='Konica',sides=showSides?Math.max(1,Number(val('digitalPrintSides'))||1):1;
  const tier=digitalTierFor(product,result.media,result.machine,result.mediaNeeded);
- let billable=0,mediaCost=0,printingCost=0,subtotal=0,markup=0,final=0,billableLabel='',billableText='',pricingModel='',resultNote='',pricingKind='cost_plus';
+ let billable=0,mediaCost=0,printingCost=0,subtotal=0,markup=0,final=0,sellRate=0,billableLabel='',billableText='',pricingModel='',resultNote='',pricingKind='cost_plus';
  if(product.digitalPricingMode==='fixed_sheet_tier'){
   pricingKind='fixed_sheet_tier';
   billable=result.mediaNeeded;
@@ -1210,11 +1370,12 @@ function calculateDigital(){
  }else if(rate.model==='sqft'){
   pricingKind='sell_sqft';
   const sqftPerMedia=Number(result.media.billableSqft)||result.W*result.H/144;
-  const sellRate=Number(result.media.sellRateSqft)||Number(rate.rate)||0;
-  billable=result.mediaNeeded*sqftPerMedia;final=billable*sellRate;
+  sellRate=Number(result.media.sellRateSqft)||Number(rate.rate)||0;
+  billable=roll?result.billableSqft:result.mediaNeeded*sqftPerMedia;final=billable*sellRate;
   billableLabel='Billable SqFt';billableText=`${billable.toLocaleString()} sqft (${result.mediaNeeded.toLocaleString()} full media × ${sqftPerMedia.toLocaleString()})`;
+  if(roll)billableText=`${billable.toLocaleString()} sqft • actual ${result.usedSqft.toFixed(2)} sqft`;
   pricingModel=`Final sell rate • ${money(sellRate)} / billed sqft`;
-  resultNote=sellRate?'Full-media billed area pricing applied. Markup is not added.':`Set the Epson Sell Rate / SqFt for ${result.media.type} in Media DB.`;
+  resultNote=sellRate?(roll?'Continuous-roll area pricing applied: minimum 1 sqft, rounded up to 0.5 sqft. Markup is not added.':'Full-media billed area pricing applied. Markup is not added.'):`Set the Epson Sell Rate / SqFt for ${result.media.type} in Media DB.`;
  }else{
   mediaCost=result.mediaNeeded*((Number(result.media.price)||0)/Math.max(1,Number(result.media.sheets)||1));
   billable=result.mediaNeeded*sides;printingCost=billable*Number(rate.rate);
@@ -1229,21 +1390,41 @@ function calculateDigital(){
  ['digitalMediaCostRow','digitalPrintingCostRow','digitalSubtotalRow','digitalProfitRow'].forEach(id=>$(id).classList.toggle('hidden',!showCostBreakdown));
  $('digitalStatusBadge').textContent=`Digital • ${result.machine.name}`;
  $('digitalStatusBadge').classList.remove('error-status');
- $('digitalPrimaryResult').textContent=`${result.best.count} / Panel`;
- $('digitalPiecesPerPanel').textContent=result.best.count;
- $('digitalPanelsNeeded').textContent=result.panelsNeeded;
- $('digitalPiecesPerMedia').textContent=result.piecesPerMedia;
- $('digitalMediaNeeded').textContent=result.mediaNeeded;
+ $('digitalPrimaryResult').textContent=roll?`${result.best.rowCaps.join('/')} / Row`:`${result.best.count} / Panel`;
+ $('digitalPiecesPerPanel').textContent=roll?result.best.rowCaps.join('/') : result.best.count;
+ $('digitalPanelsNeeded').textContent=roll?result.best.rows:result.panelsNeeded;
+ $('digitalPiecesPerMedia').textContent=roll?`${result.printLength.toFixed(2)}″`:result.piecesPerMedia;
+ $('digitalMediaNeeded').textContent=roll?result.billableSqft.toFixed(1):result.mediaNeeded;
+ $('digitalMetric1Label').textContent=roll?(result.best.rowCaps.length===2?'Pieces / Row (A/B)':'Pieces / Row'):'Pieces / Panel';
+ $('digitalMetric2Label').textContent=roll?'Rows Required':'Panels Needed';
+ $('digitalMetric3Label').textContent=roll?'Print Length':'Pieces / Full Media';
+ $('digitalMetric4Label').textContent=roll?'Billable SqFt':'Full Media Needed';
  $('digitalProductResult').textContent=`${product.name} • ${num('finishedW')}×${num('finishedH')} ${unit}`;
  $('digitalArtworkResult').textContent=`${displayMeasure(result.artworkW)}×${displayMeasure(result.artworkH)} ${unit}`;
- $('digitalMediaResult').textContent=`${result.media.type} • ${result.W}×${result.H} in`;
+ $('digitalMediaResult').textContent=roll?`${result.media.type} • ${result.W}″ wide continuous roll`:`${result.media.type} • ${result.W}×${result.H} in`;
  $('digitalMachineResult').textContent=result.machine.name;
- $('digitalPanelResult').textContent=`${result.panelW.toFixed(2)}×${result.panelH.toFixed(2)} in • ${result.sx}×${result.sy} panels`;
- $('digitalUsableResult').textContent=`${result.usableW.toFixed(2)}×${result.usableH.toFixed(2)} in`;
+ $('digitalPanelLabel').textContent=roll?'Roll Area Used':'Panel Size';
+ $('digitalUsableLabel').textContent=roll?'Usable Roll Width':'Usable Area';
+ $('digitalPanelResult').textContent=roll?`${result.W.toFixed(2)}″ × ${result.printLength.toFixed(2)}″ length`:`${result.panelW.toFixed(2)}×${result.panelH.toFixed(2)} in • ${result.sx}×${result.sy} panels`;
+ $('digitalUsableResult').textContent=roll?`${result.usableW.toFixed(2)}″ wide after edge margins`:`${result.usableW.toFixed(2)}×${result.usableH.toFixed(2)} in`;
  $('digitalLayoutResult').textContent=`${result.best.mode} • ${pattern}`;
  $('digitalOrientationResult').textContent=result.best.orientation;
  $('digitalEfficiencyResult').textContent=result.efficiency.toFixed(1)+'%';
+ $('digitalWasteLabel').textContent=roll?'Unused Layout Slots':'Full Media Capacity Waste';
  $('digitalWasteResult').textContent=result.waste.toLocaleString()+' pieces';
+ $('digitalPreviewTitle').textContent=roll?'Continuous Roll Layout (first rows)':'One Digital Panel Layout';
+ if(roll){
+  const referencePattern=result.reference.best.mode==='Honeycomb'?`${result.reference.best.cols}/${result.reference.best.minCols} × ${result.reference.best.rows}`:`${result.reference.best.cols} × ${result.reference.best.rows}`;
+  $('digitalReferenceRate').textContent=`${money(sellRate)} / sqft`;
+  $('digitalReferenceSheet').textContent=`12×12 in • usable ${result.reference.usable.toFixed(1)}×${result.reference.usable.toFixed(1)} in`;
+  $('digitalReferencePieces').textContent=`${result.reference.best.count.toLocaleString()} • ${referencePattern}`;
+  $('digitalDeliverySizeResult').textContent=result.delivery?`${result.delivery.width.toFixed(1)}×${result.delivery.height.toFixed(1)} in`:'Does not fit max sheet';
+  $('digitalDeliveryCapacityResult').textContent=result.delivery?`${result.delivery.capacity.toLocaleString()} • ${result.delivery.cols}×${result.delivery.rows}`:'-';
+  $('digitalDeliverySheetsResult').textContent=result.delivery?result.delivery.sheets.toLocaleString():'-';
+  $('digitalDeliveryLastResult').textContent=result.delivery?`${result.delivery.lastPieces.toLocaleString()} pieces`:'-';
+ }else{
+  $('digitalPanelLabel').textContent='Panel Size';$('digitalUsableLabel').textContent='Usable Area';$('digitalWasteLabel').textContent='Full Media Capacity Waste';$('digitalPreviewTitle').textContent='One Digital Panel Layout';
+ }
  $('digitalPricingModelResult').textContent=pricingModel;
  $('digitalPrintSidesResult').textContent=sides===2?'Double Side':'Single Side';
  $('digitalBillableLabel').textContent=billableLabel;
@@ -1416,7 +1597,18 @@ function machinePickerMarkup(machines,selectedNames,inputAttributes){
 function renderAddPaperMachineChoices(){
  const selected=[...$('pMachines').querySelectorAll('input:checked')].map(input=>input.value);
  const machines=machinesForMethods(methodList(val('pMethod')));
- $('pMachines').innerHTML=machinePickerMarkup(machines,selected,'name="pMachineChoice"');
+ $('pMachines').innerHTML=machinePickerMarkup(machines,selected,'name="pMachineChoice" onchange="syncAddPaperDimensions()"');
+ syncAddPaperDimensions();
+}
+function syncAddPaperDimensions(){
+ const selected=[...$('pMachines').querySelectorAll('input:checked')].map(input=>input.value);
+ const roll=selected.some(name=>isRollMachine(db.machines.find(machine=>machine.name===name)));
+ $('pWLabel').textContent=roll?'Roll Width (inch)':'Media Size';
+ $('pH').classList.toggle('hidden',roll);
+ $('pSheetsWrap').classList.toggle('hidden',roll);
+ $('pPriceWrap').classList.toggle('hidden',roll);
+ $('pSellRateWrap').classList.toggle('hidden',!roll);
+ $('pSizeHelp').textContent=roll?'Continuous roll: enter the usable stock width; length is calculated per job.':'Width × height in inches.';
 }
 function paperMachinePickerMarkup(media,index){
  const candidates=machinesForMethods(itemMethods(media)),selected=media.machines||[];
@@ -1429,12 +1621,17 @@ function addProductType(){
 }
 function addPaper(){
  const machines=[...$('pMachines').querySelectorAll('input:checked')].map(input=>input.value);
- db.papers.push({type:val('pType'),gsm:num('pGsm'),w:num('pW'),h:num('pH'),sheets:num('pSheets'),price:num('pPrice'),billableSqft:num('pBillableSqft'),sellRateSqft:num('pSellRateSqft'),methods:methodList(val('pMethod')),machines});saveDB();
+ const roll=machines.some(name=>isRollMachine(db.machines.find(machine=>machine.name===name))),width=num('pW');
+ db.papers.push({type:val('pType'),gsm:num('pGsm'),w:width,h:roll?0:num('pH'),sheets:num('pSheets'),price:num('pPrice'),sellRateSqft:num('pSellRateSqft'),methods:methodList(val('pMethod')),machines,...(roll?{rollWidth:width,sizeLabel:`${width}″ Continuous Roll`}:{})});saveDB();
 }
 function savePaperPricing(i){
  db.papers[i].price=Number($(`paperPrice_${i}`).value)||0;
  db.papers[i].sellRateSqft=Number($(`paperSellRateSqft_${i}`).value)||0;
  db.papers[i].machines=[...document.querySelectorAll(`[data-paper-machine="${i}"]:checked`)].map(input=>input.value);
+ if(isRollMedia(db.papers[i])){
+  const width=Number($(`paperRollWidth_${i}`)?.value)||Number(db.papers[i].rollWidth)||Number(db.papers[i].w)||0;
+  db.papers[i].rollWidth=width;db.papers[i].w=width;db.papers[i].h=0;db.papers[i].sizeLabel=`${width}″ Continuous Roll`;
+ }
  saveDB();
 }
 function addMachine(){
@@ -1449,7 +1646,8 @@ function addCut(){const f=bestPack(num('cOW'),num('cOH'),num('cW'),num('cH'));db
 function addOrUpdateRate(){const m=val('rMachine'),c=JSON.parse(val('rCut')||'{}'),price=num('rPrice');if(!m||!c.w)return;const x=db.rates.find(r=>r.machine===m&&sameSize(r.w,r.h,c.w,c.h));if(x)x.price=price;else db.rates.push({machine:m,w:c.w,h:c.h,price});saveDB()}
 function saveDigitalRate(i){
  const rate=db.digitalRates[i];if(!rate)return;
- rate.model=val(`digitalRateModel_${i}`);rate.rate=num(`digitalRatePrice_${i}`);saveDB();
+ const machine=db.machines.find(item=>item.name===rate.machine);
+ rate.model=isRollMachine(machine)?'sqft':val(`digitalRateModel_${i}`);rate.rate=num(`digitalRatePrice_${i}`);saveDB();
 }
 function addOrUpdateDigitalTier(){
  const tier={product:val('digitalTierProduct'),mediaType:val('digitalTierMedia'),machine:val('digitalTierMachine'),minSheets:Math.max(1,Math.floor(num('digitalTierMin'))),pricePerSheet:num('digitalTierPrice')};
@@ -1489,7 +1687,7 @@ function renderDigitalRates(){
  db.machines.filter(machine=>machine.method==='digital').forEach(machine=>{
   if(!db.digitalRates.some(rate=>rate.machine===machine.name))db.digitalRates.push({machine:machine.name,model:machine.feedType==='roll'?'sqft':'sheet_side',rate:0});
  });
- $('digitalRateTable').innerHTML='<tr><th>Machine</th><th>Rate Unit</th><th>Cost / Fallback Rate</th><th>Action</th></tr>'+db.digitalRates.map((rate,i)=>`<tr><td>${rate.machine}</td><td><select id="digitalRateModel_${i}"><option value="sheet_side" ${rate.model==='sheet_side'?'selected':''}>Per Sheet / Side</option><option value="sqft" ${rate.model==='sqft'?'selected':''}>Per SqFt</option></select></td><td><input id="digitalRatePrice_${i}" type="number" min="0" value="${rate.rate}"></td><td><button class="small" onclick="saveDigitalRate(${i})">Save</button></td></tr>`).join('');
+ $('digitalRateTable').innerHTML='<tr><th>Machine</th><th>Rate Unit</th><th>Cost / Fallback Rate</th><th>Action</th></tr>'+db.digitalRates.map((rate,i)=>{const machine=db.machines.find(item=>item.name===rate.machine),roll=isRollMachine(machine);return`<tr><td>${rate.machine}</td><td><select id="digitalRateModel_${i}" ${roll?'disabled':''}>${roll?'<option value="sqft" selected>Per SqFt</option>':`<option value="sheet_side" ${rate.model==='sheet_side'?'selected':''}>Per Sheet / Side</option><option value="sqft" ${rate.model==='sqft'?'selected':''}>Per SqFt</option>`}</select></td><td><input id="digitalRatePrice_${i}" type="number" min="0" value="${rate.rate}"></td><td><button class="small" onclick="saveDigitalRate(${i})">Save</button></td></tr>`}).join('');
  $('digitalTierTable').innerHTML='<tr><th>Product</th><th>Media</th><th>Machine</th><th>From Sheets</th><th>Final / Sheet</th><th>Action</th></tr>'+db.digitalPriceTiers.map((tier,i)=>`<tr><td>${tier.product}</td><td>${tier.mediaType}</td><td>${tier.machine}</td><td>${Number(tier.minSheets).toLocaleString()}</td><td>${money(tier.pricePerSheet)}</td><td><button class="small danger" onclick="del('digitalPriceTiers',${i})">Delete</button></td></tr>`).join('');
 }
 function renderAll(){
@@ -1499,8 +1697,8 @@ function renderAll(){
  renderCuts();renderRateSelectors();renderDigitalTierSelectors();renderDigitalRates();
 
  $('productTable').innerHTML='<tr><th>Product</th><th>Methods</th><th>Digital Sides</th><th>Digital Pricing</th><th>Action</th></tr>'+db.products.map((p,i)=>`<tr><td>${p.name}</td><td>${p.methods.map(method=>method==='offset'?'Offset':'Digital').join(' + ')}</td><td>${p.singleSideOnly?'Single only':'Selectable'}</td><td>${p.digitalPricingMode==='fixed_sheet_tier'?'Fixed Sheet Tiers':'Cost + Markup'}</td><td><div class="actions"><button class="small danger" onclick="del('products',${i})">Delete</button></div></td></tr>`).join('');
- $('paperTable').innerHTML='<tr><th>Media</th><th>GSM</th><th>Size</th><th>Method</th><th>Compatible Machines</th><th>Pack</th><th>Cost</th><th>Billable SqFt</th><th>Sell / SqFt</th><th>Action</th></tr>'+db.papers.map((p,i)=>`<tr><td><input readonly value="${p.type}"></td><td><input readonly value="${p.gsm||'-'}"></td><td><input readonly value="${p.w}×${p.h}"></td><td>${itemMethods(p).map(method=>method==='offset'?'Offset':'Digital').join(' + ')}</td><td class="machine-picker-cell">${paperMachinePickerMarkup(p,i)}</td><td><input readonly value="${p.sheets}"></td><td><input id="paperPrice_${i}" type="number" min="0" value="${p.price}"></td><td>${p.billableSqft||'-'}</td><td><input id="paperSellRateSqft_${i}" type="number" min="0" value="${p.sellRateSqft||0}"></td><td><div class="actions"><button class="small" onclick="savePaperPricing(${i})">Save</button><button class="small danger" onclick="del('papers',${i})">Delete</button></div></td></tr>`).join('');
- $('machineTable').innerHTML='<tr><th>Machine</th><th>Method</th><th>Feed</th><th>Max Size</th><th>Margins</th><th>Plate / Color</th><th>Action</th></tr>'+db.machines.map((m,i)=>`<tr><td>${m.name}</td><td>${m.method==='digital'?'Digital':'Offset'}</td><td>${m.feedType}</td><td>${m.displayW||m.w}×${m.displayH||m.h}</td><td>G ${m.gripper} • T ${m.top} • L ${m.left} • R ${m.right}</td><td><input id="machinePlate_${i}" type="number" value="${m.platePrice}"></td><td><div class="actions"><button class="small" onclick="saveMachinePlate(${i})">Save</button><button class="small danger" onclick="del('machines',${i})">Delete</button></div></td></tr>`).join('');
+ $('paperTable').innerHTML='<tr><th>Media</th><th>GSM</th><th>Size / Roll Width</th><th>Method</th><th>Compatible Machines</th><th>Pack</th><th>Cost</th><th>Sell / SqFt</th><th>Action</th></tr>'+db.papers.map((p,i)=>`<tr><td><input readonly value="${p.type}"></td><td><input readonly value="${p.gsm||'-'}"></td><td>${isRollMedia(p)?`<input id="paperRollWidth_${i}" type="number" min="0" step="0.1" value="${p.rollWidth||p.w}" aria-label="Roll width in inches">`:`<input readonly value="${p.w}×${p.h}">`}</td><td>${itemMethods(p).map(method=>method==='offset'?'Offset':'Digital').join(' + ')}</td><td class="machine-picker-cell">${paperMachinePickerMarkup(p,i)}</td><td><input readonly value="${p.sheets}"></td><td><input id="paperPrice_${i}" type="number" min="0" value="${p.price}"></td><td><input id="paperSellRateSqft_${i}" type="number" min="0" value="${p.sellRateSqft||0}"></td><td><div class="actions"><button class="small" onclick="savePaperPricing(${i})">Save</button><button class="small danger" onclick="del('papers',${i})">Delete</button></div></td></tr>`).join('');
+ $('machineTable').innerHTML='<tr><th>Machine</th><th>Method</th><th>Feed</th><th>Max Size</th><th>Margins</th><th>Plate / Color</th><th>Action</th></tr>'+db.machines.map((m,i)=>`<tr><td>${m.name}</td><td>${m.method==='digital'?'Digital':'Offset'}</td><td>${m.feedType}</td><td>${isRollMachine(m)?`${m.w}″ width • Continuous`:`${m.displayW||m.w}×${m.displayH||m.h}`}</td><td>G ${m.gripper} • T ${m.top} • L ${m.left} • R ${m.right}</td><td><input id="machinePlate_${i}" type="number" value="${m.platePrice}"></td><td><div class="actions"><button class="small" onclick="saveMachinePlate(${i})">Save</button><button class="small danger" onclick="del('machines',${i})">Delete</button></div></td></tr>`).join('');
  $('cutTable').innerHTML='<tr><th>Original</th><th>Cut</th><th>Pieces</th><th>Layout</th><th>Action</th></tr>'+db.cuts.map((c,i)=>`<tr><td>${c.ow}×${c.oh}</td><td>${c.w}×${c.h}</td><td>${c.pieces}</td><td>${c.note}</td><td><div class="actions"><button class="small danger" onclick="del('cuts',${i})">Delete</button></div></td></tr>`).join('');
  $('rateTable').innerHTML='<tr><th>Machine</th><th>Cut</th><th>Rate</th><th>Action</th></tr>'+db.rates.map((r,i)=>`<tr><td>${r.machine}</td><td>${r.w}×${r.h}</td><td>${money(r.price)}</td><td><div class="actions"><button class="small danger" onclick="del('rates',${i})">Delete</button></div></td></tr>`).join('')+(db.rates.length?'':'<tr><td colspan="4" style="text-align:center;color:#697386">No custom rates. Default 14,000 active.</td></tr>');
  $('capacityTable').innerHTML='<tr><th>Max GSM</th><th>Sheets / Stack</th><th>Action</th></tr>'+db.capacities.map((r,i)=>`<tr><td><input id="capGsm_${i}" type="number" value="${r.maxGsm}"></td><td><input id="capSheets_${i}" type="number" value="${r.sheets}"></td><td><div class="actions"><button class="small" onclick="saveCapacity(${i})">Save</button><button class="small danger" onclick="del('capacities',${i})">Delete</button></div></td></tr>`).join('');
@@ -1518,7 +1716,7 @@ document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>
  $(btn.dataset.tab).classList.remove('hidden');
 }));
 
-const watched=['productName','customProductType','qty','frontColors','backColors','finishedW','finishedH','bleed','paperSelect','machineSelect','cutMode','cutSelect','productUpMode','manualProductUp','shapeGap','digitalGap','digitalShape','digitalLayout','digitalRotate','digitalPrintSides','digitalProfitMargin','digitalMachineSelect','digitalMediaW','digitalMediaH','digitalSplitX','digitalSplitY','digitalMarginL','digitalMarginR','digitalMarginT','digitalMarginB','laminationSelect','laminationSide','laminationMode','flatLaminationFee','cuttingType','knifeMode','quoteCutSetup','quoteKnifeRate','dieBoardMode','dieShapeRate','manualDieBoardFee','dieCutRunRate','otherFinishing','otherCost','waste','profitMargin'];
+const watched=['productName','customProductType','qty','frontColors','backColors','finishedW','finishedH','bleed','paperSelect','machineSelect','cutMode','cutSelect','productUpMode','manualProductUp','shapeGap','digitalGap','digitalShape','digitalLayout','digitalRotate','digitalPrintSides','digitalProfitMargin','digitalMachineSelect','digitalMediaW','digitalMediaH','digitalSplitX','digitalSplitY','digitalMarginL','digitalMarginR','digitalMarginT','digitalMarginB','digitalRollMargin','digitalDeliveryMargin','digitalDeliveryPreferred','digitalDeliveryMax','laminationSelect','laminationSide','laminationMode','flatLaminationFee','cuttingType','knifeMode','quoteCutSetup','quoteKnifeRate','dieBoardMode','dieShapeRate','manualDieBoardFee','dieCutRunRate','otherFinishing','otherCost','waste','profitMargin'];
 watched.forEach(id=>$(id).addEventListener('input',()=>{if(id==='paperSelect')renderOffsetMachines();if(['paperSelect','machineSelect','cutMode'].includes(id))renderCuts();calculate()}));
 
 $('printingMethod').addEventListener('change',()=>{renderProductFilters();renderPaperSizes();renderDigitalMedia();renderCuts();calculate()});
