@@ -301,6 +301,14 @@ td input[readonly]{border-color:transparent;background:transparent;font-weight:7
 .unknown-machine{margin-top:5px;color:var(--danger);font-size:11px;line-height:1.35}
 .error-status{background:#fef2f2;border-color:#fecaca;color:var(--danger)}
 .auto-display{background:#ecfdf5;border-color:#bbf7d0;color:#065f46;font-weight:800}
+.calculated-result-field input[readonly]{background:#f0fdf4;border-color:#86efac;color:#047857;font-weight:900;font-variant-numeric:tabular-nums}
+.calculated-result-field label::after{content:'Calculated';display:inline-flex;margin-left:6px;padding:2px 5px;border-radius:999px;background:#dcfce7;color:#166534;font-size:9px;font-weight:900;letter-spacing:.03em;text-transform:uppercase;vertical-align:middle}
+.cutting-help{grid-column:1 / -1;margin-top:-4px;color:var(--muted);font-size:11px;line-height:1.35}
+.optional-adjustments{margin-top:9px;border-top:1px solid var(--line)}
+.optional-adjustments>summary{display:flex;align-items:center;justify-content:space-between;min-height:35px;cursor:pointer;list-style:none;color:#475569;font-size:11px;font-weight:900}
+.optional-adjustments>summary::-webkit-details-marker{display:none}.optional-adjustments>summary::after{content:'+';color:var(--brand);font-size:17px}.optional-adjustments[open]>summary::after{content:'−'}
+.optional-adjustments>summary span{color:var(--muted);font-weight:700}
+.optional-adjustments-body{padding:8px;border:1px solid var(--line);border-radius:11px;background:#fafbff}
 .method-banner{margin-bottom:10px;padding:10px 12px;border:1px solid #c7d2fe;border-radius:13px;background:var(--brand-soft);color:#3730a3;font-size:12px;font-weight:800;line-height:1.45}
 .digital-status{background:#ecfeff;border-color:#a5f3fc;color:#155e75}
 .method-banner.error-status,.pill.error-status{background:#fef2f2;border-color:#fecaca;color:var(--danger)}
@@ -656,14 +664,13 @@ button{-webkit-tap-highlight-color:transparent}
 <h3>Cutting</h3>
 <div class="row3">
 <div><label>Cutting Method</label><select id="cuttingType"><option value="straight">Straight Cutting</option><option value="die">Die Cutting</option></select></div>
-<div><label>Active Cutting Cost</label><input id="activeCuttingCostPreview" readonly></div>
-<div class="note">Only the active cutting method is shown.</div>
+<div class="calculated-result-field"><label>Active Cutting Cost</label><input id="activeCuttingCostPreview" readonly></div>
+<div class="cutting-help">Calculated from the active cutting method.</div>
 </div>
 
 <div id="straightCutSection" style="margin-top:10px">
 <div class="row3">
 <div><label>Cutting Cost Mode</label><select id="knifeMode"><option value="auto">Auto from Layout</option><option value="manual">Flat Fee</option></select></div>
-<div id="knifeSetupWrap"><label id="knifeSetupLabel">Cutting Setup Fee</label><input id="quoteCutSetup" type="number" value="0"></div>
 <div id="knifeRateWrap"><label>Rate / Knife Action</label><input id="quoteKnifeRate" type="number" value="0"></div>
 </div>
 </div>
@@ -680,11 +687,16 @@ button{-webkit-tap-highlight-color:transparent}
 <div><label>Die Cutting Cost Preview</label><input id="dieCutPreview" readonly></div>
 </div>
 </div>
-</div>
-
-<div class="row2" style="margin-top:10px">
+<details class="optional-adjustments">
+<summary>Optional adjustments <span>Setup &amp; extra fees</span></summary>
+<div class="optional-adjustments-body">
+<div class="row3">
+<div id="knifeSetupWrap"><label id="knifeSetupLabel">Cutting Setup Fee</label><input id="quoteCutSetup" type="number" value="0"></div>
 <div><label>Other Finishing Cost</label><input id="otherFinishing" type="number" value="0"></div>
 <div><label>Other Cost</label><input id="otherCost" type="number" value="0"></div>
+</div>
+</div>
+</details>
 </div>
 </div>
 
