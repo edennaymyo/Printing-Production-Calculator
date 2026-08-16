@@ -728,12 +728,12 @@ button{-webkit-tap-highlight-color:transparent}
 <div class="subsection product-size-block">
 <div class="section-head">
 <h3>Finished Size</h3>
-<div class="unit-inline"><span>Unit</span><div class="unit-segmented" role="group" aria-label="Measurement unit"><button type="button" class="unit-option" data-unit-option="mm" aria-pressed="true">mm</button><button type="button" class="unit-option" data-unit-option="in" aria-pressed="false">inch</button></div><input id="unit" type="hidden" value="mm"></div>
+<div class="unit-inline"><span>Unit</span><div class="unit-segmented" role="group" aria-label="Measurement unit"><button type="button" class="unit-option" data-unit-option="mm" aria-pressed="false">mm</button><button type="button" class="unit-option" data-unit-option="in" aria-pressed="true">inch</button></div><input id="unit" type="hidden" value="in"></div>
 </div>
 <div class="row3 product-size-fields">
-<div><label>Finished Width</label><input id="finishedW" type="number" min="0" step="1" value="148" data-custom-stepper data-unit-suffix="mm"></div>
-<div><label>Finished Height</label><input id="finishedH" type="number" min="0" step="1" value="210" data-custom-stepper data-unit-suffix="mm"></div>
-<div class="product-bleed-field"><label id="bleedLabel">Bleed</label><input id="bleed" type="number" min="0" step="1" value="2.54" data-custom-stepper data-unit-suffix="mm"></div>
+<div><label>Finished Width</label><input id="finishedW" type="number" min="0" step="1" value="1" data-custom-stepper data-unit-suffix="in"></div>
+<div><label>Finished Height</label><input id="finishedH" type="number" min="0" step="1" value="2" data-custom-stepper data-unit-suffix="in"></div>
+<div class="product-bleed-field"><label id="bleedLabel">Bleed</label><input id="bleed" type="number" min="0" step="1" value="0.039" data-custom-stepper data-unit-suffix="in"></div>
 </div>
 <div class="production-qty-inline">
 <div class="production-qty-card product-qty-card hidden" id="digitalProductionQtyCard">
@@ -741,7 +741,7 @@ button{-webkit-tap-highlight-color:transparent}
 <div><label id="digitalProductionQtyLabel" for="digitalProductionQty">Production Qty</label><input id="digitalProductionQty" type="number" min="1" max="999999" step="1" inputmode="numeric" value="1" data-custom-stepper></div>
 </div>
 </div>
-<div class="product-order-qty"><label>Order Pcs</label><input id="qty" type="number" min="0" max="999999" step="1" inputmode="numeric" value="5000" data-custom-stepper></div>
+<div class="product-order-qty"><label>Order Pcs</label><input id="qty" type="number" min="0" max="999999" step="1" inputmode="numeric" value="1" data-custom-stepper></div>
 </div>
 <div class="subsection product-finishing" id="productFinishingSection">
 <h3>Finishing</h3>
@@ -2002,8 +2002,8 @@ function renderProductTypes(){
  $('productTypeSelect').innerHTML=db.products.map((p,i)=>`<option value="${i}">${p.name}</option>`).join('')+'<option value="custom">Custom</option>';
  if(old==='custom'||(old!==''&&db.products[Number(old)]))$('productTypeSelect').value=old;
  else{
-  const flyerIndex=db.products.findIndex(p=>p.name==='Flyer');
-  $('productTypeSelect').value=String(flyerIndex>=0?flyerIndex:0);
+  const stickerIndex=db.products.findIndex(p=>p.name==='Sticker');
+  $('productTypeSelect').value=String(stickerIndex>=0?stickerIndex:0);
  }
  syncProductMethodAvailability();
 }
