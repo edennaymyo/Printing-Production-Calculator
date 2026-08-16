@@ -15,9 +15,11 @@ header{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.95);backdro
 .wrap{max-width:1380px;margin:auto;padding:16px}
 h1{font-size:22px;margin:0}.sub{font-size:13px;color:var(--muted);margin-top:4px}
 .flow{display:inline-flex;gap:8px;flex-wrap:wrap;margin-top:9px;padding:7px 10px;border-radius:999px;background:var(--brand-soft);color:#3730a3;font-size:12px;font-weight:800}
+.header-row{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}.header-admin-button{flex:0 0 auto;min-height:38px;background:#fff;color:#334155;border:1px solid #cbd5e1;box-shadow:none}.header-admin-button:hover{background:#f8fafc;border-color:#94a3b8}
 .app{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(390px,.88fr);gap:16px;align-items:start}
 .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:15px;margin-bottom:14px;box-shadow:0 7px 24px rgba(15,23,42,.04)}
 .card h2{font-size:17px;margin:0 0 13px;display:flex;align-items:center;gap:9px}
+.workflow-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}.workflow-heading h2{margin:0}.workflow-heading p{margin:3px 0 0 36px;color:var(--muted);font-size:11px;font-weight:700}.result-card .workflow-heading{padding-bottom:10px;border-bottom:1px solid #eef2f7}
 .step{width:27px;height:27px;border-radius:9px;background:var(--brand);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:12px}
 .row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
 .row3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
@@ -31,11 +33,11 @@ input[type="number"][data-custom-stepper]::-webkit-inner-spin-button,input[type=
 .number-input-shell{position:relative;min-width:0}
 .number-input-shell input{height:100%;padding-right:43px}
 .number-unit{position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:11px;font-weight:800;pointer-events:none}
-.number-stepper{display:inline-flex;align-items:center;justify-content:center;width:44px;min-width:44px;height:44px;min-height:44px;padding:0;border:1px solid var(--line);border-radius:0;background:#f8fafc;color:var(--ink);font-size:22px;font-weight:700;line-height:1;touch-action:manipulation}
-.number-stepper:last-child{border-left:0;border-radius:0 12px 12px 0}
+.number-stepper{display:inline-flex;align-items:center;justify-content:center;width:44px;min-width:44px;height:44px;min-height:44px;padding:0;border:1px solid var(--line);border-left:0;border-radius:0;background:#fbfcfe;color:#475569;font-size:18px;font-weight:800;line-height:1;touch-action:manipulation;transition:background-color .16s ease,color .16s ease,box-shadow .16s ease}
+.number-stepper:last-child{border-left:1px solid #eef1f5;border-radius:0 12px 12px 0}
 .number-stepper:hover{background:var(--brand-soft);color:#3730a3}
 .number-stepper:focus-visible{position:relative;z-index:1;outline:3px solid rgba(79,70,229,.25);outline-offset:1px}
-.number-stepper:active{background:#e0e7ff}
+.number-stepper:active{background:#e0e7ff;box-shadow:inset 0 1px 2px rgba(49,46,129,.12)}
 .number-stepper:disabled{background:#f1f3f7;color:#a0a7b5;cursor:not-allowed}
 input:disabled,select:disabled{background:#f1f3f7;color:#a0a7b5;cursor:not-allowed}
 button{border:0;border-radius:12px;padding:10px 13px;background:var(--brand);color:#fff;font-weight:800;cursor:pointer}
@@ -53,6 +55,7 @@ button.small{padding:7px 9px;font-size:12px}
 .metric{padding:12px;border:1px solid var(--line);border-radius:14px;background:#fafafa}
 .metric strong{display:block;font-size:22px}.metric span{font-size:12px;color:var(--muted)}
 .kv{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px dashed var(--line);font-size:14px}.kv b{text-align:right}
+.billable-total{color:#1e1b4b;font-size:15px;font-weight:900;font-variant-numeric:tabular-nums}.billable-breakdown{margin-left:6px;color:#64748b;font-size:11px;font-weight:700;white-space:nowrap}
 .group-title{margin-top:14px;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.05em;color:#4b5563}
 .production-qty-card{margin:10px 0 12px;padding:12px;border:1px solid #bfdbfe;border-radius:14px;background:#f8fbff}
 .production-qty-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px}
@@ -73,15 +76,21 @@ button.small{padding:7px 9px;font-size:12px}
 .product-qty-card .production-qty-grid{display:grid;grid-template-columns:1fr;gap:0;margin-top:0}
 .product-qty-card input{max-width:none}
 .product-qty-card .production-qty-grid label{font-size:11px}
+.production-qty-inline{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;align-items:end}
 .product-qty-inline{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;align-items:end}
 .product-qty-inline>div{min-width:0}
 .product-qty-inline label{display:block}
 .product-qty-inline input{width:100%;box-sizing:border-box}
+.product-qty-card{padding:8px 9px!important;border:1px solid #c7d2fe!important;border-radius:12px!important;background:#f8faff!important}
+.product-qty-card label{color:#3730a3!important;font-weight:900;font-size:12px!important;letter-spacing:.01em}.product-qty-card input{border-color:#a5b4fc!important;background:#fff!important;font-weight:900}
+.product-order-qty{padding:8px 9px;border:1px solid var(--line);border-radius:12px;background:#fff}.product-order-qty label{color:var(--muted);font-weight:800}.product-order-qty input{font-weight:700}
 .product-choice-row{align-items:end}
 .product-choice-row>div,.product-size-fields>div,.product-qty-inline>div{min-width:0}
 .product-size-block{padding:11px}
 .product-size-block .section-head{margin-bottom:8px}
 .product-size-fields{gap:8px}
+.secondary-controls{display:grid;align-items:end;gap:8px;margin-top:8px;padding:7px 8px;border:1px solid #e2e8f0;border-radius:12px;background:#fafcff}.secondary-controls label{color:#64748b;font-size:10px;font-weight:800}.secondary-controls input:not([data-custom-stepper]),.secondary-controls select{min-height:34px;padding:6px 8px;font-size:12px}.secondary-controls .number-control{min-width:0}.secondary-controls .number-control input{font-size:13px}.digital-adjustments{grid-template-columns:repeat(4,minmax(0,1fr));margin:0 0 7px}.digital-adjustments .number-stepper{background:#f8fafc}.digital-media-reference{margin:8px 0 0}
+.product-bleed-field label{color:#64748b}.product-bleed-field .number-control input{background:#fafcff;color:#475569;font-weight:700}.product-bleed-field .number-stepper{background:#f8fafc;color:#475569}.product-bleed-field .number-stepper:hover{background:#eef2ff;color:#3730a3}
 .product-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
 .product-heading h2{margin:0}
 .product-job-inline{display:flex;align-items:center;gap:7px;min-width:min(310px,45%)}
@@ -137,6 +146,7 @@ button.small{padding:7px 9px;font-size:12px}
 .roll-plan-head h4{margin:0;font-size:14px}.roll-plan-head p{margin:3px 0 0;color:var(--muted);font-size:11px;line-height:1.4}
 .roll-plan-status{flex:0 0 auto;padding:5px 8px;border-radius:999px;background:#ecfdf5;color:#047857;font-size:11px;font-weight:900}
 .roll-plan-status.warning{background:#fff7ed;color:#c2410c}
+#digitalRollPlanStatus:not(.warning){display:none}
 #digitalRollPreview{height:260px;cursor:pointer;touch-action:none;transition:border-color .16s ease,box-shadow .16s ease}
 #digitalRollPreview:hover{border-color:#818cf8;box-shadow:0 0 0 3px rgba(79,70,229,.08)}
 .roll-panel-picker{display:none!important}
@@ -148,10 +158,9 @@ button.small{padding:7px 9px;font-size:12px}
 .roll-plan-legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;color:var(--muted);font-size:11px}
 .legend-key{display:inline-flex;align-items:center;gap:6px}.legend-swatch{width:18px;height:10px;border:2px solid var(--brand);border-radius:3px;background:#eef2ff}
 .legend-swatch.split-gap{border:1px dashed #94a3b8;background:#fff}.legend-swatch.machine{border:1px solid #94a3b8;background:#e2e8f0}.legend-swatch.remainder{border:1px solid #f59e0b;background:repeating-linear-gradient(135deg,#fff7ed,#fff7ed 4px,#ffedd5 4px,#ffedd5 8px)}
-.roll-size-summary{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:8px 0 2px}
-.roll-size-chip{display:inline-flex;align-items:center;gap:5px;min-height:28px;padding:5px 9px;border:1px solid #dbeafe;border-radius:999px;background:#eff6ff;color:#1e3a8a;font-size:11px;font-weight:900}
-.roll-size-chip strong{color:#111827}
-.roll-control-panel{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) 40px;gap:7px;align-items:end;margin:9px 0 10px;padding:9px;border:1px solid #dbeafe;border-radius:14px;background:#f8fbff}
+.roll-size-summary{margin:7px 0 0;color:#475569;font-size:11px;font-weight:800;text-align:center}
+.roll-size-summary:empty{display:none}
+.roll-control-panel{display:grid;grid-template-columns:repeat(2,minmax(0,1fr)) 40px;gap:7px;align-items:end;margin:9px 0 10px;padding:9px;border:1px solid #dbeafe;border-radius:14px;background:#f8fbff}
 .roll-control-panel label{font-size:10px;margin-bottom:4px}.roll-control-panel input{min-height:38px;padding:7px 9px;background:#fff;font-size:14px;font-weight:800}.roll-control-panel .split-readonly{color:#475569;background:#f1f5f9}
 .reset-layout-button{position:relative;display:inline-flex;align-items:center;justify-content:center;width:40px;min-width:40px;min-height:40px;height:40px;padding:0;border:1px solid #c7d2fe;border-radius:11px;background:#fff;color:#4338ca;transition:transform .14s ease,background-color .14s ease,box-shadow .14s ease}
 .reset-layout-button::before{content:'';width:18px;height:18px;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 12a9 9 0 1 0 3-6.7'/%3E%3Cpath d='M3 4v5h5'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 12a9 9 0 1 0 3-6.7'/%3E%3Cpath d='M3 4v5h5'/%3E%3C/svg%3E") center/contain no-repeat}
@@ -290,6 +299,10 @@ td input[readonly]{border-color:transparent;background:transparent;font-weight:7
 .database-toggle-icon{display:inline-flex;align-items:center;justify-content:center;flex:0 0 36px;width:36px;height:36px;border-radius:10px;background:var(--brand-soft);color:var(--brand);font-size:21px;transition:transform .15s ease}
 .database-toggle[aria-expanded="true"] .database-toggle-icon{transform:rotate(45deg)}
 .database-toggle:focus-visible{outline:3px solid rgba(79,70,229,.25);outline-offset:3px}.database-content{padding-top:6px}
+.admin-workspace-header{display:flex;align-items:center;justify-content:space-between;gap:14px;min-height:42px;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+.admin-close-button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:36px;padding:7px 11px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;color:#334155;font-size:12px;box-shadow:none}.admin-close-button span:first-child{font-size:20px;font-weight:500;line-height:.8}.admin-close-button:hover{border-color:#94a3b8;background:#f8fafc}.admin-close-button:active{transform:scale(.97)}
+.admin-layout{display:grid;grid-template-columns:210px minmax(0,1fr);gap:14px;align-items:start}.admin-nav{padding:4px}.admin-nav .db-group-label:first-child{margin-top:0}.admin-tabs{display:grid;gap:4px;margin:0 0 12px}.admin-tabs .tab{min-height:34px;padding:7px 9px;background:transparent;border-color:transparent;color:#475569;text-align:left;font-size:12px}.admin-tabs .tab:hover{background:#f8fafc;color:#1e293b}.admin-tabs .tab.active{background:var(--brand-soft);border-color:#c7d2fe;color:#3730a3}.admin-workspace{min-width:0;padding:14px;border:1px solid var(--line);border-radius:14px;background:#fff}.admin-workspace .db-panel{max-width:none}.admin-workspace .db-panel>h3:first-child{margin-top:0}
+#databaseSection:not(.admin-workspace-open){display:none}#databaseSection.admin-workspace-open{position:fixed;z-index:60;top:72px;right:16px;bottom:16px;left:16px;max-width:1340px;margin:0 auto;padding:16px;overflow:auto;background:#f8fafc;box-shadow:0 26px 70px rgba(15,23,42,.24)}#databaseSection.admin-workspace-open .database-toggle-title{font-size:18px}#databaseSection.admin-workspace-open .database-content{padding-top:0}.database-backup{margin-bottom:14px}
 .compact-add{display:grid;grid-template-columns:minmax(150px,1.2fr) minmax(110px,.8fr) minmax(110px,.8fr) auto;gap:8px;align-items:end;margin-bottom:10px}
 .compact-add button{height:42px}
 .machine-picker{display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:6px;padding:6px;border:1px solid var(--line);border-radius:12px;background:#fff}
@@ -382,6 +395,8 @@ button{-webkit-tap-highlight-color:transparent}
 /* Dense office workspace: keep numeric +/- targets at 44px, compact routine controls. */
 @media (min-width:768px){
  header .wrap{padding:11px 12px}
+ .header-admin-button{min-height:34px;padding:6px 10px;font-size:11px}
+ .workflow-heading{margin-bottom:9px}.workflow-heading p{margin-top:2px;font-size:10px}
  .wrap{padding:12px}
  h1{font-size:20px}.sub{font-size:12px;margin-top:2px}.flow{margin-top:7px;padding:5px 9px;font-size:11px}
  .app{gap:12px}
@@ -405,11 +420,17 @@ button{-webkit-tap-highlight-color:transparent}
 
 @media (max-width:1100px){
  .wrap{max-width:100%;padding:14px}
+ .header-row{align-items:center}
  .app{grid-template-columns:minmax(0,1fr)}
  .result{position:static}
  .row{grid-template-columns:repeat(2,minmax(0,1fr))}
  .row3{grid-template-columns:repeat(2,minmax(0,1fr))}
  .db-panel,.db-panel.paper{max-width:100%}
+ #databaseSection.admin-workspace-open{top:62px;right:10px;bottom:10px;left:10px}
+ .admin-layout{grid-template-columns:1fr}
+ .admin-nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:0}
+ .admin-nav .db-group-label{grid-column:1/-1;margin:6px 0 0}
+ .admin-tabs{margin:0}
 }
 
 @media (min-width:1101px){
@@ -426,12 +447,35 @@ button{-webkit-tap-highlight-color:transparent}
  h1{font-size:20px;line-height:1.25}
  .sub{font-size:12px;line-height:1.5}
  .flow{display:flex;width:100%;justify-content:center;border-radius:14px;padding:8px;font-size:11px}
+ .header-row{align-items:flex-start}.header-admin-button{min-height:36px;padding:7px 9px;font-size:11px;white-space:nowrap}
  .app{display:block}
  .card{border-radius:16px;padding:13px;margin-bottom:10px;box-shadow:0 4px 16px rgba(15,23,42,.05)}
  .card h2{font-size:16px;margin-bottom:12px}
  .subsection{padding:11px;border-radius:13px}
  .row,.row3,.row2{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
  .row>div,.row2>div,.row3>div{min-width:0}
+ .secondary-controls{gap:7px;padding:7px}.secondary-controls input:not([data-custom-stepper]),.secondary-controls select{min-height:38px;font-size:13px}
+ /* The unit selector above Finished Size is the mobile source of truth. */
+ .number-input-shell input{padding-right:10px}
+ .number-unit{display:none}
+ /* Width and height are the primary request. Production quantity is primary for Digital. */
+ #productSection .product-size-block{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:10px}
+ #productSection .product-size-block .section-head{grid-column:1/-1;margin:0}
+ #productSection .product-size-fields,#productSection .production-qty-inline{display:contents!important}
+ #productSection .product-size-fields>div{min-width:0}
+ #productSection .product-size-fields>div:not(.product-bleed-field){grid-row:2}
+ #productSection .product-size-fields>div:nth-child(1){grid-column:1}
+ #productSection .product-size-fields>div:nth-child(2){grid-column:2}
+ #productSection #digitalProductionQtyCard{grid-column:1/-1;grid-row:3;padding:8px 9px!important}
+ #productSection .product-order-qty{grid-column:1;grid-row:4;padding:7px 8px;background:#fafafa;border-color:#e5e7eb}
+ #productSection .product-bleed-field{grid-column:2;grid-row:4;max-width:none}
+ #productSection .product-finishing{grid-column:1/-1}
+ #productSection .product-order-qty label,#productSection .product-bleed-field label{font-size:10px;color:#7c8798}
+ #productSection .product-order-qty .number-control input,#productSection .product-bleed-field .number-control input{font-weight:700;color:#475569;background:#fff}
+ /* Offset has no production-quantity control, so its support inputs close the size group. */
+ #productSection .product-size-block:not(:has(#digitalProductionQtyCard:not(.hidden))) .product-order-qty{grid-row:3}
+ #productSection .product-size-block:not(:has(#digitalProductionQtyCard:not(.hidden))) .product-bleed-field{grid-row:3}
+ .digital-adjustments{grid-template-columns:repeat(2,minmax(0,1fr))}.digital-adjustments #digitalMediaWWrap{grid-column:1/-1}
  label{font-size:11px;line-height:1.35;margin-bottom:4px}
  input,select{font-size:16px;padding:11px 10px;border-radius:11px}
  button{font-size:14px;padding:11px 12px;border-radius:11px}
@@ -448,6 +492,9 @@ button{-webkit-tap-highlight-color:transparent}
  .tabs::-webkit-scrollbar{display:none}
  .tab{flex:0 0 auto;white-space:nowrap}
  .db-group-label{margin-top:12px}
+ #databaseSection.admin-workspace-open{top:6px;right:6px;bottom:6px;left:6px;padding:12px;border-radius:15px}
+ #databaseSection.admin-workspace-open .database-toggle-title{font-size:16px}
+ .admin-layout{gap:10px}.admin-workspace{padding:10px}
  table{min-width:680px}
  th{position:sticky;top:0;background:#fff;z-index:2;padding-top:8px;padding-bottom:8px}
  .compact-add{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
@@ -456,6 +503,10 @@ button{-webkit-tap-highlight-color:transparent}
  .mobile-nav{display:grid;grid-template-columns:repeat(4,1fr);position:fixed;left:0;right:0;bottom:0;z-index:50;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-top:1px solid var(--line);padding:8px max(8px,env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left));box-shadow:0 -6px 20px rgba(15,23,42,.08)}
  .mobile-nav a{text-decoration:none;color:#4b5563;font-size:11px;font-weight:800;text-align:center;padding:9px 4px;border-radius:10px}
  .mobile-nav a:active{background:var(--brand-soft);color:#3730a3}
+ .mobile-roll-layout-slot{display:block;margin-top:10px}
+ .mobile-roll-layout-slot.hidden,.mobile-roll-layout-slot:empty{display:none}
+ .mobile-roll-layout-slot .roll-plan{margin:0}
+ .mobile-roll-layout-slot .sheet-layout-card{margin:0}
 }
 
 @media (max-width:520px){
@@ -472,7 +523,7 @@ button{-webkit-tap-highlight-color:transparent}
 }
 
 @media (max-width:620px){
- .row3.product-size-fields,.row3.product-finishing-fields{grid-template-columns:1fr}
+ .row3.product-size-fields{grid-template-columns:repeat(2,minmax(0,1fr))}.row3.product-finishing-fields{grid-template-columns:1fr}
 }
 
 /* Compact desktop quotation console — presentation only. */
@@ -485,7 +536,7 @@ button{-webkit-tap-highlight-color:transparent}
  label{margin-bottom:3px}.row,.row2,.row3{gap:7px}
  input:not([data-custom-stepper]),select,button:not(.number-stepper){min-height:36px;padding:7px 9px}
  .product-heading{margin-bottom:7px}
- .product-choice-row{grid-template-columns:1.08fr repeat(4,minmax(0,1fr));gap:7px;align-items:end}
+ .product-choice-row{grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;align-items:end}
  .product-choice-row .product-job-inline{display:block;min-width:0}
  .product-job-inline input{min-height:36px;padding:7px 9px;font-size:12px}
  #mediaCompatibilityHelp{display:inline;margin:5px 0 0}
@@ -497,8 +548,13 @@ button{-webkit-tap-highlight-color:transparent}
  .unit-inline{gap:5px}.unit-inline>span{font-size:10px}
  .unit-segmented{border-radius:8px}.unit-option{min-height:30px;padding:4px 8px;font-size:11px}
  .product-size-fields{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
- .product-size-fields .field-help{display:none}
- .production-qty-inline{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px;margin-top:7px}
+ .production-qty-inline{grid-template-columns:minmax(220px,1.35fr) minmax(130px,.65fr)!important;gap:7px;margin-top:7px;max-width:510px}
+ .number-control{grid-template-columns:minmax(0,1fr) 36px 36px}
+ .number-stepper{width:36px;min-width:36px;height:36px;min-height:36px;font-size:17px}
+ .product-bleed-field{max-width:175px;justify-self:end}
+ .product-order-qty{background:#fafafa;border-color:#e5e7eb}
+ .product-order-qty label{font-size:10px;color:#7c8798;font-weight:800}
+ .product-order-qty .number-control input{font-size:13px;font-weight:700;color:#475569}
  .product-finishing{margin-top:7px;padding:7px 0 0;border:0;border-top:1px solid var(--line);border-radius:0;background:transparent}
  .product-finishing h3{display:none}.product-finishing-fields{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
  .switch-control{min-height:36px;padding:4px 7px}.switch-track{width:38px;height:22px}.switch-track::after{width:16px;height:16px}.switch-control input:checked+.switch-track::after{transform:translateX(16px)}
@@ -511,7 +567,7 @@ button{-webkit-tap-highlight-color:transparent}
  #digitalProductionFields .method-banner{display:inline-flex;width:auto;max-width:100%;margin:0 0 6px;padding:5px 8px;border-radius:999px;font-size:10px;line-height:1.3}
  #digitalProductFields{margin-bottom:6px!important}
  #digitalProductionFields .field-help{margin:2px 0 6px!important}
- .digital-media-row{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+ .digital-media-row{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
  .advanced-controls{display:block;margin-top:7px;border-top:1px solid var(--line)}
  .advanced-controls>summary{display:flex;align-items:center;justify-content:space-between;min-height:31px;cursor:pointer;list-style:none;color:#475569;font-size:11px;font-weight:900}
  .advanced-controls>summary::-webkit-details-marker{display:none}.advanced-controls>summary::after{content:'⌄';font-size:15px;color:var(--brand)}.advanced-controls[open]>summary::after{content:'⌃'}
@@ -543,10 +599,91 @@ button{-webkit-tap-highlight-color:transparent}
  canvas{height:195px}.preview-title{margin:8px 0 4px;font-size:12px}
 }
 
+/* Product request hierarchy: job name is supporting context, not a primary product choice. */
+#productSection .workflow-heading .product-job-inline{min-width:220px;max-width:300px}
+@media (max-width:767px){
+ #productSection .workflow-heading{align-items:flex-end}
+ #productSection .workflow-heading .product-job-inline{min-width:170px;max-width:230px}
+}
+@media (max-width:520px){
+ #productSection .workflow-heading{align-items:stretch;flex-direction:column}
+ #productSection .workflow-heading .product-job-inline{width:100%;max-width:none}
+}
+
 @media (max-width:1300px) and (min-width:1101px){
  .product-choice-row{grid-template-columns:repeat(4,minmax(0,1fr))}
  .product-choice-row .product-job-inline{grid-column:span 1}
  .digital-media-row{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
+/* Desktop semantic field sizing — presentation only. */
+@media (min-width:1101px){
+ /* Customer request: descriptive choices retain room; short values use measured columns. */
+ .product-choice-row{grid-template-columns:minmax(150px,1fr) minmax(180px,1.2fr) minmax(104px,.62fr) minmax(132px,.82fr)}
+ #paperGsmWrap{max-width:150px}
+ #digitalPrintSidesWrap{max-width:180px}
+
+ /* Finished dimensions stay together while bleed reads as a supporting value. */
+ .product-size-fields{grid-template-columns:minmax(170px,1fr) minmax(170px,1fr) minmax(140px,.72fr)}
+
+ /* Frequently adjusted digital setup fields stay compact without hiding them. */
+ .digital-adjustments{grid-template-columns:minmax(125px,.7fr) minmax(130px,.78fr) minmax(155px,.95fr) minmax(120px,.68fr)}
+ #digitalGapWrap,#digitalMediaWWrap{max-width:160px}
+
+ /* Offset quantities, gaps, rates, and fees should not look like long-text inputs. */
+ #offsetProductFields{grid-template-columns:repeat(2,minmax(150px,190px));max-width:390px}
+ #waste{max-width:150px}
+ #shapeGapWrap{max-width:160px}
+ #manualProductUpWrap{max-width:190px}
+ #knifeRateWrap,#dieShapeRateWrap,#manualDieBoardFeeWrap,#knifeSetupWrap{max-width:190px}
+ #dieCutRunRate{max-width:190px}
+
+ /* Split counts and margin values are intentionally content-sized, not full-width. */
+ #digitalSplitSettingsRow{grid-template-columns:repeat(2,minmax(92px,120px)) repeat(2,minmax(128px,160px));justify-content:start}
+ #digitalMarginOnlyRow{grid-template-columns:repeat(4,minmax(118px,150px));justify-content:start}
+ #digitalSheetMarginBottomRow{grid-template-columns:repeat(2,minmax(128px,160px));justify-content:start}
+}
+
+/* Left-panel grouping — presentation only; content order and controls remain unchanged. */
+@media (min-width:1101px){
+ /* The request choices read as one group before size, quantity, and finishing. */
+ #productSection .workflow-heading{margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #eef2f7}
+ #productSection .product-choice-row{padding-bottom:8px;border-bottom:1px solid #eef2f7}
+ #productSection .product-size-block{margin-top:0;padding:9px 0 0;border:0;background:transparent}
+ #productSection .product-size-block .section-head{margin:0 0 5px}
+ #productSection .production-qty-inline{margin-top:8px}
+ #productSection .product-finishing{margin-top:10px;padding:9px 0 0;border:0;border-top:1px solid #eef2f7;background:transparent}
+ #productSection .product-finishing h3{display:block;margin:0 0 5px;color:#64748b;font-size:10px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+
+ /* Production uses method first, setup controls second, and advanced settings last. */
+ #productionSection .workflow-heading{margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #eef2f7}
+ #productionSection .production-basics{margin-bottom:9px;padding-bottom:9px}
+ #digitalProductionFields .digital-media-row{margin-top:8px;padding-top:8px;border-top:1px solid #eef2f7}
+ #digitalProductionFields .advanced-controls{margin-top:9px}
+ #offsetProductionFields>.subsection:first-of-type{margin-top:9px}
+}
+
+/* Advanced production settings: compact desktop grid, unchanged field order and behavior. */
+@media (min-width:1101px){
+ .advanced-controls[open]{display:grid;grid-template-columns:repeat(4,minmax(118px,1fr));gap:7px;align-items:end}
+ .advanced-controls[open]>summary,.advanced-controls[open] .field-help{grid-column:1/-1}
+ .advanced-controls[open]>.digital-media-reference,
+ .advanced-controls[open]>.subsection,
+ .advanced-controls[open] #digitalSplitSettingsRow,
+ .advanced-controls[open] #digitalMarginOnlyRow,
+ .advanced-controls[open] #digitalSheetMarginBottomRow{display:contents}
+ .advanced-controls[open] label{margin-bottom:3px;white-space:nowrap}
+ .advanced-controls[open] input:not([data-custom-stepper]){min-height:36px}
+ .advanced-controls[open] .field-help{margin:0;padding-top:1px}
+}
+
+/* Final density polish: preserve the roomy quote while giving admin tables more working width. */
+@media (min-width:1101px){
+ #productSection .field-help,#productionSection .note{line-height:1.35}
+ .admin-layout{grid-template-columns:190px minmax(0,1fr);gap:10px}
+ .admin-nav{padding:2px}
+ .admin-tabs{margin-bottom:9px}
+ .database-backup{margin-bottom:10px}
 }
 
 @media (max-width:380px){
@@ -560,19 +697,21 @@ button{-webkit-tap-highlight-color:transparent}
 <body>
 <header>
 <div class="wrap">
-<h1>Printing Cost Calculator</h1>
+<div class="header-row">
+<div><h1>Printing Cost Calculator</h1>
 <div class="sub">Internal Quotation Tool • Offset + Digital • Offline</div>
-<div class="flow">1 Product <span>→</span> 2 Production Route <span>→</span> 3 Live Result</div>
+<div class="flow">1 Customer Request <span>→</span> 2 Production Setup <span>→</span> 3 Live Quote</div></div>
+<button id="adminWorkspaceOpen" class="header-admin-button" type="button" aria-controls="databaseContent">Database &amp; Admin</button>
+</div>
 </div>
 </header>
 
 <main class="wrap app">
 <section>
 
-<div class="card" id="productSection">
-<div class="product-heading"><h2><span class="step">1</span> Product</h2></div>
+<div class="card workflow-card" id="productSection">
+<div class="workflow-heading"><div><h2><span class="step">1</span> Customer Request</h2><p>Product, media, size &amp; quantity</p></div><div class="product-job-inline"><label for="productName">Job Name</label><input id="productName" value="A5 Flyer"></div></div>
 <div class="row product-choice-row">
-<div class="product-job-inline"><label for="productName">Job Name</label><input id="productName" value="A5 Flyer"></div>
 <div><label>Product Type</label><select id="productTypeSelect"></select></div>
 <div><label>Media Type</label><select id="paperTypeSelect"></select></div>
 <div id="digitalShapeWrap"><label>Shape</label><select id="digitalShape"><option value="rect">Rectangle / Square</option><option value="oval">Circle / Oval</option></select></div>
@@ -593,15 +732,15 @@ button{-webkit-tap-highlight-color:transparent}
 <div class="row3 product-size-fields">
 <div><label>Finished Width</label><input id="finishedW" type="number" min="0" step="1" value="148" data-custom-stepper data-unit-suffix="mm"></div>
 <div><label>Finished Height</label><input id="finishedH" type="number" min="0" step="1" value="210" data-custom-stepper data-unit-suffix="mm"></div>
-<div><label id="bleedLabel">Bleed</label><input id="bleed" type="number" min="0" step="1" value="2.54" data-custom-stepper data-unit-suffix="mm"><div class="field-help">Applied to each side.</div></div>
+<div class="product-bleed-field"><label id="bleedLabel">Bleed</label><input id="bleed" type="number" min="0" step="1" value="2.54" data-custom-stepper data-unit-suffix="mm"></div>
 </div>
-<div class="production-qty-inline" style="display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;align-items:end">
-<div><label>Order Pcs</label><input id="qty" type="number" min="0" max="999999" step="1" inputmode="numeric" value="5000" data-custom-stepper></div>
+<div class="production-qty-inline">
 <div class="production-qty-card product-qty-card hidden" id="digitalProductionQtyCard">
 <div class="production-qty-grid">
 <div><label id="digitalProductionQtyLabel" for="digitalProductionQty">Production Qty</label><input id="digitalProductionQty" type="number" min="1" max="999999" step="1" inputmode="numeric" value="1" data-custom-stepper></div>
 </div>
 </div>
+<div class="product-order-qty"><label>Order Pcs</label><input id="qty" type="number" min="0" max="999999" step="1" inputmode="numeric" value="5000" data-custom-stepper></div>
 </div>
 <div class="subsection product-finishing" id="productFinishingSection">
 <h3>Finishing</h3>
@@ -613,9 +752,10 @@ button{-webkit-tap-highlight-color:transparent}
 <div class="field-help digital-lamination-note hidden" id="digitalLaminationNote">Digital lamination fee is not included yet.</div>
 </div>
 </div>
+<div class="mobile-roll-layout-slot hidden" id="mobileRollLayoutSlot" aria-label="Roll row layout preview"></div>
 
-<div class="card" id="productionSection">
-<h2><span class="step">2</span> Production</h2>
+<div class="card workflow-card" id="productionSection">
+<div class="workflow-heading"><div><h2><span class="step">2</span> Production Setup</h2><p>Method, layout, finishing &amp; shop inputs</p></div></div>
 <div class="row2 production-basics">
 <div><label>Printing Method</label><select id="printingMethod" data-segmented><option value="offset">Offset Printing</option><option value="digital">Digital Printing</option></select></div>
 <div><label>Layout Pitch</label><input id="layoutPitch" readonly></div>
@@ -702,20 +842,19 @@ button{-webkit-tap-highlight-color:transparent}
 
 <div id="digitalProductionFields" class="hidden">
 <div class="method-banner digital-status" id="digitalMethodBanner">Digital Production • The selected media route determines Konica or Epson automatically.</div>
-<div class="row" id="digitalProductFields" style="margin-bottom:10px">
+<div class="secondary-controls digital-adjustments" id="digitalProductFields">
 <div id="digitalGapWrap"><label id="digitalGapLabel">Sticker Gap (mm)</label><input id="digitalGap" type="number" min="0" max="12.7" step="1" value="2.54" data-custom-stepper></div>
 <div id="digitalLayoutWrap"><label>Layout</label><select id="digitalLayout"><option value="grid">Grid</option><option value="honey">Honeycomb</option></select></div>
 <div id="digitalRotateWrap"><label>Object Rotation</label><select id="digitalRotate"><option value="yes">Auto • Best Fit</option><option value="no">Lock Original</option></select></div>
+<div id="digitalMediaWWrap"><label id="digitalMediaWLabel">Physical Width (inch)</label><input id="digitalMediaW" type="number" min="0" step="0.1"></div>
 </div>
-<div class="field-help" style="margin:-4px 0 10px">Gap is the clear space between the outer bleed edges of adjacent products.</div>
-<div class="row digital-media-row">
+<div class="row2 digital-media-row">
 <div><label>Media Size / Preset</label><select id="digitalMediaSelect"></select></div>
 <div><label>Compatible Machine</label><select id="digitalMachineSelect"></select></div>
-<div id="digitalMediaWWrap"><label id="digitalMediaWLabel">Physical Width (inch)</label><input id="digitalMediaW" type="number" min="0" step="0.1"></div>
-<div id="digitalMediaHWrap"><label>Physical Height (inch)</label><input id="digitalMediaH" type="number" min="0" step="0.1"></div>
 </div>
 <details class="advanced-controls">
 <summary>Advanced <span>Printable area &amp; panel setup</span></summary>
+<div class="row digital-media-reference"><div id="digitalMediaHWrap"><label>Physical Height (inch)</label><input id="digitalMediaH" type="number" min="0" step="0.1"></div></div>
 <div class="subsection" id="digitalSheetSettings">
 <h3>Panel & Printable Area</h3>
 <div class="row" id="digitalSplitSettingsRow">
@@ -747,33 +886,37 @@ button{-webkit-tap-highlight-color:transparent}
 </div>
 
 <div class="card" id="databaseSection">
-<button class="database-toggle" id="databaseToggle" type="button" aria-expanded="false" aria-controls="databaseContent">
-<span class="database-toggle-main"><span class="database-toggle-title">⚙ Settings &amp; Admin</span><span class="database-summary" id="databaseSummary">Products • Media • Machines</span></span>
-<span class="database-toggle-icon" aria-hidden="true">＋</span>
-</button>
+<div class="admin-workspace-header">
+<div class="database-toggle-main"><span class="database-toggle-title">Database &amp; Admin</span><span class="database-summary" id="databaseSummary">Products • Media • Machines</span></div>
+<button id="adminWorkspaceClose" class="admin-close-button" type="button" aria-label="Close Database and Admin"><span aria-hidden="true">×</span><span>Close</span></button>
+</div>
 <div class="database-content hidden" id="databaseContent">
 <div class="database-backup">
 <div class="database-backup-copy"><strong>Database Backup</strong><span>Download a JSON copy, or upload one to restore Products, Media, Machines, Rates, Policies, Cutting, and Lamination data.</span></div>
 <div class="database-backup-actions"><button id="uploadDbBackupButton" type="button">Upload DB Backup</button><button id="downloadDbBackup" type="button">Download DB Backup</button></div>
 <input id="uploadDbBackup" type="file" accept="application/json,.json" hidden>
 </div>
-<div class="db-group-label">Customer Products</div>
-<div class="tabs">
+<div class="admin-layout">
+<aside class="admin-nav" aria-label="Database navigation">
+<div class="db-group-label">Catalog</div>
+<div class="tabs admin-tabs">
 <button class="tab" data-tab="productTab">Product DB</button>
 </div>
 <div class="db-group-label">Materials</div>
-<div class="tabs">
+<div class="tabs admin-tabs">
 <button class="tab active" data-tab="paperTab">Media DB</button>
 <button class="tab" data-tab="laminationTab">Lamination DB</button>
 </div>
-<div class="db-group-label">Production</div>
-<div class="tabs">
+<div class="db-group-label">Production Rules</div>
+<div class="tabs admin-tabs">
 <button class="tab" data-tab="machineTab">Machine DB</button>
 <button class="tab" data-tab="rateTab">Printing Rate DB</button>
 <button class="tab" data-tab="policyTab">Printing Policy</button>
 <button class="tab" data-tab="cutTab">Cutting DB</button>
 <button class="tab" data-tab="capacityTab">Cutting Capacity DB</button>
 </div>
+</aside>
+<div class="admin-workspace">
 
 <div id="productTab" class="db-panel hidden">
 <h3>Product Database</h3>
@@ -930,11 +1073,12 @@ button{-webkit-tap-highlight-color:transparent}
 
 </div>
 </div>
+</div>
 </section>
 
 <aside class="result">
-<div class="card" id="resultSection">
-<h2><span class="step">3</span> Live Result</h2>
+<div class="card workflow-card result-card" id="resultSection">
+<div class="workflow-heading"><div><h2><span class="step">3</span> Live Quote</h2><p>Price and expected delivery</p></div></div>
 <div id="offsetResultFields">
 <div class="row2">
 <div><label>Markup %</label><input id="profitMargin" type="number" value="30"></div>
@@ -993,7 +1137,7 @@ button{-webkit-tap-highlight-color:transparent}
 <div class="group-title">Price Summary</div>
 <div class="kv"><span>Pricing Model</span><b id="digitalPricingModelResult">-</b></div>
 <div class="kv hidden" id="digitalPrintSidesResultRow"><span>Print Sides</span><b id="digitalPrintSidesResult">-</b></div>
-<div class="kv"><span id="digitalBillableLabel">Billable Quantity</span><b id="digitalBillableResult">-</b></div>
+<div class="kv"><span id="digitalBillableLabel">Billable Quantity</span><b id="digitalBillableResult"><span class="billable-total" id="digitalBillableTotal">-</span><span class="billable-breakdown" id="digitalBillableBreakdown"></span></b></div>
 <div class="kv" id="digitalMediaCostRow"><span>Media Cost</span><b id="digitalMediaCostResult">-</b></div>
 <div class="kv" id="digitalPrintingCostRow"><span>Printing Cost</span><b id="digitalPrintingCostResult">-</b></div>
 <div class="kv" id="digitalSubtotalRow"><span>Subtotal</span><b id="digitalSubtotalResult">-</b></div>
@@ -1016,17 +1160,18 @@ button{-webkit-tap-highlight-color:transparent}
 <span id="digitalCustomerSheetPieces">0</span><span id="digitalCustomerSheetSizeResult">-</span><span id="digitalCustomerSheetUsableResult">-</span><span id="digitalCustomerSheetLayoutResult">-</span>
 <span id="digitalRollWidthResult">-</span><span id="digitalPanelsAcrossResult">-</span><span id="digitalRemainderResult">-</span><span id="digitalRollOrderResult">-</span><span id="digitalLeftoverPiecesResult">-</span><span id="digitalCustomerSheetsResult">-</span><span id="digitalRollProductionSummary">-</span>
 </div>
-<div class="roll-plan">
+<div id="digitalRollPlanHome" hidden aria-hidden="true"></div>
+<div class="roll-plan" id="digitalRollPlan">
 <div class="roll-plan-head">
 <div><h4>Roll Row Layout</h4><p>One production row. Click any print column to enlarge its layout. Gray edges are machine margins; white separators are the total gaps between print columns.</p></div>
 <span class="roll-plan-status" id="digitalRollPlanStatus">Full-width split</span>
 </div>
 <div class="roll-control-panel">
-<div><label>Print Column Width (inch)</label><input id="digitalCustomerSheetW" type="number" min="1" step="0.1" value="12"></div>
+<div><label>Print Column Width (inch)</label><input id="digitalCustomerSheetW" type="number" min="1" step="any" value="12"></div>
 <div><label>Column Gap (inch)</label><input id="digitalColumnGapDisplay" type="text" readonly class="split-readonly" value="0.5"></div>
-<div><label>Roll Row Length (inch)</label><input id="digitalCustomerSheetH" type="number" min="1" step="0.01" value="12" readonly class="split-readonly"></div>
 <button id="digitalRollReset" class="reset-layout-button" type="button" title="Reset layout to this media's column gap" aria-label="Reset layout to this media's column gap"></button>
 <input id="digitalPanelGap" type="hidden" value="0.5">
+<input id="digitalCustomerSheetH" type="hidden" value="12">
 </div>
 <canvas id="digitalRollPreview" role="img" aria-label="One production row across the selected media roll"></canvas>
 <div class="roll-size-summary" id="digitalRollSizeSummary" aria-live="polite"></div>
@@ -1063,6 +1208,7 @@ button{-webkit-tap-highlight-color:transparent}
 <span class="copy-status" id="konicaCopyStatus" role="status" aria-live="polite"></span>
 </div>
 </div>
+<div id="digitalSheetLayoutHome" hidden aria-hidden="true"></div>
 <div class="sheet-layout-card hidden" id="digitalProductionPreviewWrap">
 <div class="preview-title" id="digitalPreviewTitle">One Digital Panel Layout</div>
 <canvas id="digitalPreview"></canvas>
@@ -1167,7 +1313,8 @@ function updateRollManualState(manual){
  if(field)field.dataset.autoDefault=manual?'false':'true';
  if(button){
   button.classList.toggle('manual-active',!!manual);
-  button.title=manual?'Manual adjusted — reset to this media\'s column gap':'Reset layout to this media\'s column gap';
+  button.title=manual?'Manual layout — restore Auto Max Qty':'Auto Max Qty layout';
+  button.setAttribute('aria-label',manual?'Restore Auto Max Qty layout':'Auto Max Qty layout');
  }
 }
 function resetRollLayoutDefaults(forceGap=true){
@@ -1222,6 +1369,8 @@ function syncProductionQtyCard(result){
  }
  $('digitalProductionQtyLabel').textContent=label;
  $('digitalProductionQty').setAttribute('aria-label',label);
+ syncCustomNumberLabel($('digitalProductionQty'));
+ syncNumberControlState($('digitalProductionQty'));
  // Order Pcs is already shown in Product; keep this card focused on the production unit only.
  setProductionQtyManual(isProductionQtyManual());
 }
@@ -1294,6 +1443,7 @@ function enhanceNumberInputs(root=document){
   const makeButton=(direction,symbol)=>{
    const button=document.createElement('button');
    button.type='button';button.className='number-stepper';button.textContent=symbol;button.dataset.direction=direction;
+   button.tabIndex=-1;
    button.disabled=input.disabled||input.readOnly;
    button.setAttribute('aria-label',`${direction==='up'?'Increase':'Decrease'} ${label}`);
    button.addEventListener('click',()=>{
@@ -1452,6 +1602,7 @@ function normalizeSystemData(){
 function seed(){
  if(db)return;
  db={"papers":[{"type":"Art Paper","gsm":150,"w":31,"h":43,"sheets":125,"price":135000,"methods":["offset"],"machines":[],"sellRateSqft":0,"productNames":["Flyer"],"allProducts":false},{"type":"Art Paper","gsm":150,"w":25,"h":36,"sheets":250,"price":180000,"methods":["offset"],"machines":[],"sellRateSqft":0,"productNames":["Flyer"],"allProducts":false},{"type":"Art Card","gsm":250,"w":31,"h":43,"sheets":100,"price":185000,"methods":["offset"],"machines":[],"sellRateSqft":0,"productNames":["Business Card","Label Tag"],"allProducts":false},{"type":"Art Card","gsm":300,"w":12.4,"h":18.4,"sheets":100,"price":45000,"methods":["digital"],"machines":["Konica"],"sellRateSqft":0,"productNames":["Business Card","Label Tag"],"allProducts":false},{"type":"Art Paper","gsm":150,"w":12.4,"h":18.4,"sheets":1,"price":0,"methods":["digital"],"machines":["Konica"],"digitalPreset":"konica-art-paper-150-standard","sizeLabel":"Standard","preferred":true,"splitX":1,"splitY":1,"mL":0,"mR":0,"mT":0,"mB":0,"sellRateSqft":0,"productNames":["Flyer"],"allProducts":false},{"type":"Art Paper","gsm":150,"w":13,"h":19,"sheets":1,"price":0,"methods":["digital"],"machines":["Konica"],"digitalPreset":"konica-art-paper-150-max","sizeLabel":"Max","splitX":1,"splitY":1,"mL":0.3,"mR":0.3,"mT":0.3,"mB":0.3,"preferred":false,"sellRateSqft":0,"productNames":["Flyer"],"allProducts":false},{"type":"Art Card","gsm":250,"w":12.4,"h":18.4,"sheets":1,"price":0,"methods":["digital"],"machines":["Konica"],"digitalPreset":"konica-art-card-250-standard","sizeLabel":"Standard","preferred":true,"splitX":1,"splitY":1,"mL":0,"mR":0,"mT":0,"mB":0,"sellRateSqft":0,"productNames":["Business Card","Label Tag"],"allProducts":false},{"type":"Art Card","gsm":250,"w":13,"h":19,"sheets":1,"price":0,"methods":["digital"],"machines":["Konica"],"digitalPreset":"konica-art-card-250-max","sizeLabel":"Max","splitX":1,"splitY":1,"mL":0.3,"mR":0.3,"mT":0.3,"mB":0.3,"preferred":false,"sellRateSqft":0,"productNames":["Business Card","Label Tag"],"allProducts":false},{"type":"Paper Sticker","gsm":180,"w":21,"h":30,"sheets":100,"price":140000,"methods":["offset"],"machines":[],"sellRateSqft":0,"productNames":["Paper Sticker"],"allProducts":false},{"type":"Warranty Seal","gsm":0,"w":13,"h":19,"sheets":100,"price":510000,"billableSqft":0,"methods":["digital"],"machines":["Konica"],"sellRateSqft":0,"productNames":["Warranty Seal"],"allProducts":false},{"type":"Art Paper","gsm":125,"w":31,"h":43,"sheets":250,"price":115000,"sellRateSqft":0,"methods":["offset"],"machines":[],"productNames":["Flyer"],"allProducts":false},{"type":"White Gloss","gsm":0,"w":59.8,"h":0,"sheets":1,"price":0,"sellRateSqft":3500,"methods":["digital"],"machines":["Epson S80670"],"rollWidth":59.8,"sizeLabel":"59.8″ Continuous Roll","productNames":["Sticker"],"allProducts":false},{"type":"PP Matte or Gloss Sticker","gsm":0,"w":13,"h":19,"sheets":100,"price":160000,"sellRateSqft":0,"methods":["digital"],"machines":["Konica"],"sizeLabel":"Maximum","splitX":1,"splitY":1,"mL":0.3,"mR":0.3,"mT":0.3,"mB":0.3,"allProducts":false,"productNames":["Sticker"]},{"type":"Silver Matte or Gloss Sticker","gsm":0,"w":13,"h":19,"sheets":1,"price":350000,"sellRateSqft":0,"methods":["digital"],"machines":["Konica"],"sizeLabel":"Maximum","splitX":1,"splitY":1,"mL":0.3,"mR":0.3,"mT":0.3,"mB":0.3,"allProducts":false,"productNames":["Sticker"]},{"type":"PP Rainbow Holographic","gsm":0,"w":13,"h":19,"sheets":1,"price":250000,"sellRateSqft":0,"methods":["digital"],"machines":["Konica"],"sizeLabel":"Maximum","splitX":1,"splitY":1,"mL":0.3,"mR":0.3,"mT":0.3,"mB":0.3,"allProducts":false,"productNames":["Sticker"]},{"type":"Rainbow Holographic","gsm":0,"w":50,"h":0,"sheets":1,"price":0,"sellRateSqft":4500,"methods":["digital"],"machines":["Epson S80670"],"rollWidth":50,"sizeLabel":"50″ Continuous Roll","allProducts":false,"productNames":["Sticker"]}],"machines":[{"name":"Komori 26","w":26,"h":18,"gripper":0.4,"top":0.05,"left":0.05,"right":0.05,"platePrice":18000,"method":"offset","feedType":"sheet"},{"name":"Komori L440","w":40,"h":28,"gripper":0.4,"top":0.05,"left":0.05,"right":0.05,"platePrice":18000,"method":"offset","feedType":"sheet"},{"name":"Konica","w":19,"h":13,"gripper":0,"top":0,"left":0,"right":0,"platePrice":0,"method":"digital","feedType":"sheet","displayW":13,"displayH":19},{"name":"Epson S80670","w":2000,"h":63,"gripper":0.5,"top":0.5,"left":0.5,"right":0.5,"platePrice":0,"method":"digital","feedType":"roll"}],"cuts":[{"ow":31,"oh":43,"w":14,"h":17,"pieces":5,"note":"mixed rotate"},{"ow":31,"oh":43,"w":15.5,"h":21.5,"pieces":4,"note":"straight"},{"ow":31,"oh":43,"w":31,"h":21.5,"pieces":2,"note":"straight"},{"ow":25,"oh":36,"w":12.5,"h":18,"pieces":4,"note":"straight"},{"ow":25,"oh":36,"w":25,"h":18,"pieces":2,"note":"straight"},{"ow":21,"oh":30,"w":15,"h":21,"pieces":2,"note":"rotated grid"}],"rates":[],"capacities":[{"maxGsm":150,"sheets":500},{"maxGsm":350,"sheets":250}],"laminations":[{"name":"Matt","rate":0.5}],"printingPolicy":{"r1":1100,"r2":2200,"r3":3300,"increment":1000},"products":[{"name":"Sticker","methods":["digital"],"singleSideOnly":true,"konicaPricingMode":"fixed_sheet_tier"},{"name":"Label Tag","methods":["offset","digital"],"konicaPricingMode":"cost_plus"},{"name":"Flyer","methods":["offset","digital"],"konicaPricingMode":"cost_plus"},{"name":"Warranty Seal","methods":["digital"],"singleSideOnly":true,"konicaPricingMode":"fixed_sheet_tier"},{"name":"Business Card","methods":["digital"],"singleSideOnly":false,"konicaPricingMode":"cost_plus"},{"name":"Paper Sticker","methods":["offset"],"singleSideOnly":true,"konicaPricingMode":"cost_plus"}],"digitalRates":[{"machine":"Konica","model":"sheet_side","rate":2000}],"digitalPriceTiers":[{"product":"Sticker","mediaType":"PP Matte or Gloss Sticker","mediaW":13,"mediaH":19,"machine":"Konica","minSheets":1,"pricePerSheet":10000},{"product":"Sticker","mediaType":"PP Matte or Gloss Sticker","mediaW":13,"mediaH":19,"machine":"Konica","minSheets":5,"pricePerSheet":8500},{"product":"Sticker","mediaType":"PP Matte or Gloss Sticker","mediaW":13,"mediaH":19,"machine":"Konica","minSheets":10,"pricePerSheet":6500},{"product":"Warranty Seal","mediaType":"Warranty Seal","mediaW":13,"mediaH":19,"machine":"Konica","minSheets":1,"pricePerSheet":20000},{"product":"Warranty Seal","mediaType":"Warranty Seal","mediaW":13,"mediaH":19,"machine":"Konica","minSheets":5,"pricePerSheet":17000},{"product":"Warranty Seal","mediaType":"Warranty Seal","mediaW":13,"mediaH":19,"machine":"Konica","minSheets":10,"pricePerSheet":14500}],"digitalPricingRulesVersion":1,"rollMachineCleanupVersion":1,"digitalRollLayoutVersion":1,"epsonEdgeMarginVersion":1,"routePricingVersion":1,"mediaProductCompatibilityVersion":1};
+ db=JSON.parse(`{"papers":[{"type":"Art Paper","gsm":150,"w":31,"h":43,"sheets":125,"price":135000,"methods":["offset"],"machines":[],"sellRateSqft":0,"productNames":["Flyer"],"allProducts":false,"systemLocked":true},{"type":"Art Paper","gsm":150,"w":25,"h":36,"sheets":250,"price":180000,"methods":["offset"],"machines":[],"sellRateSqft":0,"productNames":["Flyer"],"allProducts":false,"systemLocked":true},{"type":"Art Card","gsm":250,"w":31,"h":43,"sheets":100,"price":185000,"methods":["offset"],"machines":[],"sellRateSqft":0,"productNames":["Business Card","Label Tag"],"allProducts":false,"systemLocked":true},{"type":"Art Card","gsm":300,"w":12.4,"h":18.4,"sheets":100,"price":45000,"methods":["digital"],"machines":["Konica"],"sellRateSqft":0,"productNames":["Business Card","Label Tag"],"allProducts":false,"preset":{"bleedMm":1,"gapMm":0,"ovalGapMm":0,"shape":"rect","marginsMm":{"l":0,"r":0,"t":0,"b":0}},"systemLocked":true},{"type":"Art Paper","gsm":150,"w":12.4,"h":18.4,"sheets":1,"price":0,"methods":["digital"],"machines":["Konica"],"digitalPreset":"konica-art-paper-150-standard","sizeLabel":"Standard","preferred":true,"splitX":1,"splitY":1,"mL":0,"mR":0,"mT":0,"mB":0,"sellRateSqft":0,"productNames":["Flyer"],"allProducts":false,"preset":{"bleedMm":1,"gapMm":0,"ovalGapMm":0,"shape":"rect","marginsMm":{"l":0,"r":0,"t":0,"b":0}},"systemLocked":true},{"type":"Art Card","gsm":250,"w":12.4,"h":18.4,"sheets":1,"price":0,"methods":["digital"],"machines":["Konica"],"digitalPreset":"konica-art-card-250-standard","sizeLabel":"Standard","preferred":true,"splitX":1,"splitY":1,"mL":0,"mR":0,"mT":0,"mB":0,"sellRateSqft":0,"productNames":["Business Card","Label Tag"],"allProducts":false,"preset":{"bleedMm":1,"gapMm":0,"ovalGapMm":0,"shape":"rect","marginsMm":{"l":0,"r":0,"t":0,"b":0}},"systemLocked":true},{"type":"Paper Sticker","gsm":180,"w":21,"h":30,"sheets":100,"price":140000,"methods":["offset"],"machines":[],"sellRateSqft":0,"productNames":["Paper Sticker"],"allProducts":false,"systemLocked":true},{"type":"Art Paper","gsm":125,"w":31,"h":43,"sheets":250,"price":115000,"sellRateSqft":0,"methods":["offset"],"machines":[],"productNames":["Flyer"],"allProducts":false,"systemLocked":true},{"type":"Vinyl Sticker","gsm":0,"w":59.84,"h":0,"sheets":1,"price":0,"sellRateSqft":3500,"methods":["digital"],"machines":["Epson S80670"],"rollWidth":59.84,"sizeLabel":"59.84″ Continuous Roll","productNames":["Sticker"],"allProducts":false,"preset":{"bleedMm":1,"gapMm":0,"ovalGapMm":0,"shape":"rect","marginsMm":{"l":0,"r":0,"t":0,"b":0}},"systemLocked":true},{"type":"Rainbow Holographic","gsm":0,"w":50,"h":0,"sheets":1,"price":0,"sellRateSqft":4500,"methods":["digital"],"machines":["Epson S80670"],"rollWidth":50,"sizeLabel":"50″ Continuous Roll","allProducts":false,"productNames":["Sticker"],"preset":{"bleedMm":1,"gapMm":0,"ovalGapMm":0,"shape":"rect","marginsMm":{"l":0,"r":0,"t":0,"b":0}},"systemLocked":true},{"type":"Vinyl Sticker","gsm":0,"w":50,"h":0,"sheets":1,"price":0,"sellRateSqft":3500,"methods":["digital"],"machines":["Epson S80670"],"rollWidth":50,"sizeLabel":"50″ Continuous Roll","allProducts":false,"productNames":["Sticker"],"preset":{"bleedMm":1,"gapMm":0,"ovalGapMm":0,"shape":"rect","marginsMm":{"l":0,"r":0,"t":0,"b":0}},"systemLocked":true},{"type":"PP Gloss/Matte","gsm":0,"w":13,"h":19,"sheets":100,"price":155000,"sellRateSqft":0,"methods":["digital"],"machines":["Konica"],"sizeLabel":"Full Sheet","splitX":1,"splitY":1,"mL":0,"mR":0,"mT":0,"mB":0,"allProducts":false,"productNames":["Sticker"],"preset":{"bleedMm":1,"gapMm":0,"ovalGapMm":0,"shape":"rect","marginsMm":{"l":12.7,"r":12.7,"t":22.86,"b":12.7}},"systemLocked":true},{"type":"Warranty Seal","gsm":0,"w":13,"h":19,"sheets":1,"price":0,"sellRateSqft":0,"methods":["digital"],"machines":["Konica"],"sizeLabel":"Full Sheet","splitX":1,"splitY":1,"mL":0,"mR":0,"mT":0,"mB":0,"allProducts":false,"productNames":["Warranty Seal"],"preset":{"bleedMm":0,"gapMm":0,"ovalGapMm":1,"shape":"rect","marginsMm":{"l":12.7,"r":12.7,"t":22.86,"b":12.7}},"systemLocked":true},{"type":"Carbonless","gsm":55,"w":31,"h":43,"sheets":500,"price":430000,"sellRateSqft":0,"methods":["offset"],"machines":[],"systemLocked":false,"allProducts":false,"productNames":["Label Tag","Flyer"]}],"machines":[{"name":"Komori 26","w":26,"h":18,"gripper":0.4,"top":0.05,"left":0.05,"right":0.05,"platePrice":18000,"method":"offset","feedType":"sheet","systemLocked":true},{"name":"Komori L440","w":40,"h":28,"gripper":0.4,"top":0.05,"left":0.05,"right":0.05,"platePrice":18000,"method":"offset","feedType":"sheet","systemLocked":true},{"name":"Konica","w":19,"h":13,"gripper":0,"top":0,"left":0,"right":0,"platePrice":0,"method":"digital","feedType":"sheet","displayW":13,"displayH":19,"systemLocked":true},{"name":"Epson S80670","w":2000,"h":63,"gripper":0,"top":0,"left":1,"right":1,"platePrice":0,"method":"digital","feedType":"roll","systemLocked":true}],"cuts":[{"ow":31,"oh":43,"w":14,"h":17,"pieces":5,"note":"mixed rotate","systemLocked":true},{"ow":31,"oh":43,"w":15.5,"h":21.5,"pieces":4,"note":"straight","systemLocked":true},{"ow":31,"oh":43,"w":31,"h":21.5,"pieces":2,"note":"straight","systemLocked":true},{"ow":25,"oh":36,"w":12.5,"h":18,"pieces":4,"note":"straight","systemLocked":true},{"ow":25,"oh":36,"w":25,"h":18,"pieces":2,"note":"straight","systemLocked":true},{"ow":21,"oh":30,"w":15,"h":21,"pieces":2,"note":"rotated grid","systemLocked":true}],"rates":[{"machine":"Komori 26","w":14,"h":17,"price":15000},{"machine":"Komori 26","w":15.5,"h":21.5,"price":15000},{"machine":"Komori 26","w":15,"h":21,"price":15000}],"capacities":[{"maxGsm":150,"sheets":500,"systemLocked":true},{"maxGsm":350,"sheets":250,"systemLocked":true}],"laminations":[{"name":"Matt","rate":0.5}],"printingPolicy":{"r1":1100,"r2":2200,"r3":3300,"increment":1000},"products":[{"name":"Sticker","methods":["digital"],"singleSideOnly":true,"konicaPricingMode":"fixed_sheet_tier","systemLocked":true},{"name":"Label Tag","methods":["offset","digital"],"konicaPricingMode":"cost_plus","systemLocked":true},{"name":"Flyer","methods":["offset","digital"],"konicaPricingMode":"cost_plus","systemLocked":true},{"name":"Warranty Seal","methods":["digital"],"singleSideOnly":true,"konicaPricingMode":"fixed_sheet_tier","systemLocked":true},{"name":"Business Card","methods":["digital"],"singleSideOnly":false,"konicaPricingMode":"cost_plus","systemLocked":true},{"name":"Paper Sticker","methods":["offset"],"singleSideOnly":true,"konicaPricingMode":"cost_plus","systemLocked":true}],"digitalRates":[{"machine":"Konica","model":"sheet_side","rate":2000}],"digitalPriceTiers":[{"product":"Sticker","mediaType":"PP Gloss/Matte","mediaW":13,"mediaH":19,"machine":"Konica","minSheets":1,"pricePerSheet":15000},{"product":"Sticker","mediaType":"PP Gloss/Matte","mediaW":13,"mediaH":19,"machine":"Konica","minSheets":5,"pricePerSheet":10000},{"product":"Sticker","mediaType":"PP Gloss/Matte","mediaW":13,"mediaH":19,"machine":"Konica","minSheets":10,"pricePerSheet":6000},{"product":"Sticker","mediaType":"PP Gloss/Matte","mediaW":13,"mediaH":19,"machine":"Konica","minSheets":50,"pricePerSheet":5500},{"product":"Warranty Seal","mediaType":"Warranty Seal","mediaW":13,"mediaH":19,"machine":"Konica","minSheets":1,"pricePerSheet":20000},{"product":"Warranty Seal","mediaType":"Warranty Seal","mediaW":13,"mediaH":19,"machine":"Konica","minSheets":5,"pricePerSheet":15000},{"product":"Warranty Seal","mediaType":"Warranty Seal","machine":"Konica","minSheets":10,"pricePerSheet":14500}],"digitalPricingRulesVersion":1,"rollMachineCleanupVersion":1,"digitalRollLayoutVersion":1,"epsonEdgeMarginVersion":1,"routePricingVersion":1,"mediaProductCompatibilityVersion":1,"systemDataLockVersion":1}`);
  removeLegacyKonica13x19Presets();normalizeSystemData();
  localStorage.setItem(KEY,JSON.stringify(db));
 }
@@ -2171,10 +2322,24 @@ function calculateRollPanelCandidate(options){
  const totalCapacity=rollRows*rowCapacity,waste=Math.max(0,totalCapacity-qty);
  return{customerW:panelAcrossW,customerH,panelAcrossW,panelLength,panelsAcross,panelGap,fullPanelsWidth,remainderSpace,remainderGap,remainderWidth,remainderSheet,remainderCapacity,remainderUsed:remainderCapacity>0,panelCapacity,standardRowCapacity,rowCapacity,customerSheets,remainderStrips,standardDeliveredPieces,remainderDeliveredPieces,rollRows,requiredRollRows,printLength,usedSqft,billableSqft,billingPolicy:policy,totalCapacity,waste,sheet,best:sheet.best,edgeMarginLeft,edgeMarginRight,score:[billableSqft,usedSqft,waste,-rowCapacity]};
 }
+function calculateAutoMaxYieldRollCandidate(options,columns){
+ const count=Math.max(1,Math.floor(columns)),gap=Math.max(0,Number(options.panelGap)||0),usable=Math.max(0,Number(options.usableRollW)||0);
+ const maximum=(usable-Math.max(0,count-1)*gap)/count;
+ const minimumExclusive=(usable+gap)/(count+1)-gap;
+ const start=Math.max(.1,Math.ceil((minimumExclusive+1e-7)*10)/10),end=Math.floor((maximum+1e-7)*10)/10;
+ let best=null;
+ for(let width=start;width<=end+1e-7;width=Number((width+.1).toFixed(1))){
+  const candidate=calculateRollPanelCandidate({...options,customerW:width,forcedPanels:0});
+  if(!candidate||candidate.panelsAcross!==count)continue;
+  if(!best||candidate.rowCapacity>best.rowCapacity||(candidate.rowCapacity===best.rowCapacity&&candidate.panelAcrossW>best.panelAcrossW))best=candidate;
+ }
+ return best;
+}
 function calculateDigitalRollLayout(media,machine,W,artworkW,artworkH,gap){
  const qty=Math.max(1,Math.ceil(num('qty'))),edgeMarginLeft=Math.max(0,Number(machine.left)||0),edgeMarginRight=Math.max(0,Number(machine.right)||0),panelGap=num('digitalPanelGap');
  const policy=epsonBillingPolicy(media),customerH=policy.blockLength,usableW=W-edgeMarginLeft-edgeMarginRight;
  let customerW=num('digitalCustomerSheetW');
+ const automatic=$('digitalCustomerSheetW')?.dataset.autoDefault!=='false';
  if(customerW<=0){
   const columns=defaultRollColumns(W),totalGaps=Math.max(0,columns-1)*panelGap;
   customerW=Math.max(.1,(usableW-totalGaps)/columns);
@@ -2186,13 +2351,13 @@ function calculateDigitalRollLayout(media,machine,W,artworkW,artworkH,gap){
  if(invalid)return invalidRoll;
  const productionQty=isProductionQtyManual()?productionQtyInputValue():0;
  const common={rollW:W,usableRollW:usableW,edgeMarginLeft,edgeMarginRight,customerW,customerH,panelGap,artworkW,artworkH,gap,qty,shape,layout,allowArtworkRotate,useRemainder,billingPolicy:policy,productionQty};
- const candidates=[];
- const candidate=calculateRollPanelCandidate({...common,forcedPanels:0});
- if(candidate)candidates.push(candidate);
- const selected=candidates.sort((a,b)=>{
-  for(let index=0;index<a.score.length;index++)if(a.score[index]!==b.score[index])return a.score[index]-b.score[index];
-  return 0;
- })[0];
+ let selected=automatic?calculateAutoMaxYieldRollCandidate(common,defaultRollColumns(W)):null;
+ if(selected){
+  customerW=selected.panelAcrossW;
+  $('digitalCustomerSheetW').value=formatRollColumnInput(customerW);
+  $('digitalPanelsAcross').value=selected.panelsAcross;
+ }
+ if(!selected)selected=calculateRollPanelCandidate({...common,forcedPanels:0});
  if(!selected)return invalidRoll;
  const efficiency=selected.usedSqft?Math.min(100,qty*artworkW*artworkH/(selected.usedSqft*144)*100):0;
  return{valid:true,isRoll:true,media,machine,W,H:selected.printLength,sx:1,sy:1,panelW:selected.panelAcrossW,panelH:selected.panelLength,usableW,usableH:selected.sheet.usableH,gap,layoutGap:gap,bleed:0,artworkW,artworkH,best:selected.best,panelsPerMedia:selected.panelsAcross,piecesPerMedia:selected.rowCapacity,panelsNeeded:selected.customerSheets+selected.remainderStrips,mediaNeeded:1,efficiency,waste:selected.waste,printLength:selected.printLength,usedSqft:selected.usedSqft,billableSqft:selected.billableSqft,edgeMarginLeft,edgeMarginRight,panelGap,splitMode,useRemainder,...selected};
@@ -2265,10 +2430,7 @@ function updateRollSizeSummary(result){
  const target=$('digitalRollSizeSummary');
  if(!target)return;
  if(!result?.valid||!result.isRoll){target.innerHTML='';return}
- const rowSize=`${formatRollInches(result.W)}″ × ${formatRollInches(result.panelLength)}″`;
- const columnSize=`${formatRollInches(result.panelAcrossW)}″ × ${formatRollInches(result.panelLength)}″`;
- const printable=`${formatRollInches(result.usableW)}″ printable width`;
- target.innerHTML=`<span class="roll-size-chip">Roll row <strong>${rowSize}</strong></span><span class="roll-size-chip">Print column <strong>${columnSize}</strong></span><span class="roll-size-chip">Usable <strong>${printable}</strong></span>`;
+ target.textContent=`Usable area ${formatRollInches(result.usableW)} × ${formatRollInches(result.panelLength)} in`;
 }
 function rollPanelKeys(result){
  if(!result?.valid||!result.isRoll)return[];
@@ -2415,6 +2577,8 @@ function drawDigitalRollPreview(result){
  const x=usableX+(panel*(result.panelAcrossW+result.panelGap)+result.panelAcrossW/2)*s;
   if(result.panelAcrossW*s>42)ctx.fillText(`${formatRollInches(result.panelAcrossW)}″`,x,oy+result.panelLength*s+18);
  }
+ ctx.save();ctx.translate(ox+result.W*s+13,oy+result.panelLength*s/2);ctx.rotate(-Math.PI/2);
+ ctx.fillStyle='#4f46e5';ctx.font='800 11px Inter, Arial, sans-serif';ctx.textAlign='center';ctx.fillText(`${formatRollInches(result.panelLength)}″`,0,0);ctx.restore();
  updateRollSizeSummary(result);
  canvas.setAttribute('aria-label',`${formatRollInches(result.W)} inch roll with ${formatRollInches(result.edgeMarginLeft)} inch left and ${formatRollInches(result.edgeMarginRight)} inch right machine margins, split into ${result.panelsAcross} equal print columns with ${formatRollInches(result.panelGap)} inch total gaps, ${result.rowCapacity} pieces per roll row, ${formatRollInches(result.remainderWidth)} inch printable remainder`);
  canvas._splitMeta={usableX,scale:s,usableW:result.usableW,panelGap:result.panelGap,panelRegions};
@@ -2483,6 +2647,24 @@ async function copyCustomerQuote(fieldId,statusId){
 function copyDigitalCustomerQuote(){return copyCustomerQuote('digitalCustomerQuote','digitalCopyStatus')}
 function copyKonicaCustomerQuote(){return copyCustomerQuote('konicaCustomerQuote','konicaCopyStatus')}
 function getCurrentQuotePayload(){return lastQuotePayload?JSON.parse(JSON.stringify(lastQuotePayload)):null}
+function syncMobileDigitalLayout(){
+ const plan=$('digitalRollPlan'),sheetPreview=$('digitalProductionPreviewWrap'),slot=$('mobileRollLayoutSlot'),rollResult=$('digitalRollResult'),digitalResult=$('digitalResultFields'),rollHome=$('digitalRollPlanHome'),sheetHome=$('digitalSheetLayoutHome');
+ if(!plan||!sheetPreview||!slot||!rollResult||!digitalResult||!rollHome||!sheetHome)return;
+ const mobile=window.matchMedia('(max-width: 767px)').matches;
+ const showRoll=!rollResult.classList.contains('hidden');
+ const showSheet=!sheetPreview.classList.contains('hidden')&&!digitalResult.classList.contains('hidden');
+ const rollTarget=mobile&&showRoll?slot:rollHome.parentElement;
+ if(plan.parentElement!==rollTarget){
+  if(rollTarget===slot)slot.append(plan);
+  else rollHome.parentElement.insertBefore(plan,rollHome);
+ }
+ const sheetTarget=mobile&&showSheet?slot:digitalResult;
+ if(sheetPreview.parentElement!==sheetTarget){
+  if(sheetTarget===slot)slot.append(sheetPreview);
+  else digitalResult.insertBefore(sheetPreview,sheetHome);
+ }
+ slot.classList.toggle('hidden',!mobile||(!showRoll&&!showSheet));
+}
 function calculateDigital(){
  updateDigitalMethodBanner();
  const result=calculateDigitalLayout(),unit=val('unit');
@@ -2497,6 +2679,7 @@ function calculateDigital(){
  }
  $('digitalRollResult').classList.toggle('hidden',!roll||!result.valid);
  $('digitalProductionPreviewWrap').classList.toggle('hidden',roll);
+ syncMobileDigitalLayout();
  $('konicaLiveSummary').classList.toggle('hidden',!konicaSticker||!result.valid);
  $('konicaCustomerQuoteWrap').classList.toggle('hidden',!konicaSticker||!result.valid);
  $('digitalProductionMetrics').classList.toggle('hidden',konicaSticker);
@@ -2525,7 +2708,8 @@ function calculateDigital(){
   $('digitalMetric4Wrap').classList.toggle('hidden',konicaSticker);
   ['digitalPiecesPerPanel','digitalPanelsNeeded','digitalPiecesPerMedia','digitalMediaNeeded'].forEach(id=>$(id).textContent='0');
   $('digitalPricingModelResult').textContent='-';
-  $('digitalBillableResult').textContent='-';
+  $('digitalBillableTotal').textContent='-';
+  $('digitalBillableBreakdown').textContent='';
   ['digitalMediaCostResult','digitalPrintingCostResult','digitalSubtotalResult','digitalProfitResult','digitalFinalPriceResult'].forEach(id=>$(id).textContent=money(0));
   $('digitalPricePerPiece').value=money(0);
   $('digitalCustomerQuote').value='';
@@ -2540,7 +2724,7 @@ function calculateDigital(){
  const panelYield=roll?`${result.panelCapacity}`:`${result.best.count}`;
  const policy=resolveDigitalPricing(product,result.media,result.machine,result.mediaNeeded),rate=policy.rate,showSides=!isStickerProduct()&&result.machine.name==='Konica',sides=showSides?Math.max(1,Number(val('digitalPrintSides'))||1):1;
  const tier=policy.tier;
- let billable=0,mediaCost=0,printingCost=0,subtotal=0,markup=0,final=0,sellRate=0,billableLabel='',billableText='',pricingModel='',resultNote='',pricingKind=policy.kind,pricingError='';
+ let billable=0,mediaCost=0,printingCost=0,subtotal=0,markup=0,final=0,sellRate=0,billableLabel='',billableText='',billableBreakdown='',pricingModel='',resultNote='',pricingKind=policy.kind,pricingError='';
  if(policy.kind==='fixed_sheet_tier'){
   pricingKind='fixed_sheet_tier';
   billable=result.mediaNeeded;
@@ -2560,7 +2744,10 @@ function calculateDigital(){
   sellRate=Number(result.media.sellRateSqft)||0;
   billable=roll?result.billableSqft:result.mediaNeeded*sqftPerMedia;final=billable*sellRate;
   billableLabel='Billable SqFt';billableText=`${billable.toLocaleString()} sqft (${result.mediaNeeded.toLocaleString()} full media × ${sqftPerMedia.toLocaleString()})`;
-  if(roll)billableText=`${billable.toLocaleString()} sqft • ${result.rollRows.toLocaleString()} × ${result.billingPolicy.blockSqft} sqft block`;
+  if(roll){
+   billableText=`${billable.toLocaleString()} sqft`;
+   billableBreakdown=`• ${result.rollRows.toLocaleString()} × ${result.billingPolicy.blockSqft} sqft blocks`;
+  }
   pricingModel=`Final sell rate • ${money(sellRate)} / billed sqft`;
   resultNote=sellRate?(roll?`Epson block billing applied: ${result.billingPolicy.blockSqft} sqft per ${formatRollInches(result.billingPolicy.blockLength)}″ roll-row length. Markup is not added.`:'Full-media billed area pricing applied. Markup is not added.'):`Set the Epson Sell Rate / SqFt for ${result.media.type} in Media DB.`;
   if(!sellRate)pricingError='Missing Epson media rate';
@@ -2633,10 +2820,11 @@ function calculateDigital(){
   $('digitalCustomerSheetsResult').textContent=customerSheetsText;
   $('digitalRollProductionSummary').textContent=`${result.rollRows.toLocaleString()} roll rows • ${result.printLength.toFixed(1)}″ print length • L ${formatRollInches(result.edgeMarginLeft)}″ / R ${formatRollInches(result.edgeMarginRight)}″ machine margins`;
   const planStatus=$('digitalRollPlanStatus'),remainderNote=$('digitalRemainderNote'),hasRemainder=result.remainderWidth>.0005;
+  const autoMaxQty=$('digitalCustomerSheetW')?.dataset.autoDefault!=='false';
   planStatus.classList.toggle('warning',hasRemainder&&!result.remainderUsed);
   remainderNote.classList.toggle('warning',hasRemainder&&!result.remainderUsed);
-  if(!hasRemainder){planStatus.textContent='Full printable-width split';remainderNote.textContent=`${result.panelsAcross} equal print columns plus ${Math.max(0,result.panelsAcross-1)} × ${formatRollInches(result.panelGap)}″ gaps use the full ${formatRollInches(result.usableW)}″ printable roll width.`}
-  else if(result.remainderUsed){planStatus.textContent=`Auto-filled +${result.remainderDeliveredPieces.toLocaleString()}`;remainderNote.textContent=`After one ${formatRollInches(result.remainderGap)}″ separator, the ${formatRollInches(result.remainderWidth)}″ printable leftover fits ${result.remainderCapacity.toLocaleString()} pieces per row using ${remainderOrientation} × ${result.rollRows.toLocaleString()} rows = ${result.remainderDeliveredPieces.toLocaleString()} pieces included in Expected Delivery.`}
+  if(!hasRemainder){planStatus.textContent=autoMaxQty?'Auto Max Qty':'Full printable-width split';remainderNote.textContent=`${result.panelsAcross} equal print columns plus ${Math.max(0,result.panelsAcross-1)} × ${formatRollInches(result.panelGap)}″ gaps use the full ${formatRollInches(result.usableW)}″ printable roll width.`}
+  else if(result.remainderUsed){planStatus.textContent=autoMaxQty?`Auto Max Qty • +${result.remainderDeliveredPieces.toLocaleString()}`:`Auto-filled +${result.remainderDeliveredPieces.toLocaleString()}`;remainderNote.textContent=`After one ${formatRollInches(result.remainderGap)}″ separator, the ${formatRollInches(result.remainderWidth)}″ printable leftover fits ${result.remainderCapacity.toLocaleString()} pieces per row using ${remainderOrientation} × ${result.rollRows.toLocaleString()} rows = ${result.remainderDeliveredPieces.toLocaleString()} pieces included in Expected Delivery.`}
   else if(result.useRemainder){planStatus.textContent='Leftover too narrow';remainderNote.textContent=`After one ${formatRollInches(result.remainderGap)}″ separator, the ${formatRollInches(result.remainderWidth)}″ printable leftover cannot fit the current artwork in either allowed object orientation.`}
   else{planStatus.textContent='Leftover blank';remainderNote.textContent=`After one ${formatRollInches(result.remainderGap)}″ separator, the ${formatRollInches(result.remainderWidth)}″ printable leftover can fit ${potentialRemainder.toLocaleString()} pieces per row, but “Leave Leftover Blank” is selected.`}
   const productSize=`${num('finishedW')}×${num('finishedH')} ${unit}`;
@@ -2649,7 +2837,8 @@ function calculateDigital(){
  $('digitalPricingModelResult').textContent=pricingModel;
  $('digitalPrintSidesResult').textContent=sides===2?'Double Side':'Single Side';
  $('digitalBillableLabel').textContent=billableLabel;
- $('digitalBillableResult').textContent=billableText;
+ $('digitalBillableTotal').textContent=billableText;
+ $('digitalBillableBreakdown').textContent=billableBreakdown;
  $('digitalMediaCostResult').textContent=money(mediaCost);
  $('digitalPrintingCostResult').textContent=money(printingCost);
  $('digitalSubtotalResult').textContent=money(subtotal);
@@ -3088,8 +3277,9 @@ function renderAll(){
 }
 
 function setDatabaseExpanded(expanded,persist=true){
- $('databaseToggle').setAttribute('aria-expanded',String(expanded));
  $('databaseContent').classList.toggle('hidden',!expanded);
+ $('databaseSection').classList.toggle('admin-workspace-open',expanded);
+ $('adminWorkspaceOpen')?.setAttribute('aria-expanded',String(expanded));
  if(persist)localStorage.setItem(ADMIN_STATE_KEY,expanded?'1':'0');
 }
 
@@ -3100,14 +3290,16 @@ document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>
  ['productTab','paperTab','machineTab','cutTab','rateTab','policyTab','capacityTab','laminationTab'].forEach(id=>$(id).classList.add('hidden'));
  $(btn.dataset.tab).classList.remove('hidden');
 }));
-$('databaseToggle').addEventListener('click',()=>setDatabaseExpanded($('databaseToggle').getAttribute('aria-expanded')!=='true'));
+$('adminWorkspaceOpen')?.addEventListener('click',()=>setDatabaseExpanded(true));
+$('adminWorkspaceClose')?.addEventListener('click',()=>setDatabaseExpanded(false));
+document.addEventListener('keydown',event=>{if(event.key==='Escape'&&$('databaseSection').classList.contains('admin-workspace-open'))setDatabaseExpanded(false)});
 $('downloadDbBackup').addEventListener('click',downloadDatabaseBackup);
 $('uploadDbBackupButton').addEventListener('click',()=>$('uploadDbBackup').click());
 $('uploadDbBackup').addEventListener('change',event=>{importDatabaseBackup(event.target.files?.[0]);event.target.value=''});
 window.addEventListener('DOMContentLoaded',()=>document.querySelector('.mobile-nav a[href="#databaseSection"]')?.addEventListener('click',()=>setDatabaseExpanded(true)));
 
 const watched=['productName','customProductType','qty','frontColors','backColors','finishedW','finishedH','bleed','paperSelect','machineSelect','cutMode','cutSelect','productUpMode','manualProductUp','shapeGap','digitalGap','digitalShape','digitalLayout','digitalRotate','digitalPrintSides','digitalProfitMargin','digitalMachineSelect','digitalMediaW','digitalMediaH','digitalSplitX','digitalSplitY','digitalMarginL','digitalMarginR','digitalMarginT','digitalMarginB','digitalMarginLKonica','digitalMarginRKonica','digitalMarginTKonica','digitalMarginBKonica','digitalCustomerSheetW','digitalCustomerSheetH','digitalPanelGap','digitalSplitMode','digitalPanelsAcross','digitalUseRemainder','laminationSelect','laminationSide','laminationMode','flatLaminationFee','cuttingType','knifeMode','quoteCutSetup','quoteKnifeRate','dieBoardMode','dieShapeRate','manualDieBoardFee','dieCutRunRate','otherFinishing','otherCost','waste','profitMargin'];
-watched.forEach(id=>$(id).addEventListener('input',()=>{if(id==='qty')setProductionQtyManual(false);if(id==='paperSelect')renderOffsetMachines();if(['paperSelect','machineSelect','cutMode'].includes(id))renderCuts();if(id.includes('Konica'))syncKonicaMarginInputs(id);calculate()}));
+watched.forEach(id=>$(id).addEventListener('input',()=>{if(id==='qty')setProductionQtyManual(false);if(id==='digitalCustomerSheetW')updateRollManualState(true);if(id==='paperSelect')renderOffsetMachines();if(['paperSelect','machineSelect','cutMode'].includes(id))renderCuts();if(id.includes('Konica'))syncKonicaMarginInputs(id);calculate()}));
 
 $('printingMethod').addEventListener('change',()=>{setProductionQtyManual(false);renderProductFilters();renderPaperSizes();renderDigitalMedia();renderCuts();calculate()});
 $('productTypeSelect').addEventListener('change',()=>{setProductionQtyManual(false);syncProductMethodAvailability();renderProductFilters();selectRecommendedMediaForProduct();renderProductFilters();renderPaperSizes();renderDigitalMedia();renderCuts();calculate()});
@@ -3116,7 +3308,6 @@ $('digitalShape').addEventListener('change',()=>{loadDigitalMediaDefaults();calc
 $('digitalProductionDetails').addEventListener('toggle',()=>{if($('digitalProductionDetails').open&&val('printingMethod')==='digital'){const result=calculateDigitalLayout();drawDigitalPreview(result);drawDigitalRollPreview(result)}});
 if($('digitalSplitPosition'))$('digitalSplitPosition').addEventListener('input',event=>applyRollSplitWidth(event.target.value));
 if($('digitalRollReset'))$('digitalRollReset').addEventListener('click',()=>{resetRollLayoutDefaults(true);calculate()});
-if($('digitalCustomerSheetW'))$('digitalCustomerSheetW').addEventListener('input',()=>updateRollManualState(true));
 if($('digitalPanelGap'))$('digitalPanelGap').addEventListener('input',()=>{if($('digitalCustomerSheetW')?.dataset.autoDefault!=='false'){resetRollLayoutDefaults(false);calculate()}});
 if($('digitalProductionQty'))$('digitalProductionQty').addEventListener('input',()=>{
  setProductionQtyManual(true);
@@ -3178,6 +3369,7 @@ let panelResizeFrame=0;
 window.addEventListener('resize',()=>{
  cancelAnimationFrame(panelResizeFrame);
  panelResizeFrame=requestAnimationFrame(()=>{
+  syncMobileDigitalLayout();
   if(lastDigitalRollResult?.valid&&lastDigitalRollResult.isRoll)drawDigitalRollPreview(lastDigitalRollResult);
   if($('rollPanelZoomDialog').open)updateRollPanelZoom();
  });
