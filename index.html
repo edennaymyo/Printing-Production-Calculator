@@ -83,7 +83,7 @@ button.small{padding:7px 9px;font-size:12px}
 .product-qty-inline input{width:100%;box-sizing:border-box}
 .product-qty-card{padding:8px 9px!important;border:1px solid #c7d2fe!important;border-radius:12px!important;background:#f8faff!important}
 .product-qty-card label{color:#3730a3!important;font-weight:900;font-size:12px!important;letter-spacing:.01em}.product-qty-card input{border-color:#a5b4fc!important;background:#fff!important;font-weight:900}
-.product-order-qty{padding:8px 9px;border:1px solid var(--line);border-radius:12px;background:#fff}.product-order-qty label{color:var(--muted);font-weight:800}.product-order-qty input{font-weight:700}
+.product-order-qty{padding:8px 9px;border:1px solid var(--line);border-radius:12px;background:#fff}.product-order-qty label{color:var(--muted);font-weight:800}.product-order-qty input{font-weight:700}.manual-quantity-input{-moz-appearance:textfield;appearance:textfield;text-align:center;font-variant-numeric:tabular-nums}.manual-quantity-input::-webkit-inner-spin-button,.manual-quantity-input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
 .product-choice-row{align-items:end}
 .product-choice-row>div,.product-size-fields>div,.product-qty-inline>div{min-width:0}
 .product-size-block{padding:11px}
@@ -191,6 +191,9 @@ canvas{width:100%;height:240px;border:1px solid var(--line);border-radius:14px;b
 .panel-zoom-dialog{width:min(860px,calc(100vw - 28px));max-width:860px;max-height:calc(100vh - 28px);padding:0;border:0;border-radius:20px;background:#fff;color:var(--ink);box-shadow:0 28px 80px rgba(15,23,42,.28);overflow:auto}
 .panel-zoom-dialog::backdrop{background:rgba(15,23,42,.58);backdrop-filter:blur(3px)}
 .panel-zoom-shell{padding:18px}
+.database-access-dialog{width:min(360px,calc(100vw - 28px));padding:0;border:0;border-radius:18px;background:#fff;color:var(--ink);box-shadow:0 28px 80px rgba(15,23,42,.28)}
+.database-access-dialog::backdrop{background:rgba(15,23,42,.5);backdrop-filter:blur(3px)}
+.database-access-form{padding:20px}.database-access-form h3{margin:0;font-size:18px}.database-access-form p{margin:6px 0 16px;color:var(--muted);font-size:12px;line-height:1.45}.database-access-form label{font-weight:800;color:#475569}.database-access-form input{min-height:40px}.database-access-error{min-height:18px;margin:7px 0 0!important;color:var(--danger)!important;font-weight:800}.database-access-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}.database-access-actions button{min-height:38px}
 .panel-zoom-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:12px}
 .panel-zoom-head h3{margin:0;font-size:20px}.panel-zoom-head p{margin:4px 0 0;color:var(--muted);font-size:12px;line-height:1.45}
 .panel-zoom-close{width:44px;min-width:44px;height:44px;padding:0;border-radius:50%;background:#f1f5f9;color:#334155;font-size:24px;line-height:1}
@@ -741,7 +744,7 @@ button{-webkit-tap-highlight-color:transparent}
 <div><label id="digitalProductionQtyLabel" for="digitalProductionQty">Production Qty</label><input id="digitalProductionQty" type="number" min="1" max="999999" step="1" inputmode="numeric" value="1" data-custom-stepper></div>
 </div>
 </div>
-<div class="product-order-qty"><label>Order Pcs</label><input id="qty" type="number" min="0" max="999999" step="1" inputmode="numeric" value="1" data-custom-stepper></div>
+<div class="product-order-qty"><label>Order Pcs</label><input id="qty" class="manual-quantity-input" type="number" min="0" max="999999" step="1" inputmode="numeric" value="1"></div>
 </div>
 <div class="subsection product-finishing" id="productFinishingSection">
 <h3>Finishing</h3>
@@ -1268,15 +1271,28 @@ button{-webkit-tap-highlight-color:transparent}
 </div>
 </dialog>
 
+<dialog class="database-access-dialog" id="databaseAccessDialog" aria-labelledby="databaseAccessTitle">
+<form class="database-access-form" id="databaseAccessForm">
+<h3 id="databaseAccessTitle">Database &amp; Admin</h3>
+<p>Enter the access password to manage database settings.</p>
+<label for="databaseAccessPassword">Password</label>
+<input id="databaseAccessPassword" type="password" inputmode="numeric" autocomplete="current-password" required>
+<p class="database-access-error" id="databaseAccessError" role="alert"></p>
+<div class="database-access-actions"><button class="secondary" id="databaseAccessCancel" type="button">Cancel</button><button type="submit">Unlock</button></div>
+</form>
+</dialog>
+
 <script>
 const KEY='offset_printing_prod_v28';
 const ORPHAN_BACKUP_KEY=`${KEY}_before_orphan_cleanup_v1`;
 const ADMIN_STATE_KEY=`${KEY}_admin_expanded_v1`;
+const DATABASE_ACCESS_PASSWORD='2112';
 let db=JSON.parse(localStorage.getItem(KEY)||'null');
 let lastUnit='mm';
 let lastDigitalRollResult=null;
 let activeRollPanelKey=0;
 let lastQuotePayload=null;
+let databaseAccessUnlocked=false;
 
 const $=id=>document.getElementById(id);
 const num=id=>Number($(id)?.value)||0;
@@ -3277,15 +3293,26 @@ function renderAll(){
  $('laminationTable').innerHTML='<tr><th>Name</th><th>Rate / sq.in</th><th>Action</th></tr>'+db.laminations.map((l,i)=>`<tr><td><input id="lamName_${i}" value="${l.name}"></td><td><input id="lamRate_${i}" type="number" value="${l.rate}"></td><td><div class="actions"><button class="icon-action save" title="Save lamination" aria-label="Save lamination" onclick="saveLamination(${i})"></button><button class="icon-action delete danger" title="Delete lamination" aria-label="Delete lamination" onclick="del('laminations',${i})"></button></div></td></tr>`).join('');
 }
 
+function requestDatabaseAccess(){
+ const dialog=$('databaseAccessDialog'),input=$('databaseAccessPassword');
+ if(!dialog||dialog.open)return;
+ $('databaseAccessError').textContent='';
+ input.value='';
+ dialog.showModal();
+ setTimeout(()=>input.focus(),0);
+}
 function setDatabaseExpanded(expanded,persist=true){
+ if(expanded&&!databaseAccessUnlocked){requestDatabaseAccess();return false}
  $('databaseContent').classList.toggle('hidden',!expanded);
  $('databaseSection').classList.toggle('admin-workspace-open',expanded);
  $('adminWorkspaceOpen')?.setAttribute('aria-expanded',String(expanded));
  if(persist)localStorage.setItem(ADMIN_STATE_KEY,expanded?'1':'0');
+ if(!expanded)databaseAccessUnlocked=false;
+ return true;
 }
 
 document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{
- setDatabaseExpanded(true);
+ if(!setDatabaseExpanded(true))return;
  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
  btn.classList.add('active');
  ['productTab','paperTab','machineTab','cutTab','rateTab','policyTab','capacityTab','laminationTab'].forEach(id=>$(id).classList.add('hidden'));
@@ -3294,6 +3321,15 @@ document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>
 $('adminWorkspaceOpen')?.addEventListener('click',()=>setDatabaseExpanded(true));
 $('adminWorkspaceClose')?.addEventListener('click',()=>setDatabaseExpanded(false));
 document.addEventListener('keydown',event=>{if(event.key==='Escape'&&$('databaseSection').classList.contains('admin-workspace-open'))setDatabaseExpanded(false)});
+$('databaseAccessForm')?.addEventListener('submit',event=>{
+ event.preventDefault();
+ const input=$('databaseAccessPassword');
+ if(input.value!==DATABASE_ACCESS_PASSWORD){$('databaseAccessError').textContent='Incorrect password. Try again.';input.select();return}
+ databaseAccessUnlocked=true;
+ $('databaseAccessDialog').close();
+ setDatabaseExpanded(true);
+});
+$('databaseAccessCancel')?.addEventListener('click',()=>$('databaseAccessDialog')?.close());
 $('downloadDbBackup').addEventListener('click',downloadDatabaseBackup);
 $('uploadDbBackupButton').addEventListener('click',()=>$('uploadDbBackup').click());
 $('uploadDbBackup').addEventListener('change',event=>{importDatabaseBackup(event.target.files?.[0]);event.target.value=''});
@@ -3400,7 +3436,7 @@ $('digitalTierProduct').addEventListener('change',renderDigitalTierSelectors);
 $('digitalTierMachine').addEventListener('change',renderDigitalTierSelectors);
 ['cOW','cOH','cW','cH'].forEach(id=>$(id).addEventListener('input',()=>{const f=bestPack(num('cOW'),num('cOH'),num('cW'),num('cH'));$('cPieces').value=f.count;$('cNote').value=f.note}));
 
-setDatabaseExpanded(localStorage.getItem(ADMIN_STATE_KEY)==='1',false);
+setDatabaseExpanded(false,false);
 renderAll();
 enhanceSegmentedSelects();
 enhanceNumberInputs();
