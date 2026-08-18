@@ -73,17 +73,18 @@ button.small{padding:7px 9px;font-size:12px}
 .product-qty-card .production-qty-card-head h4{font-size:12px}
 .product-qty-card .production-qty-card-head>div{display:flex;align-items:baseline;gap:7px;min-width:0}
 .product-qty-card .production-qty-auto{min-height:34px;padding:6px 11px;margin-left:auto}
-.product-qty-card .production-qty-grid{display:grid;grid-template-columns:1fr;gap:0;margin-top:0}
+.product-qty-card .production-qty-grid{display:block;margin-top:0}
+.product-qty-card .production-qty-grid>div{display:grid;grid-template-columns:minmax(0,1fr) minmax(150px,190px);align-items:center;gap:10px}
 .product-qty-card input{max-width:none}
-.product-qty-card .production-qty-grid label{font-size:11px}
+.product-qty-card .production-qty-grid label{margin:0;font-size:13px}
 .production-qty-inline{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;align-items:end}
 .product-qty-inline{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;align-items:end}
 .product-qty-inline>div{min-width:0}
 .product-qty-inline label{display:block}
 .product-qty-inline input{width:100%;box-sizing:border-box}
 .product-qty-card{padding:8px 9px!important;border:1px solid #c7d2fe!important;border-radius:12px!important;background:#f8faff!important}
-.product-qty-card label{color:#3730a3!important;font-weight:900;font-size:12px!important;letter-spacing:.01em}.product-qty-card input{border-color:#a5b4fc!important;background:#fff!important;font-weight:900}
-.product-order-qty{padding:8px 9px;border:1px solid var(--line);border-radius:12px;background:#fff}.product-order-qty label{color:var(--muted);font-weight:800}.product-order-qty input{font-weight:700}.manual-quantity-input{-moz-appearance:textfield;appearance:textfield;text-align:center;font-variant-numeric:tabular-nums}.manual-quantity-input::-webkit-inner-spin-button,.manual-quantity-input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.product-qty-card label{color:#3730a3!important;font-weight:900;font-size:13px!important;letter-spacing:.01em}.product-qty-card input{border-color:#a5b4fc!important;background:#fff!important;font-weight:900}
+.product-order-qty{padding:8px 9px;border:1px solid var(--line);border-radius:12px;background:#fff}.product-order-qty label{color:var(--muted);font-weight:800}.product-order-qty input{font-weight:700}.product-order-qty.digital-total-output{background:#fafafa;border-color:#e5e7eb}.product-order-qty.digital-total-output label{font-size:10px;color:#7c8798;font-weight:800}.product-order-qty.digital-total-output input{background:transparent;color:#475569;cursor:default;font-size:13px;font-weight:800}.manual-quantity-input{-moz-appearance:textfield;appearance:textfield;text-align:center;font-variant-numeric:tabular-nums}.manual-quantity-input::-webkit-inner-spin-button,.manual-quantity-input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
 .product-choice-row{align-items:end}
 .product-choice-row>div,.product-size-fields>div,.product-qty-inline>div{min-width:0}
 .product-size-block{padding:11px}
@@ -753,7 +754,7 @@ button{-webkit-tap-highlight-color:transparent}
 <div><label id="digitalProductionQtyLabel" for="digitalProductionQty">Production Qty</label><input id="digitalProductionQty" type="number" min="1" max="999999" step="1" inputmode="numeric" value="1" data-custom-stepper></div>
 </div>
 </div>
-<div class="product-order-qty"><label>Order Pcs</label><input id="qty" class="manual-quantity-input" type="number" min="0" max="999999" step="1" inputmode="numeric" value="1"></div>
+<div class="product-order-qty" id="productQuantityOutput"><label id="productQuantityLabel" for="qty">Order Pcs</label><input id="qty" class="manual-quantity-input" type="number" min="0" max="999999" step="1" inputmode="numeric" value="1"></div>
 </div>
 <div class="subsection product-finishing" id="productFinishingSection">
 <h3>Finishing</h3>
@@ -1167,7 +1168,7 @@ button{-webkit-tap-highlight-color:transparent}
 </div>
 <div class="roll-live-summary">
 <div class="roll-live-primary"><span>Expected Delivery</span><strong id="digitalExpectedDeliveryResult">-</strong></div>
-<div class="roll-live-secondary"><span>Pieces / Roll Row<b id="digitalRollRowPieces">-</b></span><span>Extra Pieces<b id="digitalExtraPiecesResult">-</b></span></div>
+<div class="roll-live-secondary"><span>Pieces / Roll Row<b id="digitalRollRowPieces">-</b></span><span class="hidden" aria-hidden="true">Extra Pieces<b id="digitalExtraPiecesResult">-</b></span></div>
 </div>
 <div class="roll-legacy-fields" aria-hidden="true">
 <span id="digitalCustomerSheetPieces">0</span><span id="digitalCustomerSheetSizeResult">-</span><span id="digitalCustomerSheetUsableResult">-</span><span id="digitalCustomerSheetLayoutResult">-</span>
@@ -1249,7 +1250,7 @@ button{-webkit-tap-highlight-color:transparent}
 <div class="kv"><span>Layout</span><b id="digitalLayoutResult">-</b></div>
 <div class="kv"><span>Orientation</span><b id="digitalOrientationResult">-</b></div>
 <div class="kv"><span>Layout Efficiency</span><b id="digitalEfficiencyResult">-</b></div>
-<div class="kv"><span id="digitalWasteLabel">Full Media Capacity Waste</span><b id="digitalWasteResult">-</b></div>
+<div class="kv" id="digitalWasteRow"><span id="digitalWasteLabel">Full Media Capacity Waste</span><b id="digitalWasteResult">-</b></div>
 </div>
 </details>
 <div class="note" id="digitalResultNote">Capacity/layout POC only. Digital media, ink/click, finishing, and machine rates are not included yet.</div>
@@ -1381,24 +1382,29 @@ function productionQtyInputValue(){
 function shouldShowProductionQty(result){
  return !!(result?.valid&&(result.isRoll||(!result.isRoll&&isStickerProduct()&&result.machine)));
 }
+function syncProductQuantityPresentation(result){
+ const output=$('productQuantityOutput'),label=$('productQuantityLabel'),input=$('qty');
+ if(!output||!label||!input)return;
+ const digital=shouldShowProductionQty(result);
+ output.classList.toggle('digital-total-output',digital);
+ label.textContent=digital?'Total Pcs':'Order Pcs';
+ input.readOnly=digital;
+ input.inputMode=digital?'none':'numeric';
+}
 function syncProductionQtyCard(result){
  const card=$('digitalProductionQtyCard');
  if(!card)return;
- const show=shouldShowProductionQty(result),orderQty=Math.max(1,Math.ceil(num('qty')));
+ const show=shouldShowProductionQty(result);
  card.classList.toggle('hidden',!show);
+ syncProductQuantityPresentation(result);
  if(!show)return;
  const roll=!!result.isRoll,label=roll?'Roll Row Qty':'Sheet Qty',unit=roll?'roll rows':'sheets',capacity=roll?result.rowCapacity:result.piecesPerMedia;
- const required=roll?result.requiredRollRows:result.requiredMediaNeeded,actual=roll?result.rollRows:result.mediaNeeded,total=roll?result.totalCapacity:result.totalCapacity,extra=Math.max(0,total-orderQty);
- if(!isProductionQtyManual()){
-  const autoQty=required||actual||1;
-  $('digitalProductionQty').value=autoQty;
- }
+ $('qty').value=String(productionQtyInputValue()*capacity);
  $('digitalProductionQtyLabel').textContent=label;
  $('digitalProductionQty').setAttribute('aria-label',label);
  syncCustomNumberLabel($('digitalProductionQty'));
  syncNumberControlState($('digitalProductionQty'));
- // Order Pcs is already shown in Product; keep this card focused on the production unit only.
- setProductionQtyManual(isProductionQtyManual());
+ setProductionQtyManual(true);
 }
 
 function inferredMediaProductNames(media){
@@ -1476,7 +1482,6 @@ function enhanceNumberInputs(root=document){
     if(input.disabled||input.readOnly)return;
     stepCustomNumber(input,direction);
     input.dispatchEvent(new Event('input',{bubbles:true}));
-    input.focus();
    });
    return button;
   };
@@ -2693,7 +2698,10 @@ function syncMobileDigitalLayout(){
 }
 function calculateDigital(){
  updateDigitalMethodBanner();
- const result=calculateDigitalLayout(),unit=val('unit');
+ if(isStickerProduct()&&selectedDigitalMachine())setProductionQtyManual(true);
+ let result=calculateDigitalLayout(),unit=val('unit');
+ syncProductionQtyCard(result);
+ if(shouldShowProductionQty(result))result=calculateDigitalLayout();
  const roll=!!result.isRoll;
  const konicaSticker=!roll&&isStickerProduct()&&!!result.machine;
  lastDigitalRollResult=roll?result:null;
@@ -2745,7 +2753,6 @@ function calculateDigital(){
   $('digitalResultNote').textContent=missingMachine?'Check this media Production Route and Machine DB.':'Check media size, machine limits, margins, product size, and gap.';
   drawDigitalPreview(result);drawDigitalRollPreview(result);return;
  }
- syncProductionQtyCard(result);
  const product=currentProductType(),pattern=result.best.mode==='Honeycomb'?`${result.best.cols}/${result.best.minCols} × ${result.best.rows}`:`${result.best.cols} × ${result.best.rows}`;
  const panelYield=roll?`${result.panelCapacity}`:`${result.best.count}`;
  const policy=resolveDigitalPricing(product,result.media,result.machine,result.mediaNeeded),rate=policy.rate,showSides=!isStickerProduct()&&result.machine.name==='Konica',sides=showSides?Math.max(1,Number(val('digitalPrintSides'))||1):1;
@@ -2815,13 +2822,14 @@ function calculateDigital(){
  $('digitalEfficiencyResult').textContent=result.efficiency.toFixed(1)+'%';
  $('digitalWasteLabel').textContent=roll||konicaSticker?'Extra Pieces Produced':'Full Media Capacity Waste';
  $('digitalWasteResult').textContent=result.waste.toLocaleString()+' pieces';
+ $('digitalWasteRow').classList.toggle('hidden',roll||konicaSticker);
  $('digitalPreviewTitle').textContent=konicaSticker?'One Sheet Layout':'One Digital Panel Layout';
  if(konicaSticker){
   $('konicaExpectedDeliveryResult').textContent=`${result.totalCapacity.toLocaleString()} pieces`;
   $('konicaSheetFormulaResult').textContent=`${result.mediaNeeded.toLocaleString()} sheets × ${result.best.count.toLocaleString()} pieces / sheet`;
   $('konicaSheetLayoutCaption').textContent=`${result.best.count.toLocaleString()} pieces per ${result.W.toFixed(2)} × ${result.H.toFixed(2)} in sheet`;
   const orderQty=Math.max(1,Math.ceil(num('qty'))),productSize=`${num('finishedW')}×${num('finishedH')} ${unit}`;
-  $('konicaCustomerQuote').value=`${product.name} • ${productSize}\nOrder: ${orderQty.toLocaleString()} pcs\nExpected delivery: ${result.totalCapacity.toLocaleString()} pcs${result.waste?` (+${result.waste.toLocaleString()} extra)`:''}\nTotal price: ${money(final)}\nPrice / piece: ${money(orderQty?final/orderQty:0)}`;
+  $('konicaCustomerQuote').value=`${product.name} • ${productSize}\nOrder: ${orderQty.toLocaleString()} pcs\nExpected delivery: ${result.totalCapacity.toLocaleString()} pcs\nTotal price: ${money(final)}\nPrice / piece: ${money(orderQty?final/orderQty:0)}`;
   $('konicaCopyStatus').textContent='';
  }
  if(roll){
@@ -2855,7 +2863,7 @@ function calculateDigital(){
   else{planStatus.textContent='Leftover blank';remainderNote.textContent=`After one ${formatRollInches(result.remainderGap)}″ separator, the ${formatRollInches(result.remainderWidth)}″ printable leftover can fit ${potentialRemainder.toLocaleString()} pieces per row, but “Leave Leftover Blank” is selected.`}
   const productSize=`${num('finishedW')}×${num('finishedH')} ${unit}`;
   const remainderMessage=result.remainderUsed?` Leftover strips add ${result.remainderDeliveredPieces.toLocaleString()} pieces using ${remainderOrientation}.`:result.remainderWidth>.0005?(result.useRemainder?' Leftover cannot fit the current artwork.':' Leftover is left blank.'):'';
-  $('digitalCustomerQuote').value=`${product.name} • ${productSize}\nOrder: ${orderQty.toLocaleString()} pcs\nExpected delivery: ${result.totalCapacity.toLocaleString()} pcs${result.waste?` (+${result.waste.toLocaleString()} extra)`:''}\nTotal price: ${money(final)}\nPrice / piece: ${money(orderQty?final/orderQty:0)}`;
+  $('digitalCustomerQuote').value=`${product.name} • ${productSize}\nOrder: ${orderQty.toLocaleString()} pcs\nExpected delivery: ${result.totalCapacity.toLocaleString()} pcs\nTotal price: ${money(final)}\nPrice / piece: ${money(orderQty?final/orderQty:0)}`;
   $('digitalCopyStatus').textContent='';
  }else{
   $('digitalPanelLabel').textContent=konicaSticker?'Selected Sheet':'Panel Size';$('digitalUsableLabel').textContent='Usable Area';$('digitalWasteLabel').textContent=konicaSticker?'Extra Pieces Produced':'Full Media Capacity Waste';$('digitalPreviewTitle').textContent=konicaSticker?'One Sheet Layout':'One Digital Panel Layout';
@@ -3033,7 +3041,7 @@ function calculateOffset(){
 function calculate(){
  syncMethodUI();
  if(val('printingMethod')==='digital')calculateDigital();
- else calculateOffset();
+ else{syncProductionQtyCard(null);calculateOffset()}
 }
 function manualLayout(c,count){
  const cols=Math.ceil(Math.sqrt(count)),rows=Math.ceil(count/cols),w=c.w/cols,h=c.h/rows,out=[];
